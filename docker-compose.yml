@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: edlearn-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: edlearn
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: edlearn_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - edlearn-network
+    restart: unless-stopped
+
+  # Dùng bản mặc định
+  redis:
+    image: redis:7
+    container_name: edlearn-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - edlearn-network
+    restart: unless-stopped
+
+  # chromadb:
+  #   image: chromadb/chroma:latest
+  #   container_name: edlearn-chroma
+  #   ports:
+  #     - "8000:8000"
+  #   volumes:
+  #     - chroma_data:/chroma/chroma
+  #   networks:
+  #     - edlearn-network
+  #   restart: unless-stopped
+
+  # # Ollama vẫn giữ nguyên vì image chính thức của họ đã tối ưu sẵn
+  # ollama:
+  #   image: ollama/ollama:latest
+  #   container_name: edlearn-ollama
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #   networks:
+  #     - edlearn-network
+  #   restart: unless-stopped
+
+networks:
+  edlearn-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  # chroma_data:
+  # ollama_data:

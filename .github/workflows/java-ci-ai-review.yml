@@ -47,7 +47,7 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           github_action_config.auto_review: "true"
-
+          config.model: "o4-mini"
           # ĐÂY LÀ NƠI BƠM PROMPT CỦA BẠN VÀO
           pr_reviewer.extra_instructions: |
             Bạn là một Senior Software Engineer và Tech Lead với hơn 10 năm kinh nghiệm.
