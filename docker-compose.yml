@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   postgres:
-    image: postgres:17
+    image: postgres:18-bookworm
     container_name: edlearn-postgres
     ports:
       - "5432:5432"
@@ -11,14 +11,14 @@ services:
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: edlearn_db
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     networks:
       - edlearn-network
     restart: unless-stopped
 
   # Dùng bản mặc định
   redis:
-    image: redis:7
+    image: redis:8
     container_name: edlearn-redis
     ports:
       - "6379:6379"
