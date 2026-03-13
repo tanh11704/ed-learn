@@ -66,12 +66,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
             // Lỗi 1: Token hết thời gian sống
             sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token đã hết hạn. Vui lòng refresh token.");
+            return;
         } catch (JwtException | IllegalArgumentException e) {
             // Lỗi 2: Token bị chỉnh sửa bậy bạ, sai chữ ký (Signature)
             sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token không hợp lệ hoặc bị giả mạo.");
+            return;
         } catch (Exception e) {
             // Lỗi 3: Các ngoại lệ khác
             sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi trong quá trình xác thực.");
+            return;
         }
 
         filterChain.doFilter(request, response);
