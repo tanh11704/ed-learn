@@ -3,13 +3,13 @@ spring:
     name: core-backend
   datasource:
     url: jdbc:postgresql://localhost:5432/edlearn_db
-    username: edlearn
-    password: 12345
+    username: ${DB_USERNAME:edlearn}
+    password: ${DB_PASSWORD:12345}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:

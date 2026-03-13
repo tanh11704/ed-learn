@@ -17,11 +17,14 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @Column(name = "expired_date", nullable = false)
-    private Instant expiredDate;
+    @Column(name = "expires_at", nullable = false)
+    private Instant expiresAt;
 
     @Column(name = "device_info")
     private String deviceInfo;
+
+    @Column(nullable = false)
+    private Boolean revoked = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
