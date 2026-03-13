@@ -17,8 +17,8 @@ public class RefreshToken extends BaseEntity {
     @Column(nullable = false, unique = true)
     private String token;
 
-    @Column(name = "expires_at", nullable = false)
-    private Instant expiresAt;
+    @Column(name = "expired_date", nullable = false)
+    private Instant expiredDate;
 
     @Column(name = "device_info")
     private String deviceInfo;
