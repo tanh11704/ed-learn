@@ -49,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtService.generateAccessToken(savedUser);
         String refreshToken = jwtService.generateRefreshToken();
-        
+
         saveUserRefreshToken(savedUser, refreshToken);
 
         return new AuthResponse(accessToken, refreshToken);
@@ -76,7 +76,7 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken token = RefreshToken.builder()
                 .user(user)
                 .token(refreshToken)
-                .expiredDate(Instant.now().plusMillis(refreshExpiration))
+                .expiresAt(Instant.now().plusMillis(refreshExpiration))
                 .revoked(false)
                 // .deviceInfo(...) // Sau này nếu lấy được User-Agent từ Request thì truyền vào đây
                 .build();
