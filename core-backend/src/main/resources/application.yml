@@ -3,8 +3,8 @@ spring:
     name: core-backend
   datasource:
     url: jdbc:postgresql://localhost:5432/edlearn_db
-    username: root
-    password: rootpassword
+    username: edlearn
+    password: 12345
     driver-class-name: org.postgresql.Driver
 
   jpa:
