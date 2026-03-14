@@ -39,7 +39,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd ~/edtech
+            cd ~/edlearn
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/vku-edtech-backend:latest
             docker-compose up -d --force-recreate backend
             docker image prune -f
