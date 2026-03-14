@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,17 +49,16 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
-            HttpServletRequest request,
+            Authentication authentication,
             @RequestBody @Valid LogoutRequest logoutRequest
     ) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authentication == null || authentication.getCredentials() == null) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Thiếu hoặc sai định dạng Access Token");
             return ResponseEntity.badRequest().body(errorResponse);
         }
 
-        String accessToken = authHeader.substring(7);
+        String accessToken = (String) authentication.getCredentials();
 
         authService.logout(accessToken, logoutRequest.refreshToken());
 
