@@ -3,10 +3,10 @@ name: CD Pipeline EdTech
 on:
   push:
     branches: ["main"]
-    paths
-      - 'core-backend/**'
-      - '.github/workflows/deploy.yml'
-      - '.github/workflows/java-ci-ai-review.yml'
+    paths:
+      - "core-backend/**"
+      - ".github/workflows/deploy.yml"
+      - ".github/workflows/java-ci-ai-review.yml"
 
 jobs:
   build-and-push:
