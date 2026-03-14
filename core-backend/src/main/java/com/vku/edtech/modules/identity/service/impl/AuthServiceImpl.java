@@ -15,6 +15,7 @@ import com.vku.edtech.shared.exception.ResourceNotFoundException;
 import com.vku.edtech.shared.exception.TokenRefreshException;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,6 +28,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -126,9 +128,9 @@ public class AuthServiceImpl implements AuthService {
                 );
             }
         } catch (ExpiredJwtException e) {
-            System.out.println("Access token đã hết hạn, bỏ qua bước đưa vào blacklist.");
+            log.info("Access token đã hết hạn, bỏ qua bước đưa vào blacklist.");
         } catch (Exception e) {
-            System.err.println("Lỗi khi parse Access Token trong hàm logout: " + e.getMessage());
+            log.error("Lỗi khi parse Access Token trong hàm logout: {}", e.getMessage(), e);
         }
     }
 
