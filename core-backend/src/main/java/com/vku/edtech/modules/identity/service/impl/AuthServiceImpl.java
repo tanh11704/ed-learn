@@ -13,6 +13,7 @@ import com.vku.edtech.modules.identity.service.AuthService;
 import com.vku.edtech.shared.exception.EmailAlreadyExistsException;
 import com.vku.edtech.shared.exception.ResourceNotFoundException;
 import com.vku.edtech.shared.exception.TokenRefreshException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -87,6 +88,10 @@ public class AuthServiceImpl implements AuthService {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(req.refreshToken())
                 .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
 
+        if (Boolean.TRUE.equals(refreshToken.getRevoked())) {
+            throw new TokenRefreshException("Token đã bị thu hồi");
+        }
+
         if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
             throw new TokenRefreshException("Phiên đăng nhập đã hết hạn");
         }
@@ -108,16 +113,22 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.findByToken(refreshTokenStr)
                 .ifPresent(refreshTokenRepository::delete);
 
-        Date expirationDate = jwtService.extractExpiration(accessToken);
-        long ttlInMillis = expirationDate.getTime() - System.currentTimeMillis();
+        try {
+            Date expirationDate = jwtService.extractExpiration(accessToken);
+            long ttlInMillis = expirationDate.getTime() - System.currentTimeMillis();
 
-        if (ttlInMillis > 0) {
-            redisTemplate.opsForValue().set(
-                    "blacklist:" + accessToken,
-                    "true",
-                    ttlInMillis,
-                    TimeUnit.MILLISECONDS
-            );
+            if (ttlInMillis > 0) {
+                redisTemplate.opsForValue().set(
+                        "blacklist:" + accessToken,
+                        "true",
+                        ttlInMillis,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        } catch (ExpiredJwtException e) {
+            System.out.println("Access token đã hết hạn, bỏ qua bước đưa vào blacklist.");
+        } catch (Exception e) {
+            System.err.println("Lỗi khi parse Access Token trong hàm logout: " + e.getMessage());
         }
     }
 
