@@ -41,5 +41,5 @@ jobs:
           script: |
             cd ~/edlearn
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/vku-edtech-backend:latest
-            docker-compose up -d --force-recreate backend
+            docker compose up -d --force-recreate backend
             docker image prune -f
