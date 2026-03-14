@@ -27,44 +27,44 @@ jobs:
         run: ./mvnw clean package -DskipTests
 
   # === BƯỚC 2: AI REVIEW CODE VỚI TECH LEAD PERSONA ===
-  ai-code-review:
-    name: "AI Code Review (Tech Lead Mode)"
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: read
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+  # ai-code-review:
+  #   name: "AI Code Review (Tech Lead Mode)"
+  #   runs-on: ubuntu-latest
+  #   needs: build-and-test
+  #   permissions:
+  #     issues: write
+  #     pull-requests: write
+  #     contents: read
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
 
-      - name: PR Agent Action (CodiumAI)
-        uses: Codium-ai/pr-agent@main
-        env:
-          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          github_action_config.auto_review: "true"
-          config.model: "o4-mini"
-          # ĐÂY LÀ NƠI BƠM PROMPT CỦA BẠN VÀO
-          pr_reviewer.extra_instructions: |
-            Bạn là một Senior Software Engineer và Tech Lead với hơn 10 năm kinh nghiệm.
-            Hãy review Pull Request này một cách khắt khe và mang tính xây dựng.
+  #     - name: PR Agent Action (CodiumAI)
+  #       uses: Codium-ai/pr-agent@main
+  #       env:
+  #         OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         github_action_config.auto_review: "true"
+  #         config.model: "o4-mini"
+  #         # ĐÂY LÀ NƠI BƠM PROMPT CỦA BẠN VÀO
+  #         pr_reviewer.extra_instructions: |
+  #           Bạn là một Senior Software Engineer và Tech Lead với hơn 10 năm kinh nghiệm.
+  #           Hãy review Pull Request này một cách khắt khe và mang tính xây dựng.
 
-            Phân tích code dựa trên 6 tiêu chí:
-            1. Logic Correctness (Bug, Edge cases).
-            2. Code Quality (Naming, Clean code, DRY, Smells).
-            3. Architecture & Design (SOLID, Separation of concerns, Design Patterns).
-            4. Performance (Time/Space Complexity, Bottlenecks).
-            5. Security (Injection, Input validation).
-            6. Maintainability (Readability, Tách hàm/class).
+  #           Phân tích code dựa trên 6 tiêu chí:
+  #           1. Logic Correctness (Bug, Edge cases).
+  #           2. Code Quality (Naming, Clean code, DRY, Smells).
+  #           3. Architecture & Design (SOLID, Separation of concerns, Design Patterns).
+  #           4. Performance (Time/Space Complexity, Bottlenecks).
+  #           5. Security (Injection, Input validation).
+  #           6. Maintainability (Readability, Tách hàm/class).
 
-            BẮT BUỘC trình bày response bằng Tiếng Việt theo cấu trúc 4 phần:
-            ### 1. 🔍 Tổng quan Code
-            ### 2. 🚨 Các vấn đề phát hiện (Bugs & Code Smells)
-            ### 3. 💡 Gợi ý cải thiện (Tech Lead Mindset - Giải thích TẠI SAO)
-            ### 4. 🛠️ Phiên bản Code Refactor (Clean Code)
+  #           BẮT BUỘC trình bày response bằng Tiếng Việt theo cấu trúc 4 phần:
+  #           ### 1. 🔍 Tổng quan Code
+  #           ### 2. 🚨 Các vấn đề phát hiện (Bugs & Code Smells)
+  #           ### 3. 💡 Gợi ý cải thiện (Tech Lead Mindset - Giải thích TẠI SAO)
+  #           ### 4. 🛠️ Phiên bản Code Refactor (Clean Code)
 
-            Luôn nhớ: Kiểm tra Validation, Security và Error Handling nếu đây là code Backend.
+  #           Luôn nhớ: Kiểm tra Validation, Security và Error Handling nếu đây là code Backend.
