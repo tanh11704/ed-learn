@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.identity.service.impl;
 
 import com.vku.edtech.modules.identity.dto.request.LoginRequest;
+import com.vku.edtech.modules.identity.dto.request.RefreshTokenRequest;
 import com.vku.edtech.modules.identity.dto.request.RegisterRequest;
 import com.vku.edtech.modules.identity.dto.response.AuthResponse;
 import com.vku.edtech.modules.identity.entity.RefreshToken;
@@ -11,15 +12,23 @@ import com.vku.edtech.modules.identity.security.JwtService;
 import com.vku.edtech.modules.identity.service.AuthService;
 import com.vku.edtech.shared.exception.EmailAlreadyExistsException;
 import com.vku.edtech.shared.exception.ResourceNotFoundException;
+import com.vku.edtech.shared.exception.TokenRefreshException;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -32,8 +41,10 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final StringRedisTemplate redisTemplate;
 
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest req) {
         if (userRepository.existsByEmail(req.email())) {
             throw new EmailAlreadyExistsException("Tài khoản đã tồn tại");
@@ -56,6 +67,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest req) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.password())
@@ -70,6 +82,56 @@ public class AuthServiceImpl implements AuthService {
         saveUserRefreshToken(user, refreshTokenString);
 
         return new AuthResponse(accessToken, refreshTokenString);
+    }
+
+    @Override
+    @Transactional
+    public AuthResponse refreshToken(RefreshTokenRequest req) {
+        RefreshToken refreshToken = refreshTokenRepository.findByToken(req.refreshToken())
+                .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
+
+        if (Boolean.TRUE.equals(refreshToken.getRevoked())) {
+            throw new TokenRefreshException("Token đã bị thu hồi");
+        }
+
+        if (refreshToken.getExpiresAt().isBefore(Instant.now())) {
+            throw new TokenRefreshException("Phiên đăng nhập đã hết hạn");
+        }
+
+        User user = refreshToken.getUser();
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshTokenStr = jwtService.generateRefreshToken();
+
+        refreshToken.setToken(refreshTokenStr);
+        refreshTokenRepository.save(refreshToken);
+
+        return new AuthResponse(accessToken, refreshTokenStr);
+    }
+
+    @Override
+    @Transactional
+    public void logout(String accessToken, String refreshTokenStr) {
+        refreshTokenRepository.findByToken(refreshTokenStr)
+                .ifPresent(refreshTokenRepository::delete);
+
+        try {
+            Date expirationDate = jwtService.extractExpiration(accessToken);
+            long ttlInMillis = expirationDate.getTime() - System.currentTimeMillis();
+
+            if (ttlInMillis > 0) {
+                redisTemplate.opsForValue().set(
+                        "blacklist:" + accessToken,
+                        "true",
+                        ttlInMillis,
+                        TimeUnit.MILLISECONDS
+                );
+            }
+        } catch (ExpiredJwtException e) {
+            log.info("Access token đã hết hạn, bỏ qua bước đưa vào blacklist.");
+        } catch (Exception e) {
+            log.error("Lỗi khi parse Access Token trong hàm logout: {}", e.getMessage(), e);
+        }
     }
 
     private void saveUserRefreshToken(User user, String refreshToken) {
