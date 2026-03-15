@@ -6,6 +6,11 @@ import com.vku.edtech.modules.identity.dto.request.RefreshTokenRequest;
 import com.vku.edtech.modules.identity.dto.request.RegisterRequest;
 import com.vku.edtech.modules.identity.dto.response.AuthResponse;
 import com.vku.edtech.modules.identity.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +27,16 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/auth")
+@Tag(name = "Authentication", description = "Quản lý đăng nhập, đăng ký và cấp phát Token")
 public class AuthController {
 
     private final AuthService authService;
 
+    @Operation(summary = "Đăng nhập người dùng", description = "Trả về cặp Access Token và Refresh Token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công"),
+            @ApiResponse(responseCode = "401", description = "Sai email hoặc mật khẩu")
+    })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         AuthResponse response = authService.login(request);
@@ -33,6 +44,8 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Đăng ký tài khoản mới")
+    @ApiResponse(responseCode = "400", description = "Email đã tồn tại hoặc dữ liệu không hợp lệ")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
         AuthResponse response = authService.register(request);
@@ -40,6 +53,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Lấy Access Token mới", description = "Sử dụng Refresh Token để gia hạn phiên đăng nhập")
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
         AuthResponse response = authService.refreshToken(request);
@@ -47,6 +61,12 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(
+            summary = "Đăng xuất",
+            description = "Vô hiệu hóa Access Token (Blacklist) và xóa Refresh Token",
+            security = @SecurityRequirement(name = "bearerAuth")
+    )
+    @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
             Authentication authentication,
