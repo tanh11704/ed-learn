@@ -8,6 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
 
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     show-sql: true
@@ -29,5 +30,5 @@ spring:
 
 jwt:
   secret: ${JWT_SECRET:7vsOJNohR7YoGJ2Uh6vM6FNMzOCOtcGQrKlKCpVORac}
-  expiration: ${JWT_EXPIRATION:900000}
-  refresh-expiration: ${REFRESH_EXPIRATION:604800000}
+  access-token-expiration: ${JWT_EXPIRATION:900000}
+  refresh-token-expiration: ${REFRESH_EXPIRATION:604800000}

@@ -1,0 +1,290 @@
+diff --git a/core-backend/pom.xml b/core-backend/pom.xml
+index de3b35d..09db2c8 100644
+--- a/core-backend/pom.xml
++++ b/core-backend/pom.xml
+@@ -105,6 +105,11 @@
+           <groupId>org.springframework.boot</groupId>
+           <artifactId>spring-boot-starter-data-redis</artifactId>
+         </dependency>
++      <dependency>
++        <groupId>org.springdoc</groupId>
++        <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
++        <version>3.0.2</version>
++      </dependency>
+     </dependencies>
+ 
+     <build>
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/AuthController.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/AuthController.java
+index b78c897..44ba52a 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/AuthController.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/AuthController.java
+@@ -6,6 +6,11 @@ import com.vku.edtech.modules.identity.dto.request.RefreshTokenRequest;
+ import com.vku.edtech.modules.identity.dto.request.RegisterRequest;
+ import com.vku.edtech.modules.identity.dto.response.AuthResponse;
+ import com.vku.edtech.modules.identity.service.AuthService;
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.responses.ApiResponse;
++import io.swagger.v3.oas.annotations.responses.ApiResponses;
++import io.swagger.v3.oas.annotations.security.SecurityRequirement;
++import io.swagger.v3.oas.annotations.tags.Tag;
+ import jakarta.servlet.http.HttpServletRequest;
+ import jakarta.validation.Valid;
+ import lombok.RequiredArgsConstructor;
+@@ -22,10 +27,16 @@ import java.util.Map;
+ @RestController
+ @RequiredArgsConstructor
+ @RequestMapping("api/v1/auth")
++@Tag(name = "Authentication", description = "Quản lý đăng nhập, đăng ký và cấp phát Token")
+ public class AuthController {
+ 
+     private final AuthService authService;
+ 
++    @Operation(summary = "Đăng nhập người dùng", description = "Trả về cặp Access Token và Refresh Token")
++    @ApiResponses({
++            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công"),
++            @ApiResponse(responseCode = "401", description = "Sai email hoặc mật khẩu")
++    })
+     @PostMapping("/login")
+     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
+         AuthResponse response = authService.login(request);
+@@ -33,6 +44,8 @@ public class AuthController {
+         return ResponseEntity.ok(response);
+     }
+ 
++    @Operation(summary = "Đăng ký tài khoản mới")
++    @ApiResponse(responseCode = "400", description = "Email đã tồn tại hoặc dữ liệu không hợp lệ")
+     @PostMapping("/register")
+     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
+         AuthResponse response = authService.register(request);
+@@ -40,6 +53,7 @@ public class AuthController {
+         return ResponseEntity.ok(response);
+     }
+ 
++    @Operation(summary = "Lấy Access Token mới", description = "Sử dụng Refresh Token để gia hạn phiên đăng nhập")
+     @PostMapping("/refresh")
+     public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
+         AuthResponse response = authService.refreshToken(request);
+@@ -47,6 +61,8 @@ public class AuthController {
+         return ResponseEntity.ok(response);
+     }
+ 
++    @Operation(summary = "Đăng xuất", description = "Vô hiệu hóa Access Token (Blacklist) và xóa Refresh Token")
++    @SecurityRequirement(name = "bearerAuth")
+     @PostMapping("/logout")
+     public ResponseEntity<Map<String, String>> logout(
+             Authentication authentication,
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/UserController.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/UserController.java
+index d759519..56eac7e 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/UserController.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/controller/UserController.java
+@@ -3,6 +3,9 @@ package com.vku.edtech.modules.identity.controller;
+ import com.vku.edtech.modules.identity.dto.response.UserProfileResponse;
+ import com.vku.edtech.modules.identity.entity.User;
+ import com.vku.edtech.modules.identity.service.UserService;
++import io.swagger.v3.oas.annotations.Operation;
++import io.swagger.v3.oas.annotations.security.SecurityRequirement;
++import io.swagger.v3.oas.annotations.tags.Tag;
+ import lombok.RequiredArgsConstructor;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.security.core.annotation.AuthenticationPrincipal;
+@@ -13,10 +16,16 @@ import org.springframework.web.bind.annotation.RestController;
+ @RestController
+ @RequestMapping("/api/v1/users")
+ @RequiredArgsConstructor
++@Tag(name = "User", description = "Quản lý thông tin người dùng")
+ public class UserController {
+ 
+     private final UserService userService;
+ 
++    @Operation(
++            summary = "Lấy thông tin cá nhân",
++            description = "Trả về thông tin của người dùng hiện tại dựa trên Access Token trong Header",
++            security = @SecurityRequirement(name = "bearerAuth")
++    )
+     @GetMapping("/me")
+     public ResponseEntity<UserProfileResponse> me(
+             @AuthenticationPrincipal User user
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LoginRequest.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LoginRequest.java
+index 351ea85..3221ab4 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LoginRequest.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LoginRequest.java
+@@ -1,13 +1,16 @@
+ package com.vku.edtech.modules.identity.dto.request;
+ 
++import io.swagger.v3.oas.annotations.media.Schema;
+ import jakarta.validation.constraints.Email;
+ import jakarta.validation.constraints.NotBlank;
+ 
+ public record LoginRequest(
++        @Schema(description = "Địa chỉ email của người dùng", example = "student@vku.udn.vn")
+         @NotBlank(message = "Email không được để trống")
+         @Email(message = "Email không đúng định dạng")
+         String email,
+ 
++        @Schema(description = "Mật khẩu đăng nhập", example = "P@ssword123")
+         @NotBlank(message = "Mật khẩu không được để trống")
+         String password
+ ) {
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LogoutRequest.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LogoutRequest.java
+index fae1612..367395b 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LogoutRequest.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/LogoutRequest.java
+@@ -1,8 +1,10 @@
+ package com.vku.edtech.modules.identity.dto.request;
+ 
++import io.swagger.v3.oas.annotations.media.Schema;
+ import jakarta.validation.constraints.NotBlank;
+ 
+ public record LogoutRequest(
++        @Schema(description = "Refresh Token cần xóa khỏi hệ thống")
+         @NotBlank(message = "Refresh Token không được để trống")
+         String refreshToken
+ ) {
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RefreshTokenRequest.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RefreshTokenRequest.java
+index 13d5697..8f9d552 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RefreshTokenRequest.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RefreshTokenRequest.java
+@@ -1,8 +1,10 @@
+ package com.vku.edtech.modules.identity.dto.request;
+ 
++import io.swagger.v3.oas.annotations.media.Schema;
+ import jakarta.validation.constraints.NotBlank;
+ 
+ public record RefreshTokenRequest(
++        @Schema(description = "Chuỗi Refresh Token được cấp lúc đăng nhập")
+         @NotBlank(message = "Refresh Token không được để trống")
+         String refreshToken
+ ) {
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RegisterRequest.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RegisterRequest.java
+index fc39cca..0057ab1 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RegisterRequest.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/request/RegisterRequest.java
+@@ -1,18 +1,22 @@
+ package com.vku.edtech.modules.identity.dto.request;
+ 
++import io.swagger.v3.oas.annotations.media.Schema;
+ import jakarta.validation.constraints.Email;
+ import jakarta.validation.constraints.NotBlank;
+ import jakarta.validation.constraints.Size;
+ 
+ public record RegisterRequest(
++        @Schema(description = "Email đăng ký tài khoản mới", example = "newuser@vku.udn.vn")
+         @NotBlank(message = "Email không được để trống")
+         @Email(message = "Email không đúng định dạng")
+         String email,
+ 
++        @Schema(description = "Mật khẩu (tối thiểu 6 ký tự)", example = "SecurePass123")
+         @NotBlank(message = "Mật khẩu không được để trống")
+         @Size(min = 6, message = "Mật khẩu phải có ít nhất 6 ký tự")
+         String password,
+ 
++        @Schema(description = "Họ và tên đầy đủ", example = "Nguyễn Văn A")
+         @NotBlank(message = "Họ tên không được để trống")
+         @Size(max = 100, message = "Họ tên không được vượt quá 100 ký tự")
+         String fullName
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/AuthResponse.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/AuthResponse.java
+index 85e755a..cdb12c2 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/AuthResponse.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/AuthResponse.java
+@@ -1,8 +1,16 @@
+ package com.vku.edtech.modules.identity.dto.response;
+ 
++import io.swagger.v3.oas.annotations.media.Schema;
++
++@Schema(description = "Thông tin Token sau khi xác thực thành công")
+ public record AuthResponse(
++        @Schema(description = "Access Token dùng để gọi các API bảo mật (hạn ngắn)")
+         String accessToken,
++
++        @Schema(description = "Refresh Token dùng để lấy Access Token mới (hạn dài)")
+         String refreshToken,
++
++        @Schema(description = "Loại token", example = "Bearer")
+         String tokenType
+ ) {
+     public AuthResponse(String accessToken, String refreshToken) {
+diff --git a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/UserProfileResponse.java b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/UserProfileResponse.java
+index 52114b3..f9f0c05 100644
+--- a/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/UserProfileResponse.java
++++ b/core-backend/src/main/java/com/vku/edtech/modules/identity/dto/response/UserProfileResponse.java
+@@ -1,13 +1,22 @@
+ package com.vku.edtech.modules.identity.dto.response;
+ 
+ import com.vku.edtech.modules.identity.entity.Role;
++import io.swagger.v3.oas.annotations.media.Schema;
+ 
+ import java.util.UUID;
+ 
++@Schema(description = "Thông tin chi tiết hồ sơ người dùng")
+ public record UserProfileResponse(
++        @Schema(description = "ID duy nhất của người dùng", example = "550e8400-e29b-41d4-a716-446655440000")
+         UUID id,
++
++        @Schema(description = "Địa chỉ email đăng ký", example = "student@vku.udn.vn")
+         String email,
++
++        @Schema(description = "Họ và tên đầy đủ", example = "Nguyễn Văn A")
+         String fullName,
++
++        @Schema(description = "Vai trò của người dùng trong hệ thống", example = "USER")
+         Role role
+ ) {
+ }
+diff --git a/core-backend/src/main/java/com/vku/edtech/shared/config/OpenApiConfig.java b/core-backend/src/main/java/com/vku/edtech/shared/config/OpenApiConfig.java
+new file mode 100644
+index 0000000..571b889
+--- /dev/null
++++ b/core-backend/src/main/java/com/vku/edtech/shared/config/OpenApiConfig.java
+@@ -0,0 +1,22 @@
++package com.vku.edtech.shared.config;
++
++import io.swagger.v3.oas.annotations.OpenAPIDefinition;
++import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
++import io.swagger.v3.oas.annotations.info.Info;
++import io.swagger.v3.oas.annotations.security.SecurityRequirement;
++import io.swagger.v3.oas.annotations.security.SecurityScheme;
++import org.springframework.context.annotation.Configuration;
++
++@Configuration
++@OpenAPIDefinition(
++        info = @Info(title = "EdLearn API", version = "1.0", description = "Tài liệu API cho hệ thống EdLearn"),
++        security = @SecurityRequirement(name = "bearerAuth")
++)
++@SecurityScheme(
++        name = "bearerAuth",
++        type = SecuritySchemeType.HTTP,
++        scheme = "bearer",
++        bearerFormat = "JWT"
++)
++public class OpenApiConfig {
++}
+diff --git a/core-backend/src/main/java/com/vku/edtech/shared/exception/ErrorResponse.java b/core-backend/src/main/java/com/vku/edtech/shared/exception/ErrorResponse.java
+index 0934c27..69b9cb0 100644
+--- a/core-backend/src/main/java/com/vku/edtech/shared/exception/ErrorResponse.java
++++ b/core-backend/src/main/java/com/vku/edtech/shared/exception/ErrorResponse.java
+@@ -1,13 +1,25 @@
+ package com.vku.edtech.shared.exception;
+ 
+ import com.fasterxml.jackson.annotation.JsonInclude;
++import io.swagger.v3.oas.annotations.media.Schema;
+ 
+ @JsonInclude(JsonInclude.Include.NON_NULL)
++@Schema(description = "Cấu trúc phản hồi lỗi chuẩn của hệ thống")
+ public record ErrorResponse(
++        @Schema(description = "Mã lỗi HTTP", example = "400")
+         int status,
++
++        @Schema(description = "Loại lỗi (Error Category)", example = "Bad Request")
+         String error,
++
++        @Schema(description = "Thông báo lỗi chi tiết cho người dùng", example = "Email đã tồn tại trong hệ thống")
+         String message,
++
++        @Schema(description = "Thông tin bổ sung về lỗi (thường dùng cho lỗi Validation hoặc danh sách các trường sai)",
++                example = "{\"email\": \"Định dạng email không hợp lệ\"}")
+         Object details,
++
++        @Schema(description = "Thời điểm xảy ra lỗi (Unix timestamp)", example = "1710456000000")
+         long timestamp
+ ) {
+     public ErrorResponse(int status, String error, String message) {
