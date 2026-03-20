@@ -33,7 +33,7 @@ public class LoginService implements LoginUseCase {
 
         boolean isPasswordValid = passwordEncoderPort.matches(command.rawPassword(), user.getPasswordHash());
         if (!isPasswordValid) {
-            throw new ResourceNotFoundException("Email hoặc mật khẩu không chính xác");
+            throw new InvalidCredentialsException("Email hoặc mật khẩu không chính xác");
         }
 
         String accessToken = tokenGeneratorPort.generateAccessToken(user);
