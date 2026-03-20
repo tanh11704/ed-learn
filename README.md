@@ -47,7 +47,7 @@ Dự án được quản lý theo mô hình Monorepo:
 ed-learn/
 ├── core-backend/       # Spring Boot 3 (Java 17) - Quản lý nghiệp vụ & Data
 ├── ai-service/         # FastAPI (Python 3.10) - Xử lý RAG, LangChain, PDF
-├── mobile-app/         # Flutter (Dart) - Ứng dụng di động
+├── mobile_app/         # Flutter (Dart) - Ứng dụng di động
 ├── docker-compose.yml  # File cấu hình hạ tầng (Postgres, Redis, ChromaDB)
 └── README.md
 ```
@@ -96,7 +96,7 @@ uvicorn app.main:app --reload --port 8001
 ### 5. Khởi chạy Mobile App (Flutter)
 
 ```bash
-cd mobile-app
+cd mobile_app
 flutter pub get
 flutter run
 ```
