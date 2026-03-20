@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.identity.application.service;
 
 import com.vku.edtech.modules.identity.application.dto.AuthResult;
+import com.vku.edtech.modules.identity.application.exception.InvalidCredentialsException;
 import com.vku.edtech.modules.identity.application.port.in.LoginUseCase;
 import com.vku.edtech.modules.identity.application.port.out.PasswordEncoderPort;
 import com.vku.edtech.modules.identity.application.port.out.RefreshTokenCommandPort;
@@ -10,7 +11,6 @@ import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.User;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,11 +29,11 @@ public class LoginService implements LoginUseCase {
     @Override
     public AuthResult login(LoginCommand command) {
         User user = userQueryPort.findByEmail(command.email())
-                .orElseThrow(() -> new BadCredentialsException("Email hoặc mật khẩu không chính xác"));
+                .orElseThrow(() -> new InvalidCredentialsException("Email hoặc mật khẩu không chính xác"));
 
         boolean isPasswordValid = passwordEncoderPort.matches(command.rawPassword(), user.getPasswordHash());
         if (!isPasswordValid) {
-            throw new ResourceNotFoundException("Email hoặc mật khẩu không chính xác");
+            throw new InvalidCredentialsException("Email hoặc mật khẩu không chính xác");
         }
 
         String accessToken = tokenGeneratorPort.generateAccessToken(user);
