@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Github Copilot Instructions
+.github/copilot-instructions.md
