@@ -1,6 +1,15 @@
 spring:
   application:
     name: core-backend
+
+  profiles:
+    active: prod
+
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+
   datasource:
     url: jdbc:postgresql://localhost:5432/edlearn_db
     username: ${DB_USERNAME:edlearn}
@@ -10,7 +19,7 @@ spring:
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
@@ -20,6 +29,11 @@ spring:
     enabled: true
     baseline-on-migrate: true
     locations: classpath:db/migration
+    check-location: true
+
+logging:
+  level:
+    org.flywaydb: DEBUG
 
   data:
     redis:
@@ -32,3 +46,8 @@ jwt:
   secret: ${JWT_SECRET:7vsOJNohR7YoGJ2Uh6vM6FNMzOCOtcGQrKlKCpVORac}
   access-token-expiration: ${JWT_EXPIRATION:900000}
   refresh-token-expiration: ${REFRESH_EXPIRATION:604800000}
+
+app:
+  storage:
+    type: local
+    local-dir: uploads/

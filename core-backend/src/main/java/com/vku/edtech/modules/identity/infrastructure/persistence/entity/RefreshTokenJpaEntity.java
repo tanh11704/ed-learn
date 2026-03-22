@@ -1,7 +1,9 @@
 package com.vku.edtech.modules.identity.infrastructure.persistence.entity;
 
+import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 
@@ -11,7 +13,7 @@ import java.time.Instant;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class RefreshTokenJpaEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true)

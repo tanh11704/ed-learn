@@ -1,5 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Kiểm tra xem type đã tồn tại chưa để tránh lỗi khi chạy lại
 DO $$ BEGIN
     CREATE TYPE role_type AS ENUM ('ADMIN', 'USER');
@@ -8,7 +6,7 @@ EXCEPTION
 END $$;
 
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
@@ -18,7 +16,7 @@ CREATE TABLE users (
 );
 
 CREATE TABLE refresh_tokens (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4 (),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     token VARCHAR(255) UNIQUE NOT NULL,
     expires_at TIMESTAMPTZ NOT NULL, -- Dùng luôn tên chuẩn, không cần RENAME
     device_info VARCHAR(255),
