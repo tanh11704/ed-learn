@@ -12,5 +12,4 @@ public class CoreBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(CoreBackendApplication.class, args);
     }
-
 }

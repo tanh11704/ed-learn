@@ -21,7 +21,6 @@ public interface UserPersistenceMapper {
                 userJpaEntity.getFullName(),
                 userJpaEntity.getRole(),
                 userJpaEntity.getCreatedAt(),
-                userJpaEntity.getUpdatedAt()
-        );
+                userJpaEntity.getUpdatedAt());
     }
 }

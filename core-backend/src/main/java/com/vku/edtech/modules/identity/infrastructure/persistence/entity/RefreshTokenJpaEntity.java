@@ -2,10 +2,9 @@ package com.vku.edtech.modules.identity.infrastructure.persistence.entity;
 
 import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.time.Instant;
 
 @Entity
 @Table(name = "refresh_tokens")

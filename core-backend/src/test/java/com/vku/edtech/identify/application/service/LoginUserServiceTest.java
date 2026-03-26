@@ -1,5 +1,8 @@
 package com.vku.edtech.identify.application.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.vku.edtech.modules.identity.application.dto.AuthResult;
 import com.vku.edtech.modules.identity.application.exception.InvalidCredentialsException;
 import com.vku.edtech.modules.identity.application.port.in.LoginUseCase;
@@ -11,6 +14,9 @@ import com.vku.edtech.modules.identity.application.service.LoginService;
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.Role;
 import com.vku.edtech.modules.identity.domain.model.User;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,27 +24,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Instant;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 public class LoginUserServiceTest {
 
-    @Mock
-    private UserQueryPort userQueryPort;
-    @Mock
-    private PasswordEncoderPort passwordEncoderPort;
-    @Mock
-    private TokenGeneratorPort tokenGeneratorPort;
-    @Mock
-    private RefreshTokenCommandPort refreshTokenCommandPort;
+    @Mock private UserQueryPort userQueryPort;
+    @Mock private PasswordEncoderPort passwordEncoderPort;
+    @Mock private TokenGeneratorPort tokenGeneratorPort;
+    @Mock private RefreshTokenCommandPort refreshTokenCommandPort;
 
-    @InjectMocks
-    private LoginService loginService;
+    @InjectMocks private LoginService loginService;
 
     @Test
     @DisplayName("Đăng nhập thành công - Trả về cặp Token xịn")
@@ -48,15 +42,15 @@ public class LoginUserServiceTest {
         String encodedPass = "hashed_password";
         LoginUseCase.LoginCommand command = new LoginUseCase.LoginCommand(email, rawPass);
 
-        User mockUser = new User(
-                UUID.randomUUID(),
-                email,
-                encodedPass,
-                "Trần Phước Anh",
-                Role.USER,
-                Instant.now(),
-                Instant.now()
-        );
+        User mockUser =
+                new User(
+                        UUID.randomUUID(),
+                        email,
+                        encodedPass,
+                        "Trần Phước Anh",
+                        Role.USER,
+                        Instant.now(),
+                        Instant.now());
 
         when(userQueryPort.findByEmail(email)).thenReturn(Optional.of(mockUser));
         when(passwordEncoderPort.matches(rawPass, encodedPass)).thenReturn(true);
@@ -83,15 +77,15 @@ public class LoginUserServiceTest {
 
         LoginUseCase.LoginCommand command = new LoginUseCase.LoginCommand(email, wrongPass);
 
-        User mockUser = new User(
-                UUID.randomUUID(),
-                email,
-                correctHashInDb,
-                "Trần Phước Anh",
-                Role.USER,
-                Instant.now(),
-                Instant.now()
-        );
+        User mockUser =
+                new User(
+                        UUID.randomUUID(),
+                        email,
+                        correctHashInDb,
+                        "Trần Phước Anh",
+                        Role.USER,
+                        Instant.now(),
+                        Instant.now());
 
         when(userQueryPort.findByEmail(email)).thenReturn(Optional.of(mockUser));
         when(passwordEncoderPort.matches(wrongPass, correctHashInDb)).thenReturn(false);

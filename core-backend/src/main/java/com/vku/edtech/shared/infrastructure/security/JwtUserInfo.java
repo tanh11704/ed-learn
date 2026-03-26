@@ -1,10 +1,9 @@
 package com.vku.edtech.shared.infrastructure.security;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.security.Principal;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @Getter
 @AllArgsConstructor

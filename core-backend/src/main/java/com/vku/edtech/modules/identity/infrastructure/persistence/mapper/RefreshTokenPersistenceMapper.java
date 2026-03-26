@@ -2,11 +2,10 @@ package com.vku.edtech.modules.identity.infrastructure.persistence.mapper;
 
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.RefreshTokenJpaEntity;
+import java.util.UUID;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-
-import java.util.UUID;
 
 @Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface RefreshTokenPersistenceMapper {
@@ -19,9 +18,10 @@ public interface RefreshTokenPersistenceMapper {
             return null;
         }
 
-        UUID userId = refreshTokenJpaEntity.getUserJpaEntity() != null
-                ? refreshTokenJpaEntity.getUserJpaEntity().getId()
-                : null;
+        UUID userId =
+                refreshTokenJpaEntity.getUserJpaEntity() != null
+                        ? refreshTokenJpaEntity.getUserJpaEntity().getId()
+                        : null;
 
         return new RefreshToken(
                 refreshTokenJpaEntity.getId(),
@@ -31,7 +31,6 @@ public interface RefreshTokenPersistenceMapper {
                 refreshTokenJpaEntity.getRevoked(),
                 userId,
                 refreshTokenJpaEntity.getCreatedAt(),
-                refreshTokenJpaEntity.getUpdatedAt()
-        );
+                refreshTokenJpaEntity.getUpdatedAt());
     }
 }

@@ -1,7 +1,6 @@
 package com.vku.edtech.modules.lms.infrastructure.persistence.entity;
 
 import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

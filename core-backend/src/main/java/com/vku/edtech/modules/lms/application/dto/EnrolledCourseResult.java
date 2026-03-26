@@ -4,8 +4,4 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record EnrolledCourseResult(
-        UUID courseId,
-        String title,
-        String thumbnailUrl,
-        Instant enrolledDate
-) {}
+        UUID courseId, String title, String thumbnailUrl, Instant enrolledDate) {}

@@ -9,12 +9,10 @@ import com.vku.edtech.modules.identity.application.port.out.TokenGeneratorPort;
 import com.vku.edtech.modules.identity.application.port.out.UserQueryPort;
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.User;
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @Transactional
@@ -28,10 +26,16 @@ public class LoginService implements LoginUseCase {
 
     @Override
     public AuthResult login(LoginCommand command) {
-        User user = userQueryPort.findByEmail(command.email())
-                .orElseThrow(() -> new InvalidCredentialsException("Email hoặc mật khẩu không chính xác"));
+        User user =
+                userQueryPort
+                        .findByEmail(command.email())
+                        .orElseThrow(
+                                () ->
+                                        new InvalidCredentialsException(
+                                                "Email hoặc mật khẩu không chính xác"));
 
-        boolean isPasswordValid = passwordEncoderPort.matches(command.rawPassword(), user.getPasswordHash());
+        boolean isPasswordValid =
+                passwordEncoderPort.matches(command.rawPassword(), user.getPasswordHash());
         if (!isPasswordValid) {
             throw new InvalidCredentialsException("Email hoặc mật khẩu không chính xác");
         }
@@ -40,15 +44,11 @@ public class LoginService implements LoginUseCase {
         String refreshToken = tokenGeneratorPort.generateRefreshToken(user);
 
         long expirationMillis = tokenGeneratorPort.getRefreshTokenExpirationMillis();
-        RefreshToken refreshTokenDomain = new RefreshToken(
-                refreshToken,
-                Instant.now().plusMillis(expirationMillis),
-                "",
-                user.getId()
-        );
+        RefreshToken refreshTokenDomain =
+                new RefreshToken(
+                        refreshToken, Instant.now().plusMillis(expirationMillis), "", user.getId());
         refreshTokenCommandPort.save(refreshTokenDomain);
 
         return new AuthResult(accessToken, refreshToken);
     }
-
 }

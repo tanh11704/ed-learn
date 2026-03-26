@@ -19,14 +19,13 @@ public class GetCurrentUserService implements GetCurrentUserUseCase {
     @Override
     public UserProfileResult getCurrentUser(GetCurrentUserQuery query) {
 
-        User user = userQueryPort.findByEmail(query.email())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+        User user =
+                userQueryPort
+                        .findByEmail(query.email())
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         return new UserProfileResult(
-                user.getId(),
-                user.getEmail(),
-                user.getFullName(),
-                user.getRole().name()
-        );
+                user.getId(), user.getEmail(), user.getFullName(), user.getRole().name());
     }
 }

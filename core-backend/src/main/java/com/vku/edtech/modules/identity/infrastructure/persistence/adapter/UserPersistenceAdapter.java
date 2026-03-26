@@ -6,11 +6,10 @@ import com.vku.edtech.modules.identity.domain.model.User;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserJpaEntity;
 import com.vku.edtech.modules.identity.infrastructure.persistence.mapper.UserPersistenceMapper;
 import com.vku.edtech.modules.identity.infrastructure.persistence.repository.JpaUserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -35,13 +34,11 @@ public class UserPersistenceAdapter implements UserCommandPort, UserQueryPort {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .map(mapper::toDomain);
+        return userRepository.findByEmail(email).map(mapper::toDomain);
     }
 
     @Override
     public Optional<User> findById(UUID id) {
-        return userRepository.findById(id)
-                .map(mapper::toDomain);
+        return userRepository.findById(id).map(mapper::toDomain);
     }
 }

@@ -6,11 +6,10 @@ import com.vku.edtech.modules.identity.application.port.out.*;
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.User;
 import com.vku.edtech.shared.presentation.exception.EmailAlreadyExistsException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @Transactional
@@ -40,12 +39,12 @@ public class RegisterService implements RegisterUseCase {
 
         long expirationMillis = tokenGeneratorPort.getRefreshTokenExpirationMillis();
 
-        RefreshToken refreshTokenDomain = new RefreshToken(
-                refreshToken,
-                Instant.now().plusMillis(expirationMillis),
-                "",
-                savedUser.getId()
-        );
+        RefreshToken refreshTokenDomain =
+                new RefreshToken(
+                        refreshToken,
+                        Instant.now().plusMillis(expirationMillis),
+                        "",
+                        savedUser.getId());
 
         refreshTokenCommandPort.save(refreshTokenDomain);
 
