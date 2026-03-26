@@ -8,7 +8,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text('🏠 Trang Chủ', style: AppTextStyles.heading1),
+        child: Text('Trang Chủ', style: AppTextStyles.heading1),
       ),
     );
   }
