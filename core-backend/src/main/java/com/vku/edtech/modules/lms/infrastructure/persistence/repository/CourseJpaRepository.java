@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface CourseJpaRepository extends JpaRepository<CourseJpaEntity, UUID> {
 
-    @Query("SELECT c FROM CourseJpaEntity c WHERE :subject IS NULL OR c.subject = :subject")
+    @Query("SELECT c FROM CourseJpaEntity c WHERE c.status != 'DELETED' AND (:subject IS NULL OR c.subject = :subject)")
     Page<CourseJpaEntity> findBySubjectOrAll(String subject, Pageable pageable);
 
-    @Query("SELECT c FROM CourseJpaEntity c LEFT JOIN FETCH c.chapters ch LEFT JOIN FETCH ch.lessons WHERE c.id = :id")
+    @Query("SELECT c FROM CourseJpaEntity c LEFT JOIN FETCH c.chapters ch LEFT JOIN FETCH ch.lessons WHERE c.id = :id AND c.status != 'DELETED'")
     Optional<CourseJpaEntity> findByIdWithChapters(@Param("id") UUID id);
 }

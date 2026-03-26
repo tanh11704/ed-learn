@@ -26,10 +26,13 @@ public class CourseJpaEntity extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(length = 100)
     private String subject;
 
     private String thumbnailUrl;
+
+    @Column(nullable = false, length = 50)
+    @Builder.Default
+    private String status = "ACTIVE";
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

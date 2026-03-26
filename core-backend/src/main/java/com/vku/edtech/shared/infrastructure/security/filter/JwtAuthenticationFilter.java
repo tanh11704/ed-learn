@@ -67,11 +67,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String role = claims.get("role", String.class);
             if (role == null) role = "USER";
 
+            String userIdStr = claims.get("userId", String.class);
+            java.util.UUID userId = userIdStr != null ? java.util.UUID.fromString(userIdStr) : null;
+
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
 
+                com.vku.edtech.shared.infrastructure.security.JwtUserInfo jwtUserInfo = 
+                        new com.vku.edtech.shared.infrastructure.security.JwtUserInfo(userId, email, role);
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        email,
+                        jwtUserInfo,
                         null,
                         authorities
                 );
