@@ -31,6 +31,7 @@ public class JwtTokenAdapter implements TokenGeneratorPort, TokenInspectionPort 
     public String generateAccessToken(User user) {
         Map<String, Object> extraClaims = new HashMap<>();
         extraClaims.put("role", user.getRole().name());
+        extraClaims.put("userId", user.getId().toString());
 
         return Jwts.builder()
                 .setClaims(extraClaims)

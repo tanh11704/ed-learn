@@ -63,4 +63,22 @@ public interface JpaEnrollmentRepository extends JpaRepository<EnrollmentJpaEnti
             ORDER BY month ASC
             """, nativeQuery = true)
     List<MonthlyEnrollmentProjection> countMonthlyEnrollments(@Param("startDate") java.time.Instant startDate, @Param("endDate") java.time.Instant endDate);
+
+    boolean existsByUserIdAndCourseId(UUID userId, UUID courseId);
+
+    interface EnrolledCourseProjection {
+        UUID getCourseId();
+        String getTitle();
+        String getThumbnailUrl();
+        java.time.Instant getEnrolledDate();
+    }
+
+    @Query(value = """
+            SELECT c.id as course_id, c.title as title, c.thumbnail_url as thumbnail_url, e.created_at as enrolled_date 
+            FROM courses c 
+            JOIN enrollments e ON c.id = e.course_id 
+            WHERE e.user_id = :userId AND c.status = 'ACTIVE'
+            ORDER BY e.created_at DESC
+            """, nativeQuery = true)
+    List<EnrolledCourseProjection> findEnrolledCoursesByUserId(@Param("userId") UUID userId);
 }

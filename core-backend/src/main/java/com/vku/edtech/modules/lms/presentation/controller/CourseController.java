@@ -3,9 +3,12 @@ package com.vku.edtech.modules.lms.presentation.controller;
 import com.vku.edtech.modules.lms.application.port.in.CreateCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.in.GetCourseMetadataUseCase;
 import com.vku.edtech.modules.lms.application.port.in.GetCoursesUseCase;
+import com.vku.edtech.modules.lms.application.port.in.UpdateCourseUseCase;
+import com.vku.edtech.modules.lms.application.port.in.DeleteCourseUseCase;
 import com.vku.edtech.modules.lms.domain.model.Course;
 import com.vku.edtech.modules.lms.presentation.dto.mapper.CourseResponseMapper;
 import com.vku.edtech.modules.lms.presentation.dto.request.CreateCourseRequest;
+import com.vku.edtech.modules.lms.presentation.dto.request.UpdateCourseRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.CourseResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +29,8 @@ public class CourseController {
     private final GetCoursesUseCase getCoursesUseCase;
     private final GetCourseMetadataUseCase getCourseMetadataUseCase;
     private final CreateCourseUseCase createCourseUseCase;
+    private final UpdateCourseUseCase updateCourseUseCase;
+    private final DeleteCourseUseCase deleteCourseUseCase;
     private final CourseResponseMapper courseResponseMapper;
 
     @Operation(summary = "Lấy danh sách khóa học", description = "Lấy danh sách khóa học có phân trang, có thể lọc theo chủ đề.")
@@ -54,5 +59,24 @@ public class CourseController {
                 request.title(), request.description(), request.subject());
         Course newCourse = createCourseUseCase.createCourse(command);
         return ResponseEntity.ok(courseResponseMapper.toResponse(newCourse));
+    }
+    @Operation(summary = "Cập nhật khóa học", description = "Cập nhật thông tin cơ bản của một khóa học.")
+    @PutMapping("/{id}")
+    public ResponseEntity<CourseResponse> updateCourse(
+            @PathVariable UUID id, 
+            @RequestBody UpdateCourseRequest request) {
+        UpdateCourseUseCase.UpdateCourseCommand command = new UpdateCourseUseCase.UpdateCourseCommand(
+                id, request.title(), request.description(), request.subject(), request.thumbnailUrl()
+        );
+        Course updatedCourse = updateCourseUseCase.updateCourse(command);
+        return ResponseEntity.ok(courseResponseMapper.toResponse(updatedCourse));
+    }
+
+    @Operation(summary = "Xóa khóa học", description = "Chuyển trạng thái khóa học sang DELETED (Soft Delete).")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
+        DeleteCourseUseCase.DeleteCourseCommand command = new DeleteCourseUseCase.DeleteCourseCommand(id);
+        deleteCourseUseCase.deleteCourse(command);
+        return ResponseEntity.noContent().build();
     }
 }

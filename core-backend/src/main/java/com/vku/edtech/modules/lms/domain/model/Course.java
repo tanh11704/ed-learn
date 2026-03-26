@@ -23,6 +23,7 @@ public class Course {
     private String description;
     private String subject;
     private String thumbnailUrl;
+    private String status;
 
     @Builder.Default
     private List<Chapter> chapters = new ArrayList<>();
@@ -38,6 +39,7 @@ public class Course {
                 .title(title)
                 .description(description)
                 .subject(subject)
+                .status("ACTIVE")
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
@@ -60,6 +62,11 @@ public class Course {
             this.subject = subject;
         if (thumbnailUrl != null)
             this.thumbnailUrl = thumbnailUrl;
+        this.updatedAt = Instant.now();
+    }
+
+    public void markAsDeleted() {
+        this.status = "DELETED";
         this.updatedAt = Instant.now();
     }
 
