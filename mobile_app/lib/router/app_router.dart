@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/home/presentation/screens/home_screen.dart';
+import 'package:mobile_app/features/home/presentation/screens/schedule_screen.dart';
+import 'package:mobile_app/features/home/presentation/bloc/home_bloc.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -17,7 +21,6 @@ import '../features/assessment/presentation/screens/learning_schedule_screen.dar
 import '../features/assessment/presentation/screens/ai_processing_screen.dart';
 import '../features/assessment/presentation/screens/ai_done_screen.dart';
 import '../features/assessment/presentation/screens/universities_screen.dart';
-import '../features/home/home_screen.dart';
 
 // Khởi tạo trực tiếp GoRouter 
 final appRouter = GoRouter(
@@ -28,7 +31,26 @@ final appRouter = GoRouter(
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        StatefulShellBranch(routes: [GoRoute(path: '/home', builder: (context, state) => const HomeScreen())]),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/home',
+              builder: (context, state) => BlocProvider(
+                create: (context) => HomeBloc(),
+                child: const HomeScreen(),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'schedule',
+                  builder: (context, state) => BlocProvider(
+                    create: (context) => HomeBloc(),
+                    child: const ScheduleScreen(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
         StatefulShellBranch(routes: [GoRoute(path: '/learning', builder: (context, state) => const Scaffold(body: Center(child: Text('Học tập'))))]),
         StatefulShellBranch(routes: [GoRoute(path: '/exam', builder: (context, state) => const Scaffold(body: Center(child: Text('Thi thử'))))]),
         StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))]),
@@ -37,7 +59,7 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/camera',
       builder: (context, state) => const Scaffold(
-        body: Center(child: Text('📸 Màn hình Camera (Full Screen)')),
+        body: Center(child: Text('Màn hình Camera (Full Screen)')),
       ),
     ),
     GoRoute(

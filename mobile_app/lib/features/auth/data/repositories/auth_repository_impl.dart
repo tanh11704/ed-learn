@@ -1,23 +1,14 @@
-import '../../domain/entities/user_profile.dart';
-import '../../domain/repositories/auth_repository.dart';
-import '../datasources/auth_remote_data_source.dart';
+import 'package:mobile_app/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:mobile_app/features/auth/data/models/login_response_model.dart';
+import 'package:mobile_app/features/auth/domain/repositories/auth_repository.dart';
 
-class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl(this._remote);
+class AuthRepositoryImpl implements AuthRepository{
+    final AuthRemoteDataSource remoteDatasource;
 
-  final AuthRemoteDataSource _remote;
+    AuthRepositoryImpl(this.remoteDatasource);
 
-  @override
-  Future<UserProfile> login({required String email, required String password}) async {
-    final user = await _remote.login(email: email, password: password);
-    if (user == null) {
-      throw Exception('Email hoặc mật khẩu không đúng.');
-    }
-    return user;
-  }
-
-  @override
-  Future<UserProfile> register({required String name, required String email, required String password}) async {
-    return _remote.register(name: name, email: email, password: password);
+    @override
+  Future<LoginResponseModel> login(String email, String password) async {
+    return await remoteDatasource.login(email, password);
   }
 }
