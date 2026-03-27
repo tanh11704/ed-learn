@@ -9,7 +9,6 @@ import com.vku.edtech.modules.identity.application.port.out.TokenGeneratorPort;
 import com.vku.edtech.modules.identity.application.port.out.UserQueryPort;
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.User;
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +43,7 @@ public class LoginService implements LoginUseCase {
                 refreshToken,
                 Instant.now().plusMillis(expirationMillis),
                 "",
-                user.getId()
-        );
+                user.getId());
         refreshTokenCommandPort.save(refreshTokenDomain);
 
         return new AuthResult(accessToken, refreshToken);
