@@ -5,12 +5,10 @@ import com.vku.edtech.modules.identity.domain.model.UserStreak;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserJpaEntity;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserStreakJpaEntity;
 import com.vku.edtech.modules.identity.infrastructure.persistence.mapper.UserStreakPersistenceMapper;
-import com.vku.edtech.modules.identity.infrastructure.persistence.repository.JpaUserRepository;
 import com.vku.edtech.modules.identity.infrastructure.persistence.repository.JpaUserStreakRepository;
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,7 +18,7 @@ import java.util.UUID;
 public class UserStreakPersistenceAdapter implements UserStreakPort {
 
     private final JpaUserStreakRepository userStreakRepository;
-    private final JpaUserRepository userRepository;
+    private final EntityManager entityManager;
     private final UserStreakPersistenceMapper userStreakMapper;
 
     @Override
@@ -30,12 +28,10 @@ public class UserStreakPersistenceAdapter implements UserStreakPort {
     }
 
     @Override
-    @Transactional
     public UserStreak save(UserStreak userStreak) {
-        UserJpaEntity user = userRepository.findById(userStreak.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + userStreak.getUserId()));
+        UserJpaEntity userRef = entityManager.getReference(UserJpaEntity.class, userStreak.getUserId());
 
-        UserStreakJpaEntity entity = userStreakMapper.toEntity(userStreak, user);
+        UserStreakJpaEntity entity = userStreakMapper.toEntity(userStreak, userRef);
         
         if (userStreak.getId() != null) {
             entity.setId(userStreak.getId());
