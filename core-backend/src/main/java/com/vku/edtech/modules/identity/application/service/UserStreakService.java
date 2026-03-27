@@ -27,9 +27,9 @@ public class UserStreakService implements CheckUserStreakUseCase, CreateUserStre
     }
 
     @Override
-    public UserStreak getUserStreak(UUID userId) {
-        UserStreak userStreak = userStreakPort.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User streak not found for user: " + userId));
+    public UserStreak getUserStreak(CheckUserStreakCommand command) {
+        UserStreak userStreak = userStreakPort.findByUserId(command.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("User streak not found for user: " + command.userId()));
 
         // Lấy ngày hiện tại theo múi giờ Việt Nam
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
@@ -42,9 +42,9 @@ public class UserStreakService implements CheckUserStreakUseCase, CreateUserStre
     }
 
     @Override
-    public UserStreak recordActivity(UUID userId) {
-        UserStreak userStreak = userStreakPort.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User streak not found for user: " + userId));
+    public UserStreak recordActivity(CheckUserStreakCommand command) {
+        UserStreak userStreak = userStreakPort.findByUserId(command.userId())
+                .orElseThrow(() -> new ResourceNotFoundException("User streak not found for user: " + command.userId()));
 
         // Lấy ngày hiện tại theo múi giờ Việt Nam
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));

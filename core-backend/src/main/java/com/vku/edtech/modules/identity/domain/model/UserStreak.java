@@ -1,18 +1,9 @@
 package com.vku.edtech.modules.identity.domain.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class UserStreak {
     private UUID id;
     private UUID userId;
@@ -21,6 +12,94 @@ public class UserStreak {
     private LocalDate lastActivityDay;
     private int streakFreezeCount;
     private StreakStatus status;
+
+    public UserStreak() {}
+
+    public UserStreak(UUID id, UUID userId, int currentStreak, int longestStreak, LocalDate lastActivityDay, int streakFreezeCount, StreakStatus status) {
+        this.id = id;
+        this.userId = userId;
+        this.currentStreak = currentStreak;
+        this.longestStreak = longestStreak;
+        this.lastActivityDay = lastActivityDay;
+        this.streakFreezeCount = streakFreezeCount;
+        this.status = status;
+    }
+
+    public UUID getId() { return id; }
+    public void setId(UUID id) { this.id = id; }
+
+    public UUID getUserId() { return userId; }
+    public void setUserId(UUID userId) { this.userId = userId; }
+
+    public int getCurrentStreak() { return currentStreak; }
+    public void setCurrentStreak(int currentStreak) { this.currentStreak = currentStreak; }
+
+    public int getLongestStreak() { return longestStreak; }
+    public void setLongestStreak(int longestStreak) { this.longestStreak = longestStreak; }
+
+    public LocalDate getLastActivityDay() { return lastActivityDay; }
+    public void setLastActivityDay(LocalDate lastActivityDay) { this.lastActivityDay = lastActivityDay; }
+
+    public int getStreakFreezeCount() { return streakFreezeCount; }
+    public void setStreakFreezeCount(int streakFreezeCount) { this.streakFreezeCount = streakFreezeCount; }
+
+    public StreakStatus getStatus() { return status; }
+    public void setStatus(StreakStatus status) { this.status = status; }
+
+    public static UserStreakBuilder builder() {
+        return new UserStreakBuilder();
+    }
+
+    public static class UserStreakBuilder {
+        private UUID id;
+        private UUID userId;
+        private int currentStreak;
+        private int longestStreak;
+        private LocalDate lastActivityDay;
+        private int streakFreezeCount;
+        private StreakStatus status;
+
+        UserStreakBuilder() {}
+
+        public UserStreakBuilder id(UUID id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserStreakBuilder userId(UUID userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public UserStreakBuilder currentStreak(int currentStreak) {
+            this.currentStreak = currentStreak;
+            return this;
+        }
+
+        public UserStreakBuilder longestStreak(int longestStreak) {
+            this.longestStreak = longestStreak;
+            return this;
+        }
+
+        public UserStreakBuilder lastActivityDay(LocalDate lastActivityDay) {
+            this.lastActivityDay = lastActivityDay;
+            return this;
+        }
+
+        public UserStreakBuilder streakFreezeCount(int streakFreezeCount) {
+            this.streakFreezeCount = streakFreezeCount;
+            return this;
+        }
+
+        public UserStreakBuilder status(StreakStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public UserStreak build() {
+            return new UserStreak(id, userId, currentStreak, longestStreak, lastActivityDay, streakFreezeCount, status);
+        }
+    }
 
     public boolean checkAndUpdateStatus(LocalDate today) {
         if (lastActivityDay == null) {

@@ -35,6 +35,7 @@ public class UserStreakController {
         UserProfileResult user = getCurrentUserUseCase.getCurrentUser(query);
 
         return ResponseEntity.ok(userStreakMapper.toResponse(
-                checkUserStreakUseCase.getUserStreak(user.id())));
+                checkUserStreakUseCase.getUserStreak(
+                        new CheckUserStreakUseCase.CheckUserStreakCommand(user.id()))));
     }
 }
