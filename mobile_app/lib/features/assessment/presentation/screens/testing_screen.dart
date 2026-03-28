@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,11 +8,8 @@ import '../../../../core/widgets/primary_button.dart';
 import '../bloc/assessment_bloc.dart';
 import '../bloc/assessment_event.dart';
 import '../bloc/assessment_state.dart';
+import '../models/assessment_ui_models.dart';
 import '../widgets/question_card.dart';
-import '../../data/datasources/assessment_remote_data_source.dart';
-import '../../data/repositories/assessment_repository_impl.dart';
-import '../../domain/entities/assessment_question.dart';
-import '../../domain/repositories/assessment_repository.dart';
 
 class TestingScreen extends StatefulWidget {
   const TestingScreen({super.key});
@@ -22,18 +19,37 @@ class TestingScreen extends StatefulWidget {
 }
 
 class _TestingScreenState extends State<TestingScreen> {
-  late final AssessmentRepository _repository;
-  late final Future<List<AssessmentQuestion>> _questionsFuture;
+    late final Future<List<AssessmentQuestionUi>> _questionsFuture;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _repository = AssessmentRepositoryImpl(AssessmentRemoteDataSource());
-    _questionsFuture = _repository.getAssessmentQuestions();
+        _questionsFuture = Future.value(const [
+      AssessmentQuestionUi(
+        id: 1,
+        content: 'Khi làm bài thi, bạn thường bắt đầu từ phần nào?',
+        options: ['Dễ trước khó sau', 'Làm tuần tự từ đầu', 'Phần mình tự tin nhất', 'Làm ngẫu nhiên'],
+      ),
+      AssessmentQuestionUi(
+        id: 2,
+        content: 'Bạn học tốt nhất vào thời điểm nào?',
+        options: ['Sáng sớm', 'Buổi trưa', 'Buổi chiều', 'Buổi tối'],
+      ),
+      AssessmentQuestionUi(
+        id: 3,
+        content: 'Bạn muốn cải thiện kỹ năng nào?',
+        options: ['Tư duy logic', 'Ghi nhớ nhanh', 'Viết luận', 'Thuyết trình'],
+      ),
+      AssessmentQuestionUi(
+        id: 4,
+        content: 'Bạn thích hình thức học nào?',
+        options: ['Video ngắn', 'Tài liệu đọc', 'Lớp học trực tiếp', 'Bài tập thực hành'],
+      ),
+    ]);
   }
 
-  void _goNext(List<AssessmentQuestion> questions) {
+  void _goNext(List<AssessmentQuestionUi> questions) {
     if (_currentIndex < questions.length - 1) {
       setState(() => _currentIndex += 1);
     } else {
@@ -60,12 +76,12 @@ class _TestingScreenState extends State<TestingScreen> {
               }
             },
           ),
-          title: FutureBuilder<List<AssessmentQuestion>>(
+          title: FutureBuilder<List<AssessmentQuestionUi>>(
             future: _questionsFuture,
             builder: (context, snapshot) {
               final total = snapshot.data?.length ?? 0;
               if (total == 0) {
-                return Text('Câu hỏi', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary));
+                return Text('Câu 0/0', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary));
               }
               return Text(
                 'Câu ${_currentIndex + 1}/$total',
@@ -94,7 +110,7 @@ class _TestingScreenState extends State<TestingScreen> {
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: FutureBuilder<List<AssessmentQuestion>>(
+            child: FutureBuilder<List<AssessmentQuestionUi>>(
               future: _questionsFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -178,3 +194,4 @@ class _TestingScreenState extends State<TestingScreen> {
     );
   }
 }
+

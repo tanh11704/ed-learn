@@ -1,23 +1,20 @@
-// đây là nơi nhận AuthEvent từ UI, xử lý logic xác thực (ví dụ: gọi API) và phát ra AuthState tương ứng để UI cập nhật giao diện
+﻿// đây là nơi nhận AuthEvent từ UI, xử lý logic xác thực (ví dụ: gọi API) và phát ra AuthState tương ứng để UI cập nhật giao diện
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
 
-import '../../data/datasources/auth_remote_data_source.dart';
-import '../../data/repositories/auth_repository_impl.dart';
-import '../../domain/repositories/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc({AuthRepository? repository})
-      : _repository = repository ?? AuthRepositoryImpl(AuthRemoteDataSource()),
-        super(const AuthState.initial()) {
+  final AuthRemoteDataSource remoteDataSource;
+
+  AuthBloc(this.remoteDataSource)
+      : super(const AuthState.initial()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<RegisterSubmitted>(_onRegisterSubmitted);
     on<LogoutRequested>(_onLogoutRequested);
   }
-
-  final AuthRepository _repository;
 
   Future<void> _onLoginSubmitted(
     LoginSubmitted event,
@@ -26,12 +23,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     try {
-      await _repository.login(email: event.email.trim(), password: event.password.trim());
+      final email = event.email.trim();
+      final password = event.password.trim();
+
+      if (email.isEmpty || password.isEmpty) {
+        emit(state.copyWith(
+          status: AuthStatus.failure,
+          message: 'Vui lòng nhập đầy đủ thông tin.',
+        ));
+        return;
+      }
+
+      // Gọi API login
+      await remoteDataSource.login(email, password);
+      
+      // TODO: Lưu token vào SharedPreferences
+      // await _saveToken(response.accessToken);
+
       emit(state.copyWith(status: AuthStatus.authenticated));
-    } catch (error) {
+    } catch (e) {
       emit(state.copyWith(
         status: AuthStatus.failure,
-        message: error.toString().replaceFirst('Exception: ', ''),
+        message: e.toString().replaceAll('Exception: ', ''),
       ));
     }
   }
@@ -43,16 +56,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
 
     try {
-      await _repository.register(
-        name: event.name.trim(),
-        email: event.email.trim(),
-        password: event.password.trim(),
-      );
+      final name = event.name.trim();
+      final email = event.email.trim();
+      final password = event.password.trim();
+
+      if (name.isEmpty || email.isEmpty || password.isEmpty) {
+        emit(state.copyWith(
+          status: AuthStatus.failure,
+          message: 'Vui lòng nhập đầy đủ thông tin.',
+        ));
+        return;
+      }
+
+      // TODO: Gọi API register khi backend cung cấp
+      // final response = await remoteDataSource.register(name, email, password);
+
       emit(state.copyWith(status: AuthStatus.authenticated));
-    } catch (error) {
+    } catch (e) {
       emit(state.copyWith(
         status: AuthStatus.failure,
-        message: error.toString().replaceFirst('Exception: ', ''),
+        message: e.toString().replaceAll('Exception: ', ''),
       ));
     }
   }

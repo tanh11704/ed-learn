@@ -1,12 +1,9 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../data/datasources/assessment_remote_data_source.dart';
-import '../../data/repositories/assessment_repository_impl.dart';
-import '../../domain/entities/university.dart';
-import '../../domain/repositories/assessment_repository.dart';
+import '../models/assessment_ui_models.dart';
 
 class UniversitiesScreen extends StatefulWidget {
   const UniversitiesScreen({super.key});
@@ -16,14 +13,21 @@ class UniversitiesScreen extends StatefulWidget {
 }
 
 class _UniversitiesScreenState extends State<UniversitiesScreen> {
-  late final AssessmentRepository _repository;
-  late final Future<List<University>> _universitiesFuture;
+    late final Future<List<UniversityUi>> _universitiesFuture;
 
   @override
   void initState() {
     super.initState();
-    _repository = AssessmentRepositoryImpl(AssessmentRemoteDataSource());
-    _universitiesFuture = _repository.getUniversities();
+        _universitiesFuture = Future.value(const [
+      UniversityUi(id: 1, name: 'Đại học Bách Khoa Hà Nội', location: 'Hà Nội'),
+      UniversityUi(id: 2, name: 'Đại học Quốc gia Hà Nội', location: 'Hà Nội'),
+      UniversityUi(id: 3, name: 'Đại học Ngoại thương', location: 'Hà Nội'),
+      UniversityUi(id: 4, name: 'Đại học Kinh tế Quốc dân', location: 'Hà Nội'),
+      UniversityUi(id: 5, name: 'Đại học Bách Khoa TP.HCM', location: 'TP. Hồ Chí Minh'),
+      UniversityUi(id: 6, name: 'Đại học Quốc gia TP.HCM', location: 'TP. Hồ Chí Minh'),
+      UniversityUi(id: 7, name: 'Đại học Sư phạm Hà Nội', location: 'Hà Nội'),
+      UniversityUi(id: 8, name: 'Đại học Cần Thơ', location: 'Cần Thơ'),
+    ]);
   }
 
   @override
@@ -47,7 +51,7 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: FutureBuilder<List<University>>(
+        child: FutureBuilder<List<UniversityUi>>(
           future: _universitiesFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -117,3 +121,4 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
     );
   }
 }
+
