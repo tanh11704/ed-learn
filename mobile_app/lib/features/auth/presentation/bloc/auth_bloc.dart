@@ -1,6 +1,7 @@
 ﻿// đây là nơi nhận AuthEvent từ UI, xử lý logic xác thực (ví dụ: gọi API) và phát ra AuthState tương ứng để UI cập nhật giao diện
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile_app/core/services/token_storage_service.dart';
 import '../../data/datasources/auth_remote_datasource.dart';
 
 import 'auth_event.dart';
@@ -35,10 +36,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       }
 
       // Gọi API login
-      await remoteDataSource.login(email, password);
+      final response = await remoteDataSource.login(email, password);
       
-      // TODO: Lưu token vào SharedPreferences
-      // await _saveToken(response.accessToken);
+      // Lưu token vào SharedPreferences
+      final tokenStorage = TokenStorageService();
+      await tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
       emit(state.copyWith(status: AuthStatus.authenticated));
     } catch (e) {
@@ -68,8 +70,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         return;
       }
 
-      // TODO: Gọi API register khi backend cung cấp
-      // final response = await remoteDataSource.register(name, email, password);
+      // Gọi API register
+      final response = await remoteDataSource.register(name, email, password);
+      
+      // Lưu token vào SharedPreferences
+      final tokenStorage = TokenStorageService();
+      await tokenStorage.saveTokens(response.accessToken, response.refreshToken);
 
       emit(state.copyWith(status: AuthStatus.authenticated));
     } catch (e) {
@@ -80,10 +86,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  void _onLogoutRequested(
+  Future<void> _onLogoutRequested(
     LogoutRequested event,
     Emitter<AuthState> emit,
-  ) {
-    emit(state.copyWith(status: AuthStatus.unauthenticated));
+  ) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    
+    try {
+      final tokenStorage = TokenStorageService();
+      final accessToken = await tokenStorage.getAccessToken();
+      final refreshToken = await tokenStorage.getRefreshToken();
+
+      if (accessToken == null || refreshToken == null) {
+        // Token không tồn tại, xóa luôn
+        await tokenStorage.clearTokens();
+        emit(state.copyWith(status: AuthStatus.unauthenticated));
+        return;
+      }
+
+      // Gọi API logout
+      await remoteDataSource.logout(accessToken, refreshToken);
+      
+      // Xóa token khỏi SharedPreferences
+      await tokenStorage.clearTokens();
+      
+      emit(state.copyWith(status: AuthStatus.unauthenticated));
+    } catch (e) {
+      // Dù API logout fail, vẫn xóa token local
+      final tokenStorage = TokenStorageService();
+      await tokenStorage.clearTokens();
+      emit(state.copyWith(status: AuthStatus.unauthenticated));
+    }
   }
 }
