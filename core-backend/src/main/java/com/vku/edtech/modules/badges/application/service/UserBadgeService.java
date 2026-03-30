@@ -1,6 +1,6 @@
 package com.vku.edtech.modules.badges.application.service;
 
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 import org.springframework.stereotype.Service;
 
@@ -19,8 +19,8 @@ public class UserBadgeService implements GetMyBadgesUseCase {
   private final UserBadgeQueryPort userBadgeQueryPort;
 
   @Override
-  public List<UserBadgeResult> getMyBadges(GetMyBadgesQuery query) {
-    return userBadgeQueryPort.findMyBadges(query.userId());
+  public Page<UserBadgeResult> getMyBadges(GetMyBadgesQuery query) {
+    return userBadgeQueryPort.findMyBadges(query.userId(), query.pageable());
   }
 
 }

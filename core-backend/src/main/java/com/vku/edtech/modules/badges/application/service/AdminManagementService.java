@@ -1,9 +1,12 @@
 package com.vku.edtech.modules.badges.application.service;
 
+import org.springframework.data.domain.Page;
+
 import org.springframework.stereotype.Service;
 
 import com.vku.edtech.modules.badges.application.port.in.CreateBadgeUseCase;
 import com.vku.edtech.modules.badges.application.port.in.DeleteBadgeUseCase;
+import com.vku.edtech.modules.badges.application.port.in.GetAllBadgesUseCase;
 import com.vku.edtech.modules.badges.application.port.in.GetBadgeUseCase;
 import com.vku.edtech.modules.badges.application.port.in.UpdateBadgeUseCase;
 import com.vku.edtech.modules.badges.application.port.out.BadgeCommandPort;
@@ -20,14 +23,15 @@ public class AdminManagementService implements
     CreateBadgeUseCase,
     GetBadgeUseCase,
     UpdateBadgeUseCase,
-    DeleteBadgeUseCase {
+    DeleteBadgeUseCase,
+    GetAllBadgesUseCase {
 
   private final BadgeQueryPort badgeQueryPort;
   private final BadgeCommandPort badgeCommandPort;
 
   @Override
   public void deleteBadge(DeleteBadgeCommand command) {
-
+    badgeCommandPort.deleteById(command.id());
   }
 
   @Override
@@ -62,6 +66,11 @@ public class AdminManagementService implements
         command.imageUrl(),
         command.xpReward());
     return badgeCommandPort.save(badge);
+  }
+
+  @Override
+  public Page<Badge> getAllBadges(GetAllBadgesQuery query) {
+    return badgeQueryPort.findAll(query.pageable());
   }
 
 }

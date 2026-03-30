@@ -1,13 +1,15 @@
 package com.vku.edtech.modules.badges.application.port.in;
 
-import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import com.vku.edtech.modules.badges.application.dto.UserBadgeResult;
 
 public interface GetMyBadgesUseCase {
-  List<UserBadgeResult> getMyBadges(GetMyBadgesQuery query);
+  Page<UserBadgeResult> getMyBadges(GetMyBadgesQuery query);
 
-  record GetMyBadgesQuery(UUID userId) {
+  record GetMyBadgesQuery(UUID userId, Pageable pageable) {
   }
 }

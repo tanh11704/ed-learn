@@ -1,9 +1,10 @@
 package com.vku.edtech.modules.badges.infrastructure.persistence.adapter;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.vku.edtech.modules.badges.application.dto.UserBadgeResult;
@@ -44,11 +45,9 @@ public class UserBadgePersistenceAdapter implements UserBadgeQueryPort, UserBadg
   }
 
   @Override
-  public List<UserBadgeResult> findMyBadges(UUID userId) {
-    return userBadgeJpaRepository.findAllByUser_Id(userId)
-        .stream()
-        .map(this::toResult)
-        .toList();
+  public Page<UserBadgeResult> findMyBadges(UUID userId, Pageable pageable) {
+    return userBadgeJpaRepository.findAllByUserIdWithBadge(userId, pageable)
+        .map(this::toResult);
   }
 
   @Override

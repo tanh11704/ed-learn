@@ -1,10 +1,10 @@
 package com.vku.edtech.modules.badges.infrastructure.persistence.adapter;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.vku.edtech.modules.badges.application.port.out.BadgeCommandPort;
@@ -48,9 +48,8 @@ public class BadgePersistenceAdapter implements BadgeQueryPort, BadgeCommandPort
   }
 
   @Override
-  public List<Badge> findAll() {
-    return badgeJpaRepository.findAll().stream().map(badgeMapper::toDomain)
-        .collect(Collectors.toList());
+  public Page<Badge> findAll(Pageable pageable) {
+    return badgeJpaRepository.findAll(pageable).map(badgeMapper::toDomain);
   }
 
 }

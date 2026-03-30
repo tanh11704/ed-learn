@@ -1,12 +1,14 @@
 package com.vku.edtech.modules.badges.presentation.controller;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,11 +33,14 @@ public class UserBadgeController {
 
   @Operation(summary = "Lấy badge của tôi", security = @SecurityRequirement(name = "bearerAuth"))
   @GetMapping("/me")
-  public ResponseEntity<List<UserBadgeResponse>> getMyBadeges(
-      Principal principal) {
+  public ResponseEntity<Page<UserBadgeResponse>> getMyBadeges(
+      Principal principal,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
     UUID userId = extractUserId(principal);
-    List<UserBadgeResponse> badges = userBadgeResponseMapper
-        .toResponses(getMyBadgesUseCase.getMyBadges(new GetMyBadgesUseCase.GetMyBadgesQuery(userId)));
+    Page<UserBadgeResponse> badges = getMyBadgesUseCase
+        .getMyBadges(new GetMyBadgesUseCase.GetMyBadgesQuery(userId, PageRequest.of(page, size)))
+        .map(userBadgeResponseMapper::toResponse);
     return ResponseEntity.ok(badges);
   }
 
