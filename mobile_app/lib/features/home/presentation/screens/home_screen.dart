@@ -30,17 +30,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-        ),
+        child: AppBar(elevation: 0, backgroundColor: Colors.white),
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state is HomeEmpty) {
@@ -75,64 +70,77 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header "Chào buổi sáng" with user avatar
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    // header
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                /// Ngày / greeting nhỏ
                                 Text(
                                   _getGreeting(),
                                   style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey[500],
-                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'Chào buổi sáng!',
+
+                                const SizedBox(height: 6),
+
+                                /// Lời chào chính
+                                Text(
+                                  _getGreetingMessage(),
                                   style: TextStyle(
-                                    fontSize: 28,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                /// Tên user
+                                Text(
+                                  (state.userName ?? 'Người dùng')
+                                      .toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 20,
                                     fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
                                     color: Colors.black87,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          // User avatar
+
+                          const SizedBox(width: 12),
+
+                          /// Avatar
                           GestureDetector(
-                            onTap: () {
-                              // Navigate to profile
-                              context.go('/profile');
-                            },
-                            child: Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [Colors.blue[300]!, Colors.blue[600]!],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.blue.withOpacity(0.2),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 28,
-                              ),
+                            onTap: () => context.go('/profile'),
+                            child: CircleAvatar(
+                              radius: 28,
+                              backgroundColor: Colors.blue.shade50,
+                              backgroundImage: state.userAvatar != null
+                                  ? NetworkImage(state.userAvatar!)
+                                  : null,
+                              child: state.userAvatar == null
+                                  ? Icon(
+                                      Icons.person,
+                                      color: Colors.blue.shade400,
+                                      size: 26,
+                                    )
+                                  : null,
                             ),
                           ),
                         ],
@@ -159,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        
+
                         children: [
                           const Text(
                             'Nhiệm vụ hôm nay',
@@ -205,8 +213,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             onCompleted: () {
                               context.read<HomeBloc>().add(
-                                    MarkTaskCompleted(task.id),
-                                  );
+                                MarkTaskCompleted(task.id),
+                              );
                               if (state.streak == 7 && !task.isCompleted) {
                                 _showStreakDialog(context, state.streak);
                               }
@@ -261,8 +269,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               message: state.dailyProgress >= 100
                                   ? '"Xuất sắc! Bạn đã hoàn thành mục tiêu hôm nay!"'
                                   : state.dailyProgress >= 70
-                                      ? '"Gần rồi! Chỉ còn ${100 - state.dailyProgress}% nữa!"'
-                                      : '"Bạn chỉ còn ${100 - state.dailyProgress}% để đạt mục tiêu hôm nay!"',
+                                  ? '"Gần rồi! Chỉ còn ${100 - state.dailyProgress}% nữa!"'
+                                  : '"Bạn chỉ còn ${100 - state.dailyProgress}% để đạt mục tiêu hôm nay!"',
                             ),
                           ),
                         ],
@@ -320,11 +328,31 @@ class _HomeScreenState extends State<HomeScreen> {
     final now = DateTime.now();
     final day = now.day;
     final month = now.month;
-    return 'Thứ ${_getDayOfWeek()}, $day Tháng $month';
+    final dayOfWeek = _getDayOfWeek();
+
+    if (dayOfWeek == 'Chủ Nhật') {
+      return '$dayOfWeek, $day Tháng $month';
+    }
+    return 'Thứ $dayOfWeek, $day Tháng $month';
   }
 
   String _getDayOfWeek() {
     final days = ['Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy', 'Chủ Nhật'];
     return days[DateTime.now().weekday - 1];
+  }
+
+  String _getGreetingMessage() {
+    final hour = DateTime.now().hour;
+    if (hour >= 5 && hour < 11) {
+      return 'Chào buổi sáng!';
+    } else if (hour >= 11 && hour < 13) {
+      return 'Chào buổi trưa!';
+    } else if (hour >= 13 && hour < 17) {
+      return 'Chào buổi chiều!';
+    } else if (hour >= 17 && hour < 22) {
+      return 'Chào buổi tối!';
+    } else {
+      return 'Chào đêm khuya!';
+    }
   }
 }

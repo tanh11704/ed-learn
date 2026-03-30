@@ -100,6 +100,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       if (accessToken == null || refreshToken == null) {
         // Token không tồn tại, xóa luôn
         await tokenStorage.clearTokens();
+        await tokenStorage.clearCurrentUserEmail();
+        // Giữ assessment status để lần sau đăng nhập không phải làm lại
         emit(state.copyWith(status: AuthStatus.unauthenticated));
         return;
       }
@@ -107,14 +109,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       // Gọi API logout
       await remoteDataSource.logout(accessToken, refreshToken);
       
-      // Xóa token khỏi SharedPreferences
+      // Xóa token và email user hiện tại
       await tokenStorage.clearTokens();
+      await tokenStorage.clearCurrentUserEmail();
+      // Giữ assessment status để lần sau đăng nhập không phải làm lại
       
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     } catch (e) {
       // Dù API logout fail, vẫn xóa token local
       final tokenStorage = TokenStorageService();
       await tokenStorage.clearTokens();
+      await tokenStorage.clearCurrentUserEmail();
+      // Giữ assessment status để lần sau đăng nhập không phải làm lại
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }

@@ -23,3 +23,7 @@ class MarkTaskCompleted extends HomeEvent {
 class RefreshDashboard extends HomeEvent {
   const RefreshDashboard();
 }
+
+class LoadUserInfo extends HomeEvent {
+  const LoadUserInfo();
+}

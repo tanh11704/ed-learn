@@ -4,6 +4,14 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile_app/features/home/presentation/screens/schedule_screen.dart';
 import 'package:mobile_app/features/home/presentation/bloc/home_bloc.dart';
+import 'package:mobile_app/features/home/data/repositories/home_repository_impl.dart';
+import 'package:mobile_app/features/home/data/datasources/home_remote_datasource.dart';
+import 'package:mobile_app/features/learning/presentation/screens/learning_path_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/module_detail_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/lesson_play_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/quiz_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/quiz_result_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/quiz_review_screen.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -34,16 +42,25 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
+              name: 'home',
               path: '/home',
               builder: (context, state) => BlocProvider(
-                create: (context) => HomeBloc(),
+                create: (context) => HomeBloc(
+                  HomeRepositoryImpl(
+                    HomeRemoteDatasourceImpl(),
+                  ),
+                ),
                 child: const HomeScreen(),
               ),
               routes: [
                 GoRoute(
                   path: 'schedule',
                   builder: (context, state) => BlocProvider(
-                    create: (context) => HomeBloc(),
+                    create: (context) => HomeBloc(
+                      HomeRepositoryImpl(
+                        HomeRemoteDatasourceImpl(),
+                      ),
+                    ),
                     child: const ScheduleScreen(),
                   ),
                 ),
@@ -51,7 +68,74 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(routes: [GoRoute(path: '/learning', builder: (context, state) => const Scaffold(body: Center(child: Text('Học tập'))))]),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/learning',
+              builder: (context, state) => const LearningPathScreen(),
+              routes: [
+                GoRoute(
+                  path: 'module-detail',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return ModuleDetailScreen(
+                      moduleId: extra?['moduleId'] ?? 'pandas-analysis',
+                      moduleName: extra?['moduleName'] ?? 'Pandas Analysis',
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'lesson-play',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return LessonPlayScreen(
+                      lessonId: extra?['lessonId'] ?? '1',
+                      lessonName: extra?['lessonName'] ?? 'Intro to Dataframes',
+                      moduleName: extra?['moduleName'] ?? 'Pandas Analysis',
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'quiz-start',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return QuizScreen(
+                      quizName: extra?['quizName'] ?? 'Quiz',
+                      moduleName: extra?['moduleName'] ?? 'Module',
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'quiz-result',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return QuizResultScreen(
+                      correctCount: extra?['correctCount'] ?? 0,
+                      totalCount: extra?['totalCount'] ?? 0,
+                      minutes: extra?['minutes'] ?? 0,
+                      quizName: extra?['quizName'] ?? 'Quiz',
+                      userAnswers: extra?['userAnswers'] ?? {},
+                      questions: extra?['questions'] ?? [],
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'quiz-review',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return QuizReviewScreen(
+                      quizName: extra?['quizName'] ?? 'Quiz',
+                      userAnswers: extra?['userAnswers'] ?? {},
+                      questions: extra?['questions'] ?? [],
+                      correctCount: extra?['correctCount'] ?? 0,
+                      totalCount: extra?['totalCount'] ?? 0,
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
         StatefulShellBranch(routes: [GoRoute(path: '/exam', builder: (context, state) => const Scaffold(body: Center(child: Text('Thi thử'))))]),
         StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))]),
       ],

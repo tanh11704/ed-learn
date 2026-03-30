@@ -1,9 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/repositories/home_repository.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  HomeBloc() : super(const HomeInitial()) {
+  final HomeRepository repository;
+  
+  HomeBloc(this.repository) : super(const HomeInitial()) {
     on<LoadDashboardData>(_onLoadDashboardData);
     on<MarkTaskCompleted>(_onMarkTaskCompleted);
     on<RefreshDashboard>(_onRefreshDashboard);
@@ -15,9 +18,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async {
     emit(const HomeLoading());
     try {
-      // TODO: Fetch từ repository/domain
-      await Future.delayed(const Duration(milliseconds: 500));
-
+      // Fetch user info từ repository
+      final userInfo = await repository.getUserInfo();
+      
+      // Mock tasks
       final mockTasks = [
         Task(
           id: '1',
@@ -43,6 +47,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           dailyProgress: 65,
           daysRemaining: 120,
           streak: 7,
+          userName: userInfo.name,
+          userEmail: userInfo.email,
+          userAvatar: userInfo.avatar,
         ));
       }
     } catch (e) {
@@ -77,6 +84,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           dailyProgress: (currentState.dailyProgress + 10).clamp(0, 100).toInt(),
           daysRemaining: currentState.daysRemaining,
           streak: currentState.streak,
+          userName: currentState.userName,
+          userEmail: currentState.userEmail,
+          userAvatar: currentState.userAvatar,
         ));
       } catch (e) {
         emit(HomeError(e.toString()));

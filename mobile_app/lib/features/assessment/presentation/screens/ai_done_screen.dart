@@ -3,10 +3,27 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/services/token_storage_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 
 class AiDoneScreen extends StatelessWidget {
   const AiDoneScreen({super.key});
+
+  Future<void> _completeAssessmentAndNavigate(BuildContext context) async {
+    // Lấy email user hiện tại
+    final tokenStorage = TokenStorageService();
+    final userEmail = await tokenStorage.getCurrentUserEmail();
+    
+    if (userEmail != null) {
+      // Lưu flag đã hoàn thành assessment cho user này
+      await tokenStorage.setAssessmentCompleted(userEmail, true);
+    }
+    
+    // Điều hướng tới home
+    if (context.mounted) {
+      context.goNamed('home');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +92,7 @@ class AiDoneScreen extends StatelessWidget {
               const Spacer(),
               PrimaryButton(
                 text: 'Hoàn tất & về Home',
-                onPressed: () => context.go('/home'),
+                onPressed: () => _completeAssessmentAndNavigate(context),
               ),
             ],
           ),

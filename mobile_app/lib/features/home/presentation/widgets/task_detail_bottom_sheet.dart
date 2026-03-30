@@ -19,9 +19,9 @@ class TaskDetailBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.65,
+      initialChildSize: 0.5,
       minChildSize: 0.4,
-      maxChildSize: 0.95,
+      maxChildSize: 0.8,
       builder: (context, scrollController) {
         return Container(
           decoration: const BoxDecoration(
@@ -51,50 +51,6 @@ class TaskDetailBottomSheet extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Profile header
-                        Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: Colors.orange[100],
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.orange[600],
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Chào buổi sáng',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  'Nguyễn Văn A',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const Spacer(),
-                            Icon(
-                              Icons.notifications_outlined,
-                              color: Colors.grey[500],
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
 
                         // Task title
                         Text(

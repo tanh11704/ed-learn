@@ -6,7 +6,6 @@ abstract class HomeState extends Equatable {
   @override
   List<Object?> get props => [];
 }
-
 class HomeInitial extends HomeState {
   const HomeInitial();
 }
@@ -20,16 +19,22 @@ class HomeLoaded extends HomeState {
   final int dailyProgress; // 0-100
   final int daysRemaining;
   final int streak;
+  final String? userName;
+  final String? userEmail;
+  final String? userAvatar;
 
   const HomeLoaded({
     required this.tasks,
     required this.dailyProgress,
     required this.daysRemaining,
     required this.streak,
+    this.userName,
+    this.userEmail,
+    this.userAvatar,
   });
 
   @override
-  List<Object?> get props => [tasks, dailyProgress, daysRemaining, streak];
+  List<Object?> get props => [tasks, dailyProgress, daysRemaining, streak, userName, userEmail, userAvatar];
 }
 
 class HomeEmpty extends HomeState {
@@ -45,7 +50,6 @@ class HomeError extends HomeState {
   List<Object?> get props => [message];
 }
 
-// Domain model for Task
 class Task extends Equatable {
   final String id;
   final String title;
