@@ -1,11 +1,11 @@
-package com.vku.edtech.modules.badges.application.dto;
+package com.vku.edtech.modules.badges.presentation.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.vku.edtech.modules.badges.domain.model.BadgeCategory;
 
-public record UserBadgeResult(
+public record UserBadgeResponse(
         UUID userBadgeId,
         UUID badgeId,
         String badgeCode,
