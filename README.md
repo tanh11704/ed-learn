@@ -107,11 +107,11 @@ flutter run
 
 Dự án được thực hiện bởi nhóm sinh viên năm 4 - Khoa KHMT, Trường ĐH CNTT & TT Việt - Hàn (VKU):
 
-| Thành viên          | Vai trò                                  |
-| ------------------- | ---------------------------------------- |
-| `<Tên Sinh Viên 1>` | Backend Developer (Spring Boot) & DevOps |
-| `<Tên Sinh Viên 2>` | AI Engineer (FastAPI) & Database Design  |
-| `<Tên Sinh Viên 3>` | Mobile Developer (Flutter)               |
+| Thành viên       | Vai trò                                  |
+| ---------------- | ---------------------------------------- |
+| `Trần Phước Anh` | Backend Developer (Spring Boot) & DevOps |
+| `Mai Phương Nam` | AI Engineer (FastAPI) & Database Design  |
+| `Phan Văn Nghĩa` | Mobile Developer (Flutter)               |
 
 👨‍🏫 **Giảng viên hướng dẫn:** `<Học hàm, Học vị, Tên GVHD>`
 
