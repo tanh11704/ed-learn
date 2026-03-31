@@ -20,6 +20,7 @@ public class Lesson {
     private String videoUrl;
     private String pdfUrl;
     private Integer orderIndex;
+    private Boolean isPreview = false;
     private final Instant createdAt;
     private Instant updatedAt;
 

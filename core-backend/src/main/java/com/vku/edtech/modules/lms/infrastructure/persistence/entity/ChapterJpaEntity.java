@@ -30,6 +30,10 @@ public class ChapterJpaEntity extends BaseEntity {
     @Builder.Default
     private Set<LessonJpaEntity> lessons = new LinkedHashSet<>();
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
+
     public void addLesson(LessonJpaEntity lesson) {
         lessons.add(lesson);
         lesson.setChapter(this);

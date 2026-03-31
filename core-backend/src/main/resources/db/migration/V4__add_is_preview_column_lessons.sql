@@ -1,0 +1,2 @@
+ALTER TABLE lessons ADD COLUMN is_preview BOOLEAN DEFAULT false;
+ALTER TABLE chapters ADD COLUMN is_deleted BOOLEAN DEFAULT false;

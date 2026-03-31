@@ -22,6 +22,7 @@ public class Chapter {
     private String title;
     private Integer orderIndex;
     @Builder.Default private List<Lesson> lessons = new ArrayList<>();
+    private Boolean isDeleted;
     private final Instant createdAt;
     private Instant updatedAt;
 
