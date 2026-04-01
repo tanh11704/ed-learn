@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.identity.application.service;
 
 import com.vku.edtech.modules.identity.application.dto.AuthResult;
+import com.vku.edtech.modules.identity.application.port.in.CreateUserStreakUseCase;
 import com.vku.edtech.modules.identity.application.port.in.RegisterUseCase;
 import com.vku.edtech.modules.identity.application.port.out.*;
 import com.vku.edtech.modules.identity.domain.model.RefreshToken;
@@ -21,6 +22,7 @@ public class RegisterService implements RegisterUseCase {
     private final PasswordEncoderPort passwordEncoderPort;
     private final TokenGeneratorPort tokenGeneratorPort;
     private final RefreshTokenCommandPort refreshTokenCommandPort;
+    private final CreateUserStreakUseCase createUserStreakUseCase;
 
     @Override
     public AuthResult register(RegisterCommand command) {
@@ -47,6 +49,8 @@ public class RegisterService implements RegisterUseCase {
                         savedUser.getId());
 
         refreshTokenCommandPort.save(refreshTokenDomain);
+
+        createUserStreakUseCase.createInitialStreak(savedUser.getId());
 
         return new AuthResult(accessToken, refreshToken);
     }

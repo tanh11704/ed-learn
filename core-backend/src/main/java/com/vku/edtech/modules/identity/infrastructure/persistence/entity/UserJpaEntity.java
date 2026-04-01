@@ -38,4 +38,5 @@ public class UserJpaEntity extends BaseEntity {
     @Column(name = "role")
     @Builder.Default
     private Role role = Role.USER;
+
 }

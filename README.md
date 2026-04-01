@@ -47,7 +47,7 @@ Dự án được quản lý theo mô hình Monorepo:
 ed-learn/
 ├── core-backend/       # Spring Boot 3 (Java 17) - Quản lý nghiệp vụ & Data
 ├── ai-service/         # FastAPI (Python 3.10) - Xử lý RAG, LangChain, PDF
-├── mobile-app/         # Flutter (Dart) - Ứng dụng di động
+├── mobile_app/         # Flutter (Dart) - Ứng dụng di động
 ├── docker-compose.yml  # File cấu hình hạ tầng (Postgres, Redis, ChromaDB)
 └── README.md
 ```
@@ -96,7 +96,7 @@ uvicorn app.main:app --reload --port 8001
 ### 5. Khởi chạy Mobile App (Flutter)
 
 ```bash
-cd mobile-app
+cd mobile_app
 flutter pub get
 flutter run
 ```
@@ -107,11 +107,11 @@ flutter run
 
 Dự án được thực hiện bởi nhóm sinh viên năm 4 - Khoa KHMT, Trường ĐH CNTT & TT Việt - Hàn (VKU):
 
-| Thành viên          | Vai trò                                  |
-| ------------------- | ---------------------------------------- |
-| `<Tên Sinh Viên 1>` | Backend Developer (Spring Boot) & DevOps |
-| `<Tên Sinh Viên 2>` | AI Engineer (FastAPI) & Database Design  |
-| `<Tên Sinh Viên 3>` | Mobile Developer (Flutter)               |
+| Thành viên       | Vai trò                                  |
+| ---------------- | ---------------------------------------- |
+| `Trần Phước Anh` | Backend Developer (Spring Boot) & DevOps |
+| `Mai Phương Nam` | AI Engineer (FastAPI) & Database Design  |
+| `Phan Văn Nghĩa` | Mobile Developer (Flutter)               |
 
 👨‍🏫 **Giảng viên hướng dẫn:** `<Học hàm, Học vị, Tên GVHD>`
 
