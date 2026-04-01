@@ -2,7 +2,6 @@ package com.vku.edtech.modules.lms.infrastructure.persistence.mapper;
 
 import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.ChapterJpaEntity;
-import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
