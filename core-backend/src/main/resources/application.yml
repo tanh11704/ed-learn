@@ -28,6 +28,9 @@ spring:
       timeout: 3000
       database: 0
 
+server:
+  forward-headers-strategy: framework
+
 jwt:
   secret: ${JWT_SECRET:7vsOJNohR7YoGJ2Uh6vM6FNMzOCOtcGQrKlKCpVORac}
   access-token-expiration: ${JWT_EXPIRATION:900000}
