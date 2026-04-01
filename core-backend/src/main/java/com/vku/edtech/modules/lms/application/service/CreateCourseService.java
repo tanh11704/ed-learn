@@ -16,11 +16,8 @@ public class CreateCourseService implements CreateCourseUseCase {
     @Override
     @Transactional
     public Course createCourse(CreateCourseCommand command) {
-        Course newCourse = Course.createNew(
-                command.title(),
-                command.description(),
-                command.subject()
-        );
+        Course newCourse =
+                Course.createNew(command.title(), command.description(), command.subject());
 
         return courseCommandPort.save(newCourse);
     }

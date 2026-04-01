@@ -27,7 +27,14 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
-    public User(UUID id, String email, String passwordHash, String fullName, Role role, Instant createdAt, Instant updatedAt) {
+    public User(
+            UUID id,
+            String email,
+            String passwordHash,
+            String fullName,
+            Role role,
+            Instant createdAt,
+            Instant updatedAt) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -49,11 +56,31 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
-    public UUID getId() { return id; }
-    public String getEmail() { return email; }
-    public String getPasswordHash() { return passwordHash; }
-    public String getFullName() { return fullName; }
-    public Role getRole() { return role; }
-    public Instant getCreatedAt() { return createdAt; }
-    public Instant getUpdatedAt() { return updatedAt; }
+    public UUID getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
+    }
 }

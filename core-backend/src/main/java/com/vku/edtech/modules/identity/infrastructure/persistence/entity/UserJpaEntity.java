@@ -38,8 +38,4 @@ public class UserJpaEntity extends BaseEntity {
     @Column(name = "role")
     @Builder.Default
     private Role role = Role.USER;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private UserStreakJpaEntity userStreak;
-
 }

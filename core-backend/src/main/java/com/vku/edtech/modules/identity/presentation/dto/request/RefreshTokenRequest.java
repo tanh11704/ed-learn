@@ -5,7 +5,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record RefreshTokenRequest(
         @Schema(description = "Chuỗi Refresh Token được cấp lúc đăng nhập")
-        @NotBlank(message = "Refresh Token không được để trống")
-        String refreshToken
-) {
-}
+                @NotBlank(message = "Refresh Token không được để trống")
+                String refreshToken) {}

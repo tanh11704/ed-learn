@@ -1,13 +1,13 @@
 package com.vku.edtech.modules.lms.application.service;
 
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
-import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase.UploadLessonMediaCommand;
-import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import com.vku.edtech.modules.lms.application.port.out.LessonCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
+import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
+import com.vku.edtech.shared.application.ports.out.FileStoragePort;
+import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,8 +23,10 @@ public class UploadLessonMediaService implements UploadLessonMediaUseCase {
     @Override
     @Transactional
     public Lesson uploadMedia(UploadLessonMediaCommand command) {
-        Lesson lesson = lessonQueryPort.findById(command.lessonId())
-                .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
+        Lesson lesson =
+                lessonQueryPort
+                        .findById(command.lessonId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
         String fileUrl = fileStoragePort.uploadFile(command.file(), "lessons");
 

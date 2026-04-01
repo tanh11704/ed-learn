@@ -1,9 +1,9 @@
 package com.vku.edtech.modules.lms.application.service;
 
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import com.vku.edtech.modules.lms.application.port.in.GetLessonDetailUseCase;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
+import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,8 @@ public class GetLessonDetailService implements GetLessonDetailUseCase {
 
     @Override
     public Lesson getLessonDetail(GetLessonDetailQuery query) {
-        return lessonQueryPort.findById(query.lessonId())
+        return lessonQueryPort
+                .findById(query.lessonId())
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
     }
 }

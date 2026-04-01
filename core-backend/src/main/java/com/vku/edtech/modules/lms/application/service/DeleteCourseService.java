@@ -19,8 +19,11 @@ public class DeleteCourseService implements DeleteCourseUseCase {
     @Override
     @Transactional
     public void deleteCourse(DeleteCourseCommand command) {
-        Course course = courseQueryPort.findByIdWithChapters(command.courseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
+        Course course =
+                courseQueryPort
+                        .findByIdWithChapters(command.courseId())
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("Không tìm thấy khóa học"));
 
         course.markAsDeleted();
         courseCommandPort.save(course);

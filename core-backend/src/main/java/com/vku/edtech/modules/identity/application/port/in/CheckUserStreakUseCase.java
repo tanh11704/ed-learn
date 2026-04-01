@@ -1,7 +1,6 @@
 package com.vku.edtech.modules.identity.application.port.in;
 
 import com.vku.edtech.modules.identity.domain.model.UserStreak;
-
 import java.util.UUID;
 
 public interface CheckUserStreakUseCase {
@@ -9,6 +8,5 @@ public interface CheckUserStreakUseCase {
 
     UserStreak recordActivity(CheckUserStreakCommand command);
 
-    record CheckUserStreakCommand(UUID userId) {
-    }
+    record CheckUserStreakCommand(UUID userId) {}
 }

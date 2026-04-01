@@ -5,16 +5,13 @@ import com.vku.edtech.modules.lms.infrastructure.persistence.entity.CourseJpaEnt
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.LessonJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.ChapterJpaRepository;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.CourseJpaRepository;
+import java.util.LinkedHashSet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-
-@Component
+// @Component
 @Profile({"dev", "local"})
 @RequiredArgsConstructor
 public class LmsDataSeeder implements CommandLineRunner {
@@ -25,27 +22,30 @@ public class LmsDataSeeder implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        CourseJpaEntity course = CourseJpaEntity.builder()
-                .title("Lập trình Java Spring Boot Clean Architecture")
-                .description("Khóa học hướng dẫn xây dựng hệ thống LMS chuẩn chỉnh từ A-Z")
-                .subject("Backend")
-                .thumbnailUrl("https://img.youtube.com/vi/placeholder/0.jpg")
-                .chapters(new LinkedHashSet<>())
-                .build();
+        CourseJpaEntity course =
+                CourseJpaEntity.builder()
+                        .title("Lập trình Java Spring Boot Clean Architecture")
+                        .description("Khóa học hướng dẫn xây dựng hệ thống LMS chuẩn chỉnh từ A-Z")
+                        .subject("Backend")
+                        .thumbnailUrl("https://img.youtube.com/vi/placeholder/0.jpg")
+                        .chapters(new LinkedHashSet<>())
+                        .build();
 
-        ChapterJpaEntity chapter = ChapterJpaEntity.builder()
-                .title("Chương 1: Thiết kế Domain Model")
-                .orderIndex(1)
-                .course(course)
-                .lessons(new LinkedHashSet<>())
-                .build();
+        ChapterJpaEntity chapter =
+                ChapterJpaEntity.builder()
+                        .title("Chương 1: Thiết kế Domain Model")
+                        .orderIndex(1)
+                        .course(course)
+                        .lessons(new LinkedHashSet<>())
+                        .build();
 
-        LessonJpaEntity lesson = LessonJpaEntity.builder()
-                .title("Bài 1.1: Rich Domain Model vs Anemic Model")
-                .orderIndex(1)
-                .chapter(chapter)
-                .videoUrl("lessons/sample-video.mp4")
-                .build();
+        LessonJpaEntity lesson =
+                LessonJpaEntity.builder()
+                        .title("Bài 1.1: Rich Domain Model vs Anemic Model")
+                        .orderIndex(1)
+                        .chapter(chapter)
+                        .videoUrl("lessons/sample-video.mp4")
+                        .build();
 
         chapter.addLesson(lesson);
         course.addChapter(chapter);

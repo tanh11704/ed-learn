@@ -1,15 +1,11 @@
 package com.vku.edtech.modules.lms.infrastructure.persistence.entity;
 
 import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
-
 import jakarta.persistence.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "chapters")
@@ -33,6 +29,10 @@ public class ChapterJpaEntity extends BaseEntity {
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private Set<LessonJpaEntity> lessons = new LinkedHashSet<>();
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isDeleted = false;
 
     public void addLesson(LessonJpaEntity lesson) {
         lessons.add(lesson);

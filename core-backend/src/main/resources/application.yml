@@ -3,7 +3,7 @@ spring:
     name: core-backend
 
   profiles:
-    active: prod
+    active: dev
 
   servlet:
     multipart:

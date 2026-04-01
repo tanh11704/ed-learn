@@ -7,10 +7,5 @@ public interface UpdateCourseUseCase {
     Course updateCourse(UpdateCourseCommand command);
 
     record UpdateCourseCommand(
-            UUID courseId,
-            String title,
-            String description,
-            String subject,
-            String thumbnailUrl
-    ) {}
+            UUID courseId, String title, String description, String subject, String thumbnailUrl) {}
 }
