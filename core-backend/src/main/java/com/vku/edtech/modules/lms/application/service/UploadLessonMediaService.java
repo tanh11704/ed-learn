@@ -25,15 +25,15 @@ public class UploadLessonMediaService implements UploadLessonMediaUseCase {
     public Lesson uploadMedia(UploadLessonMediaCommand command) {
         Lesson lesson =
                 lessonQueryPort
-                        .findById(command.lessonId())
+                        .findByIdAndNotDeleted(command.lessonId())
                         .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
         String fileUrl = fileStoragePort.uploadFile(command.file(), "lessons");
 
         if ("VIDEO".equalsIgnoreCase(command.mediaType())) {
-            lesson.updateVideoMedia(fileUrl);
+            lesson.updateVideoUrl(fileUrl);
         } else if ("PDF".equalsIgnoreCase(command.mediaType())) {
-            lesson.updatePdfMedia(fileUrl);
+            lesson.updatePdfUrl(fileUrl);
         } else {
             throw new InvalidDomainDataException("Unsupported media type: " + command.mediaType());
         }

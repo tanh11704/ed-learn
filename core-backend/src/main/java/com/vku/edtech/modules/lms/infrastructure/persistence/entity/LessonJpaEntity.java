@@ -30,5 +30,11 @@ public class LessonJpaEntity extends BaseEntity {
     @Column(nullable = false)
     private Integer orderIndex;
 
-    @Column @Builder.Default private Boolean isPreview = false;
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isPreview = false;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isDeleted = false;
 }
