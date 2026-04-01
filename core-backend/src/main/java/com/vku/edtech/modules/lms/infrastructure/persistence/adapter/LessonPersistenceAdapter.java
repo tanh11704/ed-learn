@@ -6,11 +6,10 @@ import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.LessonJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.LessonMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.LessonJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor

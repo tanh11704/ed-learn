@@ -5,7 +5,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record LogoutRequest(
         @Schema(description = "Refresh Token cần xóa khỏi hệ thống")
-        @NotBlank(message = "Refresh Token không được để trống")
-        String refreshToken
-) {
-}
+                @NotBlank(message = "Refresh Token không được để trống")
+                String refreshToken) {}

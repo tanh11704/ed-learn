@@ -10,11 +10,10 @@ import com.vku.edtech.modules.identity.domain.model.RefreshToken;
 import com.vku.edtech.modules.identity.domain.model.User;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import com.vku.edtech.shared.presentation.exception.TokenRefreshException;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Instant;
 
 @Service
 @Transactional
@@ -29,8 +28,10 @@ public class RefreshTokenService implements RefreshTokenUseCase {
     @Override
     public AuthResult refresh(RefreshTokenCommand command) {
 
-        RefreshToken refreshTokenDomain = refreshTokenQueryPort.findByToken(command.refreshToken())
-                .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
+        RefreshToken refreshTokenDomain =
+                refreshTokenQueryPort
+                        .findByToken(command.refreshToken())
+                        .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
 
         if (refreshTokenDomain.isRevoked()) {
             throw new TokenRefreshException("Token đã bị thu hồi");
@@ -40,16 +41,18 @@ public class RefreshTokenService implements RefreshTokenUseCase {
             throw new TokenRefreshException("Phiên đăng nhập đã hết hạn");
         }
 
-        User user = userQueryPort.findById(refreshTokenDomain.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy người dùng"));
+        User user =
+                userQueryPort
+                        .findById(refreshTokenDomain.getUserId())
+                        .orElseThrow(
+                                () -> new ResourceNotFoundException("Không tìm thấy người dùng"));
 
         String accessToken = tokenGeneratorPort.generateAccessToken(user);
         String refreshToken = tokenGeneratorPort.generateRefreshToken(user);
 
         refreshTokenDomain.renewToken(
                 refreshToken,
-                Instant.now().plusMillis(tokenGeneratorPort.getRefreshTokenExpirationMillis())
-        );
+                Instant.now().plusMillis(tokenGeneratorPort.getRefreshTokenExpirationMillis()));
         refreshTokenCommandPort.save(refreshTokenDomain);
 
         return new AuthResult(accessToken, refreshToken);

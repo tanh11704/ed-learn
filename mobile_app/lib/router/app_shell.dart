@@ -2,15 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../core/constants/app_colors.dart';
 
-class AppShell extends StatelessWidget {
+class AppShell extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
+  static final GlobalKey<_AppShellState> _globalKey = GlobalKey<_AppShellState>();
 
   const AppShell({super.key, required this.navigationShell});
+
+  static void hideNavBar() {
+    _globalKey.currentState?.hideNavBar();
+  }
+
+  static void showNavBar() {
+    _globalKey.currentState?.showNavBar();
+  }
+
+  @override
+  State<AppShell> createState() => _AppShellState();
+}
+
+class _AppShellState extends State<AppShell> {
+  bool _isBottomSheetOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    AppShell._globalKey.currentState == null ? null : null;
+  }
+
+  void hideNavBar() {
+    setState(() => _isBottomSheetOpen = true);
+  }
+
+  void showNavBar() {
+    setState(() => _isBottomSheetOpen = false);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell, // Hiển thị màn hình con tương ứng với tab được chọn
+      body: widget.navigationShell, // Hiển thị màn hình con tương ứng với tab được chọn
       
       // 1. NÚT NỔI Ở GIỮA (GIA SƯ AI)
       floatingActionButton: FloatingActionButton(
@@ -27,7 +57,7 @@ class AppShell extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
       // 2. THANH ĐIỀU HƯỚNG DƯỚI ĐÁY
-      bottomNavigationBar: BottomAppBar(
+      bottomNavigationBar: _isBottomSheetOpen ? null : BottomAppBar(
         shape: const CircularNotchedRectangle(), // Tạo rãnh lõm cho nút nổi
         notchMargin: 8.0,
         color: AppColors.white,
@@ -52,10 +82,10 @@ class AppShell extends StatelessWidget {
 
   // Hàm tạo từng nút bấm trên Nav Bar
   Widget _buildNavItem({required IconData icon, required IconData activeIcon, required String label, required int index}) {
-    final isSelected = navigationShell.currentIndex == index;
+    final isSelected = widget.navigationShell.currentIndex == index;
     
     return InkWell(
-      onTap: () => navigationShell.goBranch(index, initialLocation: index == navigationShell.currentIndex),
+      onTap: () => widget.navigationShell.goBranch(index, initialLocation: index == widget.navigationShell.currentIndex),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,

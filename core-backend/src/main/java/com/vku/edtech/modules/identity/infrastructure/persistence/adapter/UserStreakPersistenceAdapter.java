@@ -7,11 +7,10 @@ import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserStr
 import com.vku.edtech.modules.identity.infrastructure.persistence.mapper.UserStreakPersistenceMapper;
 import com.vku.edtech.modules.identity.infrastructure.persistence.repository.JpaUserStreakRepository;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -23,20 +22,20 @@ public class UserStreakPersistenceAdapter implements UserStreakPort {
 
     @Override
     public Optional<UserStreak> findByUserId(UUID userId) {
-        return userStreakRepository.findByUserId(userId)
-                .map(userStreakMapper::toDomain);
+        return userStreakRepository.findByUserId(userId).map(userStreakMapper::toDomain);
     }
 
     @Override
     public UserStreak save(UserStreak userStreak) {
-        UserJpaEntity userRef = entityManager.getReference(UserJpaEntity.class, userStreak.getUserId());
+        UserJpaEntity userRef =
+                entityManager.getReference(UserJpaEntity.class, userStreak.getUserId());
 
         UserStreakJpaEntity entity = userStreakMapper.toEntity(userStreak, userRef);
-        
+
         if (userStreak.getId() != null) {
             entity.setId(userStreak.getId());
         }
-        
+
         UserStreakJpaEntity savedEntity = userStreakRepository.save(entity);
         return userStreakMapper.toDomain(savedEntity);
     }

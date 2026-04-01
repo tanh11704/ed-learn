@@ -21,7 +21,8 @@ public class EnrollCourseService implements EnrollCourseUseCase {
     @Transactional
     public Enrollment enrollCourse(EnrollCourseCommand command) {
         // Kiểm tra course tồn tại
-        courseQueryPort.findByIdWithChapters(command.courseId())
+        courseQueryPort
+                .findByIdWithChapters(command.courseId())
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
 
         // Kiểm tra xem đã đăng ký chưa

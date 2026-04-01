@@ -1,13 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../../data/datasources/assessment_remote_data_source.dart';
-import '../../data/repositories/assessment_repository_impl.dart';
-import '../../domain/entities/university.dart';
-import '../../domain/repositories/assessment_repository.dart';
+import '../models/assessment_ui_models.dart';
 import '../state/assessment_selection_store.dart';
 
 class TargetUniversityScreen extends StatefulWidget {
@@ -18,8 +15,7 @@ class TargetUniversityScreen extends StatefulWidget {
 }
 
 class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
-  late final AssessmentRepository _repository;
-  late final Future<List<University>> _universitiesFuture;
+    late final Future<List<UniversityUi>> _universitiesFuture;
 
   final List<String> _examBlocks = const ['A00', 'A01', 'D01', 'B00', 'C00', 'D07'];
 
@@ -29,9 +25,14 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
   @override
   void initState() {
     super.initState();
-    _repository = AssessmentRepositoryImpl(AssessmentRemoteDataSource());
-    _universitiesFuture = _repository.getUniversities();
-    AssessmentSelectionStore.selectedExamBlock.value = _selectedExamBlock;
+        _universitiesFuture = Future.value(const [
+      UniversityUi(id: 1, name: 'Đại học Bách Khoa Hà Nội', location: 'Hà Nội'),
+      UniversityUi(id: 2, name: 'Đại học Quốc gia Hà Nội', location: 'Hà Nội'),
+      UniversityUi(id: 3, name: 'Đại học Ngoại thương', location: 'Hà Nội'),
+      UniversityUi(id: 4, name: 'Đại học Kinh tế Quốc dân', location: 'Hà Nội'),
+      UniversityUi(id: 5, name: 'Đại học Bách Khoa TP.HCM', location: 'TP. Hồ Chí Minh'),
+      UniversityUi(id: 6, name: 'Đại học Quốc gia TP.HCM', location: 'TP. Hồ Chí Minh'),
+    ]);    AssessmentSelectionStore.selectedExamBlock.value = _selectedExamBlock;
   }
 
   @override
@@ -51,7 +52,7 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
             }
           },
         ),
-        title: Text('Chọn trường Đại học mơ ước', style: AppTextStyles.heading2),
+        title: Text('Chọn trường Đại học mục tiêu', style: AppTextStyles.heading2),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -89,7 +90,7 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 162,
-                child: FutureBuilder<List<University>>(
+                child: FutureBuilder<List<UniversityUi>>(
                   future: _universitiesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -131,8 +132,8 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Chọn khối thi', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
-              Text('Chọn tổ hợp môn phù hợp với trường của bạn', style: AppTextStyles.caption),
+              Text('Chọn Khối Thi', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+              Text('Chọn Tổ Hợp Môn Phù Hợp Với Trường Của Bạn', style: AppTextStyles.caption),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -163,7 +164,7 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Hệ thống sẽ dựa trên khối thi và mục tiêu trường của bạn để đề xuất lộ trình ôn tập cá nhân hoá.',
+                        'Hệ thống sẽ dựa trên khối thi và mục tiêu trường của bạn để đề xuất lộ trình ôn tập cá nhân hóa.',
                         style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
                       ),
                     ),
@@ -172,7 +173,7 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
               ),
               const Spacer(),
               PrimaryButton(
-                text: 'Tiếp tục →',
+                text: 'Tiếp tục',
                 onPressed: () => context.push('/assessment/intro'),
               ),
             ],
@@ -268,4 +269,7 @@ class _ExamChip extends StatelessWidget {
     );
   }
 }
+
+
+
 

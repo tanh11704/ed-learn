@@ -7,8 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(
         componentModel = "spring",
-        uses = {ChapterMapper.class}
-)
+        uses = {ChapterMapper.class})
 public interface CourseMapper {
     Course toDomain(CourseJpaEntity entity);
 

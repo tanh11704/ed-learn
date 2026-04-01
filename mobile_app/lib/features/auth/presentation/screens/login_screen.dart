@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/services/token_storage_service.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
@@ -50,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
       subtitle: 'Chào mừng trở lại!\nVui lòng đăng nhập để tiếp tục học tập.',
       showBack: false,
       child: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state.status == AuthStatus.failure && state.message != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message!)),
@@ -61,7 +62,25 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng nhập thành công!')),
             );
-            context.push('/assessment/target-university');
+            
+            // Lấy email từ input
+            final email = _emailController.text.trim();
+            
+            // Kiểm tra xem user đã hoàn thành assessment chưa
+            final tokenStorage = TokenStorageService();
+            
+            // Lưu email user hiện tại
+            await tokenStorage.saveCurrentUserEmail(email);
+            
+            final hasCompletedAssessment = await tokenStorage.hasCompletedAssessment(email);
+            
+            if (hasCompletedAssessment) {
+              // Đã làm assessment rồi -> đi tới home
+              context.pushReplacement('/home');
+            } else {
+              // Chưa làm assessment -> yêu cầu làm bài test đầu vào
+              context.pushReplacement('/assessment/intro');
+            }
           }
         },
         child: Form(

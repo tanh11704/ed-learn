@@ -1,7 +1,6 @@
 package com.vku.edtech.modules.lms.infrastructure.persistence.entity;
 
 import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -30,4 +29,6 @@ public class LessonJpaEntity extends BaseEntity {
 
     @Column(nullable = false)
     private Integer orderIndex;
+
+    @Column @Builder.Default private Boolean isPreview = false;
 }

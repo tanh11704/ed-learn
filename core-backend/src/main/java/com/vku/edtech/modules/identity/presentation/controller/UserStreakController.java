@@ -8,13 +8,12 @@ import com.vku.edtech.modules.identity.presentation.dto.response.UserStreakRespo
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/v1/user-streaks")
@@ -26,16 +25,21 @@ public class UserStreakController {
     private final GetCurrentUserUseCase getCurrentUserUseCase;
     private final UserStreakMapper userStreakMapper;
 
-    @Operation(summary = "Lấy thông tin streak cá nhân", description = "Trả về thông tin streak của người dùng hiện tại dựa trên Access Token", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(
+            summary = "Lấy thông tin streak cá nhân",
+            description = "Trả về thông tin streak của người dùng hiện tại dựa trên Access Token",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/me")
     public ResponseEntity<UserStreakResponse> getMyStreak(Principal principal) {
         String email = principal.getName();
 
-        GetCurrentUserUseCase.GetCurrentUserQuery query = new GetCurrentUserUseCase.GetCurrentUserQuery(email);
+        GetCurrentUserUseCase.GetCurrentUserQuery query =
+                new GetCurrentUserUseCase.GetCurrentUserQuery(email);
         UserProfileResult user = getCurrentUserUseCase.getCurrentUser(query);
 
-        return ResponseEntity.ok(userStreakMapper.toResponse(
-                checkUserStreakUseCase.getUserStreak(
-                        new CheckUserStreakUseCase.CheckUserStreakCommand(user.id()))));
+        return ResponseEntity.ok(
+                userStreakMapper.toResponse(
+                        checkUserStreakUseCase.getUserStreak(
+                                new CheckUserStreakUseCase.CheckUserStreakCommand(user.id()))));
     }
 }

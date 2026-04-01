@@ -7,14 +7,14 @@ import com.vku.edtech.modules.lms.application.port.in.GetDashboardSummaryUseCase
 import com.vku.edtech.modules.lms.application.port.in.GetMonthlyEnrollmentsUseCase;
 import com.vku.edtech.modules.lms.application.port.in.GetTopCoursesUseCase;
 import com.vku.edtech.modules.lms.application.port.out.StatisticsQueryPort;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
-public class StatisticsService implements GetTopCoursesUseCase, GetDashboardSummaryUseCase, GetMonthlyEnrollmentsUseCase {
+public class StatisticsService
+        implements GetTopCoursesUseCase, GetDashboardSummaryUseCase, GetMonthlyEnrollmentsUseCase {
 
     private final StatisticsQueryPort statisticsQueryPort;
 

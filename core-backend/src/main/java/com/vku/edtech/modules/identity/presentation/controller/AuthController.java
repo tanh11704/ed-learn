@@ -1,30 +1,27 @@
 package com.vku.edtech.modules.identity.presentation.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.vku.edtech.modules.identity.application.dto.AuthResult;
 import com.vku.edtech.modules.identity.application.port.in.LogOutUseCase;
 import com.vku.edtech.modules.identity.application.port.in.LoginUseCase;
 import com.vku.edtech.modules.identity.application.port.in.RefreshTokenUseCase;
 import com.vku.edtech.modules.identity.application.port.in.RegisterUseCase;
 import com.vku.edtech.modules.identity.presentation.dto.mapper.AuthMapper;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.vku.edtech.modules.identity.presentation.dto.request.LoginRequest;
 import com.vku.edtech.modules.identity.presentation.dto.request.LogoutRequest;
 import com.vku.edtech.modules.identity.presentation.dto.request.RefreshTokenRequest;
 import com.vku.edtech.modules.identity.presentation.dto.request.RegisterRequest;
 import com.vku.edtech.modules.identity.presentation.dto.response.AuthResponse;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,15 +35,18 @@ public class AuthController {
     private final RefreshTokenUseCase refreshTokenUseCase;
     private final AuthMapper authMapper;
 
-    @Operation(summary = "Đăng nhập người dùng", description = "Trả về cặp Access Token và Refresh Token")
+    @Operation(
+            summary = "Đăng nhập người dùng",
+            description = "Trả về cặp Access Token và Refresh Token")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Đăng nhập thành công"),
-            @ApiResponse(responseCode = "401", description = "Sai email hoặc mật khẩu")
+        @ApiResponse(responseCode = "200", description = "Đăng nhập thành công"),
+        @ApiResponse(responseCode = "401", description = "Sai email hoặc mật khẩu")
     })
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
 
-        LoginUseCase.LoginCommand command = new LoginUseCase.LoginCommand(request.email(), request.password());
+        LoginUseCase.LoginCommand command =
+                new LoginUseCase.LoginCommand(request.email(), request.password());
 
         AuthResult authResult = loginUseCase.login(command);
 
@@ -60,11 +60,9 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid RegisterRequest request) {
 
-        RegisterUseCase.RegisterCommand command = new RegisterUseCase.RegisterCommand(
-                request.email(),
-                request.password(),
-                request.fullName()
-        );
+        RegisterUseCase.RegisterCommand command =
+                new RegisterUseCase.RegisterCommand(
+                        request.email(), request.password(), request.fullName());
 
         AuthResult authResult = registerUseCase.register(command);
 
@@ -73,12 +71,13 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Lấy Access Token mới", description = "Sử dụng Refresh Token để gia hạn phiên đăng nhập")
+    @Operation(
+            summary = "Lấy Access Token mới",
+            description = "Sử dụng Refresh Token để gia hạn phiên đăng nhập")
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refresh(@RequestBody @Valid RefreshTokenRequest request) {
-        RefreshTokenUseCase.RefreshTokenCommand command = new RefreshTokenUseCase.RefreshTokenCommand(
-                request.refreshToken()
-        );
+        RefreshTokenUseCase.RefreshTokenCommand command =
+                new RefreshTokenUseCase.RefreshTokenCommand(request.refreshToken());
 
         AuthResult authResult = refreshTokenUseCase.refresh(command);
 
@@ -87,7 +86,10 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Đăng xuất", description = "Vô hiệu hóa Access Token (Blacklist) và xóa Refresh Token", security = @SecurityRequirement(name = "bearerAuth"))
+    @Operation(
+            summary = "Đăng xuất",
+            description = "Vô hiệu hóa Access Token (Blacklist) và xóa Refresh Token",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @SecurityRequirement(name = "bearerAuth")
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(
@@ -99,7 +101,8 @@ public class AuthController {
             accessToken = authHeader.substring(7); // Cắt bỏ chữ Bearer
         }
 
-        LogOutUseCase.LogOutCommand command = new LogOutUseCase.LogOutCommand(accessToken, logoutRequest.refreshToken());
+        LogOutUseCase.LogOutCommand command =
+                new LogOutUseCase.LogOutCommand(accessToken, logoutRequest.refreshToken());
 
         logOutUseCase.logOut(command);
 

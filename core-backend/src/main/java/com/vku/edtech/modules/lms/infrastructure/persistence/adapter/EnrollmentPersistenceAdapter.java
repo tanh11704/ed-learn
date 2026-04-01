@@ -5,10 +5,9 @@ import com.vku.edtech.modules.lms.domain.model.Enrollment;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.EnrollmentJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.EnrollmentMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.JpaEnrollmentRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
