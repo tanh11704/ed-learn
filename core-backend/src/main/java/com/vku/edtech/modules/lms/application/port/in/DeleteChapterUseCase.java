@@ -1,4 +1,3 @@
 package com.vku.edtech.modules.lms.application.port.in;
 
-public interface DeleteChapterUseCase {
-}
+public interface DeleteChapterUseCase {}

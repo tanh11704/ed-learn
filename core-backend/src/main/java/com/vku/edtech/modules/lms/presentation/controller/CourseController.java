@@ -11,6 +11,7 @@ import com.vku.edtech.modules.lms.presentation.dto.request.CreateCourseRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateCourseRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.CourseResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +60,8 @@ public class CourseController {
 
     @Operation(
             summary = "Tạo khóa học mới",
-            description = "Tạo một khóa học mới và trả về thông tin khóa học vừa tạo.")
+            description = "Tạo một khóa học mới và trả về thông tin khóa học vừa tạo.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping
     public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseRequest request) {
         CreateCourseUseCase.CreateCourseCommand command =
@@ -71,7 +73,8 @@ public class CourseController {
 
     @Operation(
             summary = "Cập nhật khóa học",
-            description = "Cập nhật thông tin cơ bản của một khóa học.")
+            description = "Cập nhật thông tin cơ bản của một khóa học.",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @PutMapping("/{id}")
     public ResponseEntity<CourseResponse> updateCourse(
             @PathVariable UUID id, @RequestBody UpdateCourseRequest request) {
@@ -88,7 +91,8 @@ public class CourseController {
 
     @Operation(
             summary = "Xóa khóa học",
-            description = "Chuyển trạng thái khóa học sang DELETED (Soft Delete).")
+            description = "Chuyển trạng thái khóa học sang DELETED (Soft Delete).",
+            security = @SecurityRequirement(name = "bearerAuth"))
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
         DeleteCourseUseCase.DeleteCourseCommand command =

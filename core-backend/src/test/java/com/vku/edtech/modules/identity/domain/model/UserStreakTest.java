@@ -1,10 +1,10 @@
 package com.vku.edtech.modules.identity.domain.model;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.time.LocalDate;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class UserStreakTest {
 
@@ -23,7 +23,7 @@ class UserStreakTest {
     @Test
     void checkAndUpdateStatus_WhenLastActivityIsNull() {
         UserStreak streak = UserStreak.createInitialStreak(UUID.randomUUID());
-        
+
         boolean changed = streak.checkAndUpdateStatus(LocalDate.now());
 
         assertFalse(changed, "Status is already INACTIVE, should not change");
@@ -33,10 +33,8 @@ class UserStreakTest {
     @Test
     void checkAndUpdateStatus_WhenDifferenceIsZero_ShouldKeepActive() {
         LocalDate today = LocalDate.now();
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(today)
-                .status(StreakStatus.ACTIVE)
-                .build();
+        UserStreak streak =
+                UserStreak.builder().lastActivityDay(today).status(StreakStatus.ACTIVE).build();
 
         boolean changed = streak.checkAndUpdateStatus(today);
 
@@ -48,11 +46,9 @@ class UserStreakTest {
     void checkAndUpdateStatus_WhenDifferenceIsOne_ShouldSetToInactive() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate today = LocalDate.now();
-        
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(yesterday)
-                .status(StreakStatus.ACTIVE)
-                .build();
+
+        UserStreak streak =
+                UserStreak.builder().lastActivityDay(yesterday).status(StreakStatus.ACTIVE).build();
 
         boolean changed = streak.checkAndUpdateStatus(today);
 
@@ -64,12 +60,13 @@ class UserStreakTest {
     void checkAndUpdateStatus_WhenDifferenceIsGreaterThanOne_ShouldBreakStreak() {
         LocalDate twoDaysAgo = LocalDate.now().minusDays(2);
         LocalDate today = LocalDate.now();
-        
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(twoDaysAgo)
-                .status(StreakStatus.INACTIVE)
-                .currentStreak(5)
-                .build();
+
+        UserStreak streak =
+                UserStreak.builder()
+                        .lastActivityDay(twoDaysAgo)
+                        .status(StreakStatus.INACTIVE)
+                        .currentStreak(5)
+                        .build();
 
         boolean changed = streak.checkAndUpdateStatus(today);
 
@@ -94,12 +91,13 @@ class UserStreakTest {
     @Test
     void recordActivity_WhenDifferenceIsZero_ShouldDoNothing() {
         LocalDate today = LocalDate.now();
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(today)
-                .currentStreak(5)
-                .longestStreak(10)
-                .status(StreakStatus.ACTIVE)
-                .build();
+        UserStreak streak =
+                UserStreak.builder()
+                        .lastActivityDay(today)
+                        .currentStreak(5)
+                        .longestStreak(10)
+                        .status(StreakStatus.ACTIVE)
+                        .build();
 
         streak.recordActivity(today);
 
@@ -112,13 +110,14 @@ class UserStreakTest {
     void recordActivity_WhenDifferenceIsOne_ShouldIncreaseStreak() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDate today = LocalDate.now();
-        
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(yesterday)
-                .currentStreak(5)
-                .longestStreak(5)
-                .status(StreakStatus.ACTIVE)
-                .build();
+
+        UserStreak streak =
+                UserStreak.builder()
+                        .lastActivityDay(yesterday)
+                        .currentStreak(5)
+                        .longestStreak(5)
+                        .status(StreakStatus.ACTIVE)
+                        .build();
 
         streak.recordActivity(today);
 
@@ -132,13 +131,14 @@ class UserStreakTest {
     void recordActivity_WhenDifferenceIsGreaterThanOne_ShouldRestartStreak() {
         LocalDate twoDaysAgo = LocalDate.now().minusDays(2);
         LocalDate today = LocalDate.now();
-        
-        UserStreak streak = UserStreak.builder()
-                .lastActivityDay(twoDaysAgo)
-                .currentStreak(5)
-                .longestStreak(10)
-                .status(StreakStatus.BROKEN)
-                .build();
+
+        UserStreak streak =
+                UserStreak.builder()
+                        .lastActivityDay(twoDaysAgo)
+                        .currentStreak(5)
+                        .longestStreak(10)
+                        .status(StreakStatus.BROKEN)
+                        .build();
 
         streak.recordActivity(today);
 

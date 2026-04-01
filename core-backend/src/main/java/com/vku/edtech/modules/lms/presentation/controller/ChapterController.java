@@ -1,9 +1,6 @@
 package com.vku.edtech.modules.lms.presentation.controller;
 
 import com.vku.edtech.modules.lms.application.port.in.CreateChapterUseCase;
-import com.vku.edtech.modules.lms.application.port.in.DeleteChapterUseCase;
-import com.vku.edtech.modules.lms.application.port.in.GetChaptersUseCase;
-import com.vku.edtech.modules.lms.application.port.in.UpdateChapterUseCase;
 import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.presentation.dto.mapper.ChapterResponseMapper;
 import com.vku.edtech.modules.lms.presentation.dto.request.CreateChapterRequest;
@@ -20,24 +17,22 @@ import org.springframework.web.bind.annotation.*;
 public class ChapterController {
 
     private final CreateChapterUseCase createChapterUseCase;
-    private final UpdateChapterUseCase updateChapterUseCase;
-    private final DeleteChapterUseCase deleteChapterUseCase;
-    private final GetChaptersUseCase getChaptersUseCase;
+    //    private final UpdateChapterUseCase updateChapterUseCase;
+    //    private final DeleteChapterUseCase deleteChapterUseCase;
+    //    private final GetChaptersUseCase getChaptersUseCase;
     private final ChapterResponseMapper chapterMapper;
 
     @PostMapping
     public ResponseEntity<ChapterResponse> create(@RequestBody CreateChapterRequest request) {
-        CreateChapterUseCase.CreateChapterCommand command = new CreateChapterUseCase.CreateChapterCommand(
-                request.courseId(),
-                request.title(),
-                request.orderIndex()
-        );
+        CreateChapterUseCase.CreateChapterCommand command =
+                new CreateChapterUseCase.CreateChapterCommand(
+                        request.courseId(), request.title(), request.orderIndex());
 
         Chapter chapter = createChapterUseCase.execute(command);
 
         return ResponseEntity.ok(chapterMapper.toResponse(chapter));
     }
-
-    @PutMapping
-    public ResponseEntity<ChapterResponse> update(@RequestBody )
+    //
+    //    @PutMapping
+    //    public ResponseEntity<ChapterResponse> update(@RequestBody )
 }

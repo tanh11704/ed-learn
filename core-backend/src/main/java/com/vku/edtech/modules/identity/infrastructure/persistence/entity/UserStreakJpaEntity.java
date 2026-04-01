@@ -3,10 +3,9 @@ package com.vku.edtech.modules.identity.infrastructure.persistence.entity;
 import com.vku.edtech.modules.identity.domain.model.StreakStatus;
 import com.vku.edtech.shared.infrastructure.persistence.entity.BaseEntity;
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "user_streaks")

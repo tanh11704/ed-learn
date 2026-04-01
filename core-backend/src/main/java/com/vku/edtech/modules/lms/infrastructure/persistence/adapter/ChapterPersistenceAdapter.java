@@ -6,12 +6,11 @@ import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.ChapterJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.ChapterMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.ChapterJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -29,18 +28,20 @@ public class ChapterPersistenceAdapter implements ChapterCommandPort, ChapterQue
 
     @Override
     public Chapter delete(UUID id) {
-        chapterJpaRepository.findById(id).ifPresent(entity -> {
-            entity.setIsDeleted(true);
-            chapterJpaRepository.save(entity);
-        });
+        chapterJpaRepository
+                .findById(id)
+                .ifPresent(
+                        entity -> {
+                            entity.setIsDeleted(true);
+                            chapterJpaRepository.save(entity);
+                        });
 
         return null;
     }
 
     @Override
     public Optional<Chapter> findById(UUID id) {
-        return chapterJpaRepository.findById(id)
-                .map(chapterMapper::toDomain);
+        return chapterJpaRepository.findById(id).map(chapterMapper::toDomain);
     }
 
     @Override
