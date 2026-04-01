@@ -6,4 +6,10 @@ import java.util.UUID;
 
 public interface LessonQueryPort {
     Optional<Lesson> findById(UUID id);
+
+    Optional<Lesson> findByIdAndNotDeleted(UUID id);
+
+    Optional<Integer> findMaxOrderIndexByChapterId(UUID chapterId);
+
+    Optional<UUID> findCourseIdByLessonId(UUID lessonId);
 }

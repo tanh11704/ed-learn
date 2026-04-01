@@ -1,15 +1,20 @@
 name: "☕ Java CI & 🤖 AI Code Review"
 
 on:
+  push:
+    paths:
+      - "core-backend/**"
+      - ".github/workflows/java-ci-ai-review.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "core-backend/**"
+      - ".github/workflows/java-ci-ai-review.yml"
 
 jobs:
-  # === BƯỚC 1: KIỂM TRA MÃ NGUỒN VÀ BUILD ===
+  # === BƯỚC 1: FORMAT + KIỂM TRA MÃ NGUỒN + BUILD ===
   build-and-test:
-    name: "Build & Compile (Spring Boot)"
+    name: "Format, Validate Flyway & Build (Spring Boot)"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -21,6 +26,45 @@ jobs:
           java-version: "17"
           distribution: "temurin"
           cache: "maven"
+
+      - name: Validate NEW Flyway migration filenames (V<timestamp>__description.sql)
+        run: |
+          set -e
+          MIGRATION_DIR="core-backend/src/main/resources/db/migration"
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            BASE_SHA="${{ github.event.pull_request.base.sha }}"
+            HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          else
+            BASE_SHA="${{ github.event.before }}"
+            HEAD_SHA="${{ github.sha }}"
+          fi
+
+          CHANGED_MIGRATIONS=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- "$MIGRATION_DIR"/*.sql || true)
+
+          if [ -z "$CHANGED_MIGRATIONS" ]; then
+            echo "No changed migration files to validate."
+            exit 0
+          fi
+
+          echo "Changed migration files:"
+          echo "$CHANGED_MIGRATIONS"
+
+          while IFS= read -r f; do
+            [ -z "$f" ] && continue
+            base="$(basename "$f")"
+            if [[ ! "$base" =~ ^V[0-9]{14}__[a-z0-9_]+\.sql$ ]]; then
+              echo "❌ Invalid NEW migration filename: $base"
+              echo "Expected format: V<yyyyMMddHHmmss>__snake_case_description.sql"
+              exit 1
+            fi
+          done <<< "$CHANGED_MIGRATIONS"
+
+          echo "✅ All changed migration filenames are valid."
+
+      - name: Apply Spotless formatting
+        working-directory: ./core-backend
+        run: ./mvnw spotless:apply
 
       - name: Build with Maven
         working-directory: ./core-backend

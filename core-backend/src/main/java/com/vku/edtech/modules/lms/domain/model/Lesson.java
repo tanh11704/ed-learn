@@ -20,30 +20,58 @@ public class Lesson {
     private String videoUrl;
     private String pdfUrl;
     private Integer orderIndex;
-    private Boolean isPreview = false;
+    private boolean isPreview;
+    private boolean isDeleted;
     private final Instant createdAt;
     private Instant updatedAt;
 
-    public static Lesson createNew(UUID chapterId, String title, Integer orderIndex) {
-        if (title == null || title.isBlank()) {
-            throw new InvalidDomainDataException("Tiêu đề bài học không được để trống");
+    public static Lesson create(
+            UUID chapterId, String title, Integer orderIndex, boolean isPreview) {
+        if (chapterId == null) {
+            throw new InvalidDomainDataException("Chapter ID không hợp lệ");
         }
+        validateTitle(title);
+
         return Lesson.builder()
                 .id(UUID.randomUUID())
                 .chapterId(chapterId)
-                .title(title)
+                .title(title.trim())
                 .orderIndex(orderIndex)
+                .isPreview(isPreview)
+                .isDeleted(false)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();
     }
 
-    public void updateVideoMedia(String videoUrl) {
+    public void updateDetails(UUID chapterId, String title, Integer orderIndex, Boolean isPreview) {
+        if (chapterId != null) {
+            this.chapterId = chapterId;
+        }
+        if (title != null) {
+            validateTitle(title);
+            this.title = title.trim();
+        }
+        if (orderIndex != null && orderIndex > 0) {
+            this.orderIndex = orderIndex;
+        }
+        if (isPreview != null) {
+            this.isPreview = isPreview;
+        }
+        this.updatedAt = Instant.now();
+    }
+
+    public void markAsDeleted() {
+        this.isDeleted = true;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updateVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
         this.updatedAt = Instant.now();
     }
 
-    public void updatePdfMedia(String pdfUrl) {
+    public void updatePdfUrl(String pdfUrl) {
         this.pdfUrl = pdfUrl;
         this.updatedAt = Instant.now();
     }
@@ -55,5 +83,14 @@ public class Lesson {
         this.chapterId = newChapterId;
         this.orderIndex = newOrderIndex;
         this.updatedAt = Instant.now();
+    }
+
+    private static void validateTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new InvalidDomainDataException("Tiêu đề bài học không được để trống");
+        }
+        if (title.length() > 255) {
+            throw new InvalidDomainDataException("Tiêu đề bài học tối đa 255 ký tự");
+        }
     }
 }

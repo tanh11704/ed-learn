@@ -24,6 +24,21 @@ public class LessonPersistenceAdapter implements LessonCommandPort, LessonQueryP
     }
 
     @Override
+    public Optional<Lesson> findByIdAndNotDeleted(UUID id) {
+        return lessonJpaRepository.findByIdAndNotDeleted(id).map(lessonMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Integer> findMaxOrderIndexByChapterId(UUID chapterId) {
+        return lessonJpaRepository.findMaxOrderIndexByChapterId(chapterId);
+    }
+
+    @Override
+    public Optional<UUID> findCourseIdByLessonId(UUID lessonId) {
+        return lessonJpaRepository.findCourseIdByLessonId(lessonId);
+    }
+
+    @Override
     public Lesson save(Lesson lesson) {
         LessonJpaEntity entity = lessonMapper.toEntity(lesson);
         LessonJpaEntity savedEntity = lessonJpaRepository.save(entity);
