@@ -1,17 +1,16 @@
 package com.vku.edtech.modules.lms.domain.model;
 
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -22,8 +21,8 @@ public class Chapter {
     private UUID courseId;
     private String title;
     private Integer orderIndex;
-    @Builder.Default
-    private List<Lesson> lessons = new ArrayList<>();
+    @Builder.Default private List<Lesson> lessons = new ArrayList<>();
+    private Boolean isDeleted;
     private final Instant createdAt;
     private Instant updatedAt;
 
@@ -50,10 +49,8 @@ public class Chapter {
     }
 
     public void updateDetails(String title, Integer orderIndex) {
-        if (title != null && !title.isBlank())
-            this.title = title;
-        if (orderIndex != null)
-            this.orderIndex = orderIndex;
+        if (title != null && !title.isBlank()) this.title = title;
+        if (orderIndex != null) this.orderIndex = orderIndex;
         this.updatedAt = Instant.now();
     }
 

@@ -10,16 +10,15 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -37,7 +36,10 @@ public class JwtTokenAdapter implements TokenGeneratorPort, TokenInspectionPort 
                 .setClaims(extraClaims)
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getAccessTokenExpiration()))
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + jwtProperties.getAccessTokenExpiration()))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -90,11 +92,12 @@ public class JwtTokenAdapter implements TokenGeneratorPort, TokenInspectionPort 
     @Override
     public long getRemainingTtlInMillis(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSignKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+            Claims claims =
+                    Jwts.parserBuilder()
+                            .setSigningKey(getSignKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
 
             long expirationTime = claims.getExpiration().getTime();
             long currentTime = System.currentTimeMillis();

@@ -12,7 +12,7 @@ public interface UserStreakPersistenceMapper {
         if (userStreak == null) {
             return null;
         }
-        
+
         return UserStreakJpaEntity.builder()
                 .id(userStreak.getId())
                 .user(userJpaEntity)
@@ -31,7 +31,10 @@ public interface UserStreakPersistenceMapper {
 
         return UserStreak.builder()
                 .id(userStreakJpaEntity.getId())
-                .userId(userStreakJpaEntity.getUser() != null ? userStreakJpaEntity.getUser().getId() : null)
+                .userId(
+                        userStreakJpaEntity.getUser() != null
+                                ? userStreakJpaEntity.getUser().getId()
+                                : null)
                 .currentStreak(userStreakJpaEntity.getCurrentStreak())
                 .longestStreak(userStreakJpaEntity.getLongestStreak())
                 .lastActivityDay(userStreakJpaEntity.getLastActivityDay())

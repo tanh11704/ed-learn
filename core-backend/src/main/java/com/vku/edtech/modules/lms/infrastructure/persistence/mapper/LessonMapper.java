@@ -6,10 +6,7 @@ import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(
-        componentModel = "spring",
-        builder = @Builder(disableBuilder = true)
-)
+@Mapper(componentModel = "spring", builder = @Builder(disableBuilder = true))
 public interface LessonMapper {
     @Mapping(source = "chapter.id", target = "chapterId")
     Lesson toDomain(LessonJpaEntity entity);

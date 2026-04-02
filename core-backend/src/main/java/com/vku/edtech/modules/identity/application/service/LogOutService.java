@@ -23,8 +23,10 @@ public class LogOutService implements LogOutUseCase {
 
     @Override
     public void logOut(LogOutCommand command) {
-        RefreshToken domain = refreshTokenQueryPort.findByToken(command.refreshToken())
-                .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
+        RefreshToken domain =
+                refreshTokenQueryPort
+                        .findByToken(command.refreshToken())
+                        .orElseThrow(() -> new ResourceNotFoundException("Token không hợp lệ"));
 
         refreshTokenCommandPort.delete(domain);
 
@@ -39,6 +41,5 @@ public class LogOutService implements LogOutUseCase {
                 tokenBlacklistPort.blacklistToken(command.accessToken(), aTtlInMillis);
             }
         }
-
     }
 }

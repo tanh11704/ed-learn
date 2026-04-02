@@ -15,7 +15,14 @@ public class UserStreak {
 
     public UserStreak() {}
 
-    public UserStreak(UUID id, UUID userId, int currentStreak, int longestStreak, LocalDate lastActivityDay, int streakFreezeCount, StreakStatus status) {
+    public UserStreak(
+            UUID id,
+            UUID userId,
+            int currentStreak,
+            int longestStreak,
+            LocalDate lastActivityDay,
+            int streakFreezeCount,
+            StreakStatus status) {
         this.id = id;
         this.userId = userId;
         this.currentStreak = currentStreak;
@@ -25,26 +32,61 @@ public class UserStreak {
         this.status = status;
     }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    public UUID getId() {
+        return id;
+    }
 
-    public UUID getUserId() { return userId; }
-    public void setUserId(UUID userId) { this.userId = userId; }
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    public int getCurrentStreak() { return currentStreak; }
-    public void setCurrentStreak(int currentStreak) { this.currentStreak = currentStreak; }
+    public UUID getUserId() {
+        return userId;
+    }
 
-    public int getLongestStreak() { return longestStreak; }
-    public void setLongestStreak(int longestStreak) { this.longestStreak = longestStreak; }
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
 
-    public LocalDate getLastActivityDay() { return lastActivityDay; }
-    public void setLastActivityDay(LocalDate lastActivityDay) { this.lastActivityDay = lastActivityDay; }
+    public int getCurrentStreak() {
+        return currentStreak;
+    }
 
-    public int getStreakFreezeCount() { return streakFreezeCount; }
-    public void setStreakFreezeCount(int streakFreezeCount) { this.streakFreezeCount = streakFreezeCount; }
+    public void setCurrentStreak(int currentStreak) {
+        this.currentStreak = currentStreak;
+    }
 
-    public StreakStatus getStatus() { return status; }
-    public void setStatus(StreakStatus status) { this.status = status; }
+    public int getLongestStreak() {
+        return longestStreak;
+    }
+
+    public void setLongestStreak(int longestStreak) {
+        this.longestStreak = longestStreak;
+    }
+
+    public LocalDate getLastActivityDay() {
+        return lastActivityDay;
+    }
+
+    public void setLastActivityDay(LocalDate lastActivityDay) {
+        this.lastActivityDay = lastActivityDay;
+    }
+
+    public int getStreakFreezeCount() {
+        return streakFreezeCount;
+    }
+
+    public void setStreakFreezeCount(int streakFreezeCount) {
+        this.streakFreezeCount = streakFreezeCount;
+    }
+
+    public StreakStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(StreakStatus status) {
+        this.status = status;
+    }
 
     public static UserStreakBuilder builder() {
         return new UserStreakBuilder();
@@ -97,7 +139,14 @@ public class UserStreak {
         }
 
         public UserStreak build() {
-            return new UserStreak(id, userId, currentStreak, longestStreak, lastActivityDay, streakFreezeCount, status);
+            return new UserStreak(
+                    id,
+                    userId,
+                    currentStreak,
+                    longestStreak,
+                    lastActivityDay,
+                    streakFreezeCount,
+                    status);
         }
     }
 

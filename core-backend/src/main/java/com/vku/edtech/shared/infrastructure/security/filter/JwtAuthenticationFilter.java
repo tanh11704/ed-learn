@@ -12,23 +12,21 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.security.Key;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 @RequiredArgsConstructor
@@ -39,7 +37,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -52,15 +52,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Boolean isBlacklisted = redisTemplate.hasKey("blacklist:" + token);
 
             if (Boolean.TRUE.equals(isBlacklisted)) {
-                sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token đã bị vô hiệu hóa (Đăng xuất).");
+                sendErrorResponse(
+                        response,
+                        HttpServletResponse.SC_UNAUTHORIZED,
+                        "Token đã bị vô hiệu hóa (Đăng xuất).");
                 return; // Return ngay, chặn không cho code chạy tiếp xuống dưới
             }
 
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(getSignKey())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+            Claims claims =
+                    Jwts.parserBuilder()
+                            .setSigningKey(getSignKey())
+                            .build()
+                            .parseClaimsJws(token)
+                            .getBody();
 
             String email = claims.getSubject();
 
@@ -71,16 +75,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             java.util.UUID userId = userIdStr != null ? java.util.UUID.fromString(userIdStr) : null;
 
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
+                List<SimpleGrantedAuthority> authorities =
+                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role));
 
-                com.vku.edtech.shared.infrastructure.security.JwtUserInfo jwtUserInfo = 
-                        new com.vku.edtech.shared.infrastructure.security.JwtUserInfo(userId, email, role);
+                com.vku.edtech.shared.infrastructure.security.JwtUserInfo jwtUserInfo =
+                        new com.vku.edtech.shared.infrastructure.security.JwtUserInfo(
+                                userId, email, role);
 
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        jwtUserInfo,
-                        null,
-                        authorities
-                );
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(jwtUserInfo, null, authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
@@ -90,15 +93,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
             // Lỗi 1: Token hết thời gian sống
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token đã hết hạn. Vui lòng refresh token.");
+            sendErrorResponse(
+                    response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Token đã hết hạn. Vui lòng refresh token.");
             return;
         } catch (JwtException | IllegalArgumentException e) {
             // Lỗi 2: Token bị chỉnh sửa bậy bạ, sai chữ ký (Signature)
-            sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED, "Token không hợp lệ hoặc bị giả mạo.");
+            sendErrorResponse(
+                    response,
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Token không hợp lệ hoặc bị giả mạo.");
             return;
         } catch (Exception e) {
             // Lỗi 3: Các ngoại lệ khác
-            sendErrorResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Đã xảy ra lỗi trong quá trình xác thực.");
+            sendErrorResponse(
+                    response,
+                    HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Đã xảy ra lỗi trong quá trình xác thực.");
             return;
         }
     }
@@ -108,7 +120,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, int statusCode, String message) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, int statusCode, String message)
+            throws IOException {
         response.setStatus(statusCode);
         // Báo cho client biết cục dữ liệu trả về là JSON (UTF-8 để không lỗi font tiếng Việt)
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

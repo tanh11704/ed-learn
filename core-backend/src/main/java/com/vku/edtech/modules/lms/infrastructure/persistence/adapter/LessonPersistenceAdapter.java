@@ -6,11 +6,10 @@ import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.LessonJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.LessonMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.LessonJpaRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-
 import java.util.Optional;
 import java.util.UUID;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +21,21 @@ public class LessonPersistenceAdapter implements LessonCommandPort, LessonQueryP
     @Override
     public Optional<Lesson> findById(UUID id) {
         return lessonJpaRepository.findById(id).map(lessonMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Lesson> findByIdAndNotDeleted(UUID id) {
+        return lessonJpaRepository.findByIdAndNotDeleted(id).map(lessonMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Integer> findMaxOrderIndexByChapterId(UUID chapterId) {
+        return lessonJpaRepository.findMaxOrderIndexByChapterId(chapterId);
+    }
+
+    @Override
+    public Optional<UUID> findCourseIdByLessonId(UUID lessonId) {
+        return lessonJpaRepository.findCourseIdByLessonId(lessonId);
     }
 
     @Override

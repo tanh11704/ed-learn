@@ -1,17 +1,16 @@
 package com.vku.edtech.modules.lms.domain.model;
 
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
@@ -25,8 +24,7 @@ public class Course {
     private String thumbnailUrl;
     private String status;
 
-    @Builder.Default
-    private List<Chapter> chapters = new ArrayList<>();
+    @Builder.Default private List<Chapter> chapters = new ArrayList<>();
 
     private final Instant createdAt;
     private Instant updatedAt;
@@ -53,15 +51,12 @@ public class Course {
         this.updatedAt = Instant.now();
     }
 
-    public void updateDetails(String title, String description, String subject, String thumbnailUrl) {
-        if (title != null && !title.isBlank())
-            this.title = title;
-        if (description != null)
-            this.description = description;
-        if (subject != null)
-            this.subject = subject;
-        if (thumbnailUrl != null)
-            this.thumbnailUrl = thumbnailUrl;
+    public void updateDetails(
+            String title, String description, String subject, String thumbnailUrl) {
+        if (title != null && !title.isBlank()) this.title = title;
+        if (description != null) this.description = description;
+        if (subject != null) this.subject = subject;
+        if (thumbnailUrl != null) this.thumbnailUrl = thumbnailUrl;
         this.updatedAt = Instant.now();
     }
 
