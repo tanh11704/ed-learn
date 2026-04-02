@@ -3,7 +3,6 @@ package com.vku.edtech.modules.lms.infrastructure.persistence.seed;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.ChapterJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.CourseJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.LessonJpaEntity;
-import com.vku.edtech.modules.lms.infrastructure.persistence.repository.ChapterJpaRepository;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.CourseJpaRepository;
 import java.util.LinkedHashSet;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class LmsDataSeeder implements CommandLineRunner {
 
     private final CourseJpaRepository courseRepository;
-    private final ChapterJpaRepository chapterRepository;
 
     @Override
     @Transactional
