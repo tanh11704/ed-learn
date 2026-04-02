@@ -87,7 +87,6 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Video thumbnail placeholder
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFF1a1f3a),

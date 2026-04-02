@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-// Reuse the enum and widget from widgets folder so there's a single source of truth
 import '../widgets/path_node_item.dart';
-// Note: Bạn có thể bỏ comment dòng dưới nếu vẫn muốn dùng bottom sheet cũ của bạn
 import '../widgets/course_selection_bottom_sheet.dart';
 
 class LearningPathScreen extends StatefulWidget {
@@ -75,13 +73,13 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFAFAFA), // Nền xám rất nhạt giống thiết kế
+      backgroundColor: const Color(0xFFFAFAFA),
       appBar: _buildAppBar(),
       body: Stack(
         children: [
           // Nội dung chính có thể cuộn
           ListView(
-            padding: const EdgeInsets.only(bottom: 120), // Để khoảng trống cho NextUp Card
+            padding: const EdgeInsets.only(bottom: 120),
             children: [
               _buildProgressCard(),
               _buildTimeline(),
@@ -337,7 +335,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     else if (lesson.status == LessonNodeStatus.current) {
       return GestureDetector(
         onTap: () {
-          // Navigate to module detail screen when clicking current lesson node
           context.push(
             '/learning/module-detail',
             extra: {

@@ -2,23 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-
-// Quiz data model
-class QuizQuestion {
-  final int id;
-  final String question;
-  final List<String> options;
-  final String correctAnswer;
-  final String? explanation;
-
-  QuizQuestion({
-    required this.id,
-    required this.question,
-    required this.options,
-    required this.correctAnswer,
-    this.explanation,
-  });
-}
+import '../../data/models/quiz_question_model.dart';
 
 class QuizScreen extends StatefulWidget {
   final String quizName;

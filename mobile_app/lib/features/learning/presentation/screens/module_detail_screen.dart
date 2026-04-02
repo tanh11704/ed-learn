@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../widgets/lesson_list_tile.dart';
+import '../../data/models/lesson_model.dart';
 
 class ModuleDetailScreen extends StatefulWidget {
   final String moduleId;
@@ -18,7 +18,7 @@ class ModuleDetailScreen extends StatefulWidget {
 
 class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
   // Mock data - Thay bằng API later
-  late List<_ModuleLesson> lessons;
+  late List<Lesson> lessons;
 
   @override
   void initState() {
@@ -28,63 +28,77 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
 
   void _initializeLessons() {
     lessons = [
-      _ModuleLesson(
+      Lesson(
         id: '1',
         name: 'Giới thiệu về Pandas',
         duration: '12 phút',
-        status: LessonTileStatus.completed,
+        status: LessonStatus.completed,
         progress: '100%',
-        type: 'VIDEO',
+        type: LessonType.video,
       ),
-      _ModuleLesson(
+      Lesson(
         id: '2',
         name: 'Cấu trúc dữ liệu Pandas',
         duration: '18 phút',
-        status: LessonTileStatus.available,
+        status: LessonStatus.available,
         progress: '30%',
-        type: 'VIDEO',
+        type: LessonType.video,
       ),
-      _ModuleLesson(
+      Lesson(
         id: '3',
         name: 'Lọc và chọn dữ liệu',
         duration: '22 phút',
-        status: LessonTileStatus.available,
-        type: 'VIDEO',
+        status: LessonStatus.available,
+        type: LessonType.video,
       ),
-      _ModuleLesson(
+      Lesson(
         id: '4',
         name: 'Xử lý dữ liệu thiếu',
         duration: '15 phút',
-        status: LessonTileStatus.available,
-        type: 'VIDEO',
+        status: LessonStatus.available,
+        type: LessonType.video,
       ),
-      _ModuleLesson(
+      Lesson(
         id: '5',
         name: 'Phân tích thống kê cơ bản',
         duration: '28 phút',
-        status: LessonTileStatus.available,
-        type: 'VIDEO',
+        status: LessonStatus.available,
+        type: LessonType.video,
       ),
-      _ModuleLesson(
+      Lesson(
         id: '6',
+        name: 'Ôn tập kiến thức',
+        duration: '20 phút',
+        status: LessonStatus.available,
+        type: LessonType.flashcard,
+      ),
+      Lesson(
+        id: '7',
+        name: 'Ôn tập kiến thức 2',
+        duration: '25 phút',
+        status: LessonStatus.available,
+        type: LessonType.flashcard,
+      ),
+      Lesson(
+        id: '8',
         name: 'Bài tập rèn luyện lọc dữ liệu',
         duration: '30 phút',
-        status: LessonTileStatus.available,
-        type: 'EXERCISE',
+        status: LessonStatus.available,
+        type: LessonType.exercise,
       ),
-      _ModuleLesson(
-        id: '7',
+      Lesson(
+        id: '9',
         name: 'Kiểm tra đánh giá chương',
         duration: '45 phút',
-        status: LessonTileStatus.locked,
-        type: 'EXERCISE',
+        status: LessonStatus.locked,
+        type: LessonType.exercise,
       ),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
-    int completedCount = lessons.where((l) => l.status == LessonTileStatus.completed).length;
+    int completedCount = lessons.where((l) => l.status == LessonStatus.completed).length;
     double progress = (completedCount / lessons.length) * 100;
 
     return Scaffold(
@@ -200,8 +214,8 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                   Column(
                     children: List.generate(lessons.length, (index) {
                       final lesson = lessons[index];
-                      final isCompleted = lesson.status == LessonTileStatus.completed;
-                      final isLocked = lesson.status == LessonTileStatus.locked;
+                      final isCompleted = lesson.isCompleted;
+                      final isLocked = lesson.isLocked;
                       final isActive = index == 1; // 2nd lesson is active
 
                       return Padding(
@@ -210,7 +224,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                           onTap: isLocked
                               ? null
                               : () {
-                                  if (lesson.type == 'EXERCISE') {
+                                  if (lesson.isExercise) {
                                     // Navigate to quiz
                                     context.push(
                                       '/learning/quiz-start',
@@ -219,7 +233,18 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                         'moduleName': widget.moduleName,
                                       },
                                     );
-                                  } else {
+                                  } 
+                                  else if (lesson.isFlashcard) {
+                                    // Navigate to flashcard
+                                    context.push(
+                                      '/learning/flashcard-start',
+                                      extra: {
+                                        'lessonId': lesson.id,
+                                        'moduleName': widget.moduleName,
+                                      },
+                                    );
+                                  }
+                                  else {
                                     // Navigate to lesson play
                                     context.push(
                                       '/learning/lesson-play',
@@ -332,19 +357,27 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                     vertical: 4,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: lesson.type == 'EXERCISE'
+                                    color: lesson.isExercise
                                         ? Colors.orange[50]
-                                        : Colors.blue[50],
+                                        : lesson.isFlashcard
+                                            ? Colors.purple[50]
+                                            : Colors.blue[50],
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: Text(
-                                    lesson.type,
+                                    lesson.isExercise
+                                        ? 'EXERCISE'
+                                        : lesson.isFlashcard
+                                            ? 'FLASHCARD'
+                                            : 'VIDEO',
                                     style: TextStyle(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w700,
-                                      color: lesson.type == 'EXERCISE'
+                                      color: lesson.isExercise
                                           ? Colors.orange
-                                          : const Color(0xFF2563EB),
+                                          : lesson.isFlashcard
+                                              ? Colors.purple
+                                              : const Color(0xFF2563EB),
                                     ),
                                   ),
                                 ),
@@ -366,22 +399,4 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
       ),
     );
   }
-}
-
-class _ModuleLesson {
-  final String id;
-  final String name;
-  final String duration;
-  final LessonTileStatus status;
-  final String? progress;
-  final String type; // VIDEO or EXERCISE
-
-  _ModuleLesson({
-    required this.id,
-    required this.name,
-    required this.duration,
-    required this.status,
-    this.progress,
-    required this.type,
-  });
 }

@@ -12,6 +12,8 @@ import 'package:mobile_app/features/learning/presentation/screens/lesson_play_sc
 import 'package:mobile_app/features/learning/presentation/screens/quiz_screen.dart';
 import 'package:mobile_app/features/learning/presentation/screens/quiz_result_screen.dart';
 import 'package:mobile_app/features/learning/presentation/screens/quiz_review_screen.dart';
+import 'package:mobile_app/features/learning/presentation/screens/flashcard_screen.dart';
+import 'package:mobile_app/features/learning/presentation/bloc/flashcard_bloc.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -129,6 +131,19 @@ final appRouter = GoRouter(
                       questions: extra?['questions'] ?? [],
                       correctCount: extra?['correctCount'] ?? 0,
                       totalCount: extra?['totalCount'] ?? 0,
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'flashcard-start',
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return BlocProvider(
+                      create: (context) => FlashcardBloc(),
+                      child: FlashcardScreen(
+                        lessonId: extra?['lessonId'] ?? 'lesson-1',
+                        moduleName: extra?['moduleName'] ?? 'Module',
+                      ),
                     );
                   },
                 ),

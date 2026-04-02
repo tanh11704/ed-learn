@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import 'quiz_screen.dart';
+import '../../data/models/quiz_question_model.dart';
 
 class QuizReviewScreen extends StatefulWidget {
   final String quizName;
