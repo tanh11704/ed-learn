@@ -1,7 +1,6 @@
 package com.vku.edtech.modules.badges.application.port.in;
 
 import com.vku.edtech.modules.badges.domain.model.BadgeCategory;
-
 import java.util.UUID;
 
 public interface UpdateBadgeUseCase {
@@ -14,6 +13,5 @@ public interface UpdateBadgeUseCase {
             String description,
             String imageUrl,
             BadgeCategory category,
-            Integer xpReward
-    ) {}
+            Integer xpReward) {}
 }

@@ -1,9 +1,8 @@
 package com.vku.edtech.modules.badges.application.dto;
 
+import com.vku.edtech.modules.badges.domain.model.BadgeCategory;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
-import com.vku.edtech.modules.badges.domain.model.BadgeCategory;
 
 public record UserBadgeResult(
         UUID userBadgeId,
@@ -15,6 +14,4 @@ public record UserBadgeResult(
         String imageUrl,
         Integer xpReward,
         LocalDateTime earnedAt,
-        Boolean isNew) {
-
-}
+        Boolean isNew) {}
