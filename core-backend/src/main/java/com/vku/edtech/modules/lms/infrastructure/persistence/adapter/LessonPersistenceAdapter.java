@@ -39,6 +39,11 @@ public class LessonPersistenceAdapter implements LessonCommandPort, LessonQueryP
     }
 
     @Override
+    public long countLessonsByCourseId(UUID courseId) {
+        return lessonJpaRepository.countLessonsByCourseId(courseId);
+    }
+
+    @Override
     public Lesson save(Lesson lesson) {
         LessonJpaEntity entity = lessonMapper.toEntity(lesson);
         LessonJpaEntity savedEntity = lessonJpaRepository.save(entity);

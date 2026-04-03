@@ -12,4 +12,6 @@ public interface LessonQueryPort {
     Optional<Integer> findMaxOrderIndexByChapterId(UUID chapterId);
 
     Optional<UUID> findCourseIdByLessonId(UUID lessonId);
+
+    long countLessonsByCourseId(UUID courseId);
 }

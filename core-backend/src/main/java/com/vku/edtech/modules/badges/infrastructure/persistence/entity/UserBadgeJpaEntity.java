@@ -2,19 +2,17 @@ package com.vku.edtech.modules.badges.infrastructure.persistence.entity;
 
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserJpaEntity;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.*;
 
 @Entity
 @Table(
-    name = "user_badges",
-    indexes = {
-        @Index(name = "idx_user_badges_user_id", columnList = "user_id"),
-        @Index(name = "idx_user_badges_badge_id", columnList = "badge_id")
-    }
-)
+        name = "user_badges",
+        indexes = {
+            @Index(name = "idx_user_badges_user_id", columnList = "user_id"),
+            @Index(name = "idx_user_badges_badge_id", columnList = "badge_id")
+        })
 @Getter
 @Setter
 @NoArgsConstructor

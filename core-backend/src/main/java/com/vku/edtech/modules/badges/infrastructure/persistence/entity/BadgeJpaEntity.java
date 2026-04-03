@@ -2,9 +2,8 @@ package com.vku.edtech.modules.badges.infrastructure.persistence.entity;
 
 import com.vku.edtech.modules.badges.domain.model.BadgeCategory;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.UUID;
+import lombok.*;
 
 @Entity
 @Table(name = "badges")
