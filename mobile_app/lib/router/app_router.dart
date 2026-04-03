@@ -14,6 +14,20 @@ import 'package:mobile_app/features/learning/presentation/screens/quiz_result_sc
 import 'package:mobile_app/features/learning/presentation/screens/quiz_review_screen.dart';
 import 'package:mobile_app/features/learning/presentation/screens/flashcard_screen.dart';
 import 'package:mobile_app/features/learning/presentation/bloc/flashcard_bloc.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/ai_solver_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/image_crop_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/analyzing_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/solution_detail_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/ai_tutor_chat_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/screens/notebook_screen.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/scanner_bloc/scanner_bloc.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/scanner_bloc/scanner_event.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/solution_bloc/solution_bloc.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/solution_bloc/solution_event.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_chat_bloc.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_chat_event.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_bloc.dart';
+import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_event.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -34,14 +48,14 @@ import '../features/assessment/presentation/screens/universities_screen.dart';
 
 // Khởi tạo trực tiếp GoRouter 
 final appRouter = GoRouter(
-  initialLocation: '/onboarding',
+  initialLocation: '/home',
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        StatefulShellBranch(
+        StatefulShellBranch( 
           routes: [
             GoRoute(
               name: 'home',
@@ -157,8 +171,38 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/camera',
-      builder: (context, state) => const Scaffold(
-        body: Center(child: Text('Màn hình Camera (Full Screen)')),
+      builder: (context, state) => const AiSolverScreen(),
+    ),
+    GoRoute(
+      path: '/camera/crop',
+      builder: (context, state) => const ImageCropScreen(),
+    ),
+    GoRoute(
+      path: '/camera/analyzing',
+      builder: (context, state) => BlocProvider(
+        create: (context) => ScannerBloc()..add(const StartScanning()),
+        child: const AnalyzingScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/camera/solution-detail',
+      builder: (context, state) => BlocProvider(
+        create: (context) => SolutionBloc()..add(const LoadSolution()),
+        child: const SolutionDetailScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/camera/ai-tutor-chat',
+      builder: (context, state) => BlocProvider(
+        create: (context) => AiChatBloc()..add(const LoadChatHistory()),
+        child: const AiTutorChatScreen(),
+      ),
+    ),
+    GoRoute(
+      path: '/camera/notebook',
+      builder: (context, state) => BlocProvider(
+        create: (context) => NotebookBloc()..add(const LoadNotebooks()),
+        child: const NotebookScreen(),
       ),
     ),
     GoRoute(
