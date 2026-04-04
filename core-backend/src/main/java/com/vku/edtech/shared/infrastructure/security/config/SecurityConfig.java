@@ -55,6 +55,8 @@ public class SecurityConfig {
                                         .requestMatchers(
                                                 HttpMethod.POST, "/api/v1/courses/*/enroll")
                                         .authenticated()
+                                        .requestMatchers("/api/v1/learning/error-bank/**")
+                                        .authenticated()
                                         .requestMatchers(
                                                 HttpMethod.GET, "/api/v1/learning/lessons/**")
                                         .permitAll()

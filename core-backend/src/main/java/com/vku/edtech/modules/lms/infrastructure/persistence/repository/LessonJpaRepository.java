@@ -24,4 +24,10 @@ public interface LessonJpaRepository extends JpaRepository<LessonJpaEntity, UUID
                     + "JOIN l.chapter c "
                     + "WHERE l.id = :lessonId AND l.isDeleted = false")
     Optional<UUID> findCourseIdByLessonId(@Param("lessonId") UUID lessonId);
+
+    @Query(
+            "SELECT COUNT(l.id) FROM LessonJpaEntity l "
+                    + "JOIN l.chapter c "
+                    + "WHERE c.course.id = :courseId AND l.isDeleted = false AND c.isDeleted = false")
+    long countLessonsByCourseId(@Param("courseId") UUID courseId);
 }
