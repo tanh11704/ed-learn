@@ -7,5 +7,5 @@ import java.util.UUID;
 public interface GetDueErrorBankCardsUseCase {
     List<ErrorBankCard> getDueCards(GetDueErrorBankCardsQuery query);
 
-    record GetDueErrorBankCardsQuery(UUID userId) {}
+    record GetDueErrorBankCardsQuery(UUID userId, int limit) {}
 }

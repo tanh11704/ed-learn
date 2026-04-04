@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Error Bank Learning", description = "API ôn tập lỗi sai với spaced repetition")
@@ -36,14 +37,17 @@ public class ErrorBankLearningController {
             description = "Lấy các thẻ có nextReviewDate <= now() của user hiện tại.",
             security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/due")
-    public ResponseEntity<List<ErrorBankCardResponse>> getDueCards(Principal principal) {
+    public ResponseEntity<List<ErrorBankCardResponse>> getDueCards(
+            @RequestParam(name = "limit", defaultValue = "50") int limit, Principal principal) {
         JwtUserInfo userInfo =
                 (JwtUserInfo) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+        int safeLimit = Math.min(100, Math.max(1, limit));
 
         var cards =
                 getDueErrorBankCardsUseCase.getDueCards(
                         new GetDueErrorBankCardsUseCase.GetDueErrorBankCardsQuery(
-                                userInfo.getId()));
+                                userInfo.getId(), safeLimit));
 
         var response =
                 cards.stream()

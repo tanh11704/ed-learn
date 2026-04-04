@@ -16,6 +16,6 @@ public class GetDueErrorBankCardsService implements GetDueErrorBankCardsUseCase 
 
     @Override
     public List<ErrorBankCard> getDueCards(GetDueErrorBankCardsQuery query) {
-        return errorBankQueryPort.findDueByUserId(query.userId(), Instant.now());
+        return errorBankQueryPort.findDueByUserId(query.userId(), Instant.now(), query.limit());
     }
 }

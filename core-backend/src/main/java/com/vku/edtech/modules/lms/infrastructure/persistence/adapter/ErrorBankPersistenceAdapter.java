@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,9 +21,11 @@ public class ErrorBankPersistenceAdapter implements ErrorBankQueryPort, ErrorBan
     private final ErrorBankMapper mapper;
 
     @Override
-    public List<ErrorBankCard> findDueByUserId(UUID userId, Instant now) {
+    public List<ErrorBankCard> findDueByUserId(UUID userId, Instant now, int limit) {
+        int safeLimit = Math.max(1, limit);
         return repository
-                .findByUserIdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, now)
+                .findByUserIdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(
+                        userId, now, PageRequest.of(0, safeLimit))
                 .stream()
                 .map(mapper::toDomain)
                 .toList();
