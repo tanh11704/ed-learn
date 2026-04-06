@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.CreateCourseUseCase;
+import com.vku.edtech.modules.lms.application.port.out.CourseCachePort;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CreateCourseService implements CreateCourseUseCase {
 
     private final CourseCommandPort courseCommandPort;
+    private final CourseCachePort courseCachePort;
 
     @Override
     @Transactional
