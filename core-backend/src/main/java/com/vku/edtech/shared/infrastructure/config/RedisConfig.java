@@ -32,6 +32,7 @@ public class RedisConfig {
                         .activateDefaultTyping(
                                 BasicPolymorphicTypeValidator.builder()
                                         .allowIfSubType("com.vku.edtech")
+                                        .allowIfSubType("java.util")
                                         .build(),
                                 DefaultTyping.NON_FINAL)
                         .build();

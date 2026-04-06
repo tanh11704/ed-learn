@@ -1,5 +1,6 @@
 package com.vku.edtech.shared.presentation.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,7 +20,7 @@ public class CustomPage<T> {
 
     public static <T> CustomPage<T> from(Page<T> page) {
         return new CustomPage<>(
-                page.getContent(),
+                new ArrayList<>(page.getContent()),
                 page.getNumber(),
                 page.getSize(),
                 page.getTotalElements(),
