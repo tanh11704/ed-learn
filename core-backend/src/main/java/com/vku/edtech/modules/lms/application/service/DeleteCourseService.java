@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.DeleteCourseUseCase;
+import com.vku.edtech.modules.lms.application.port.out.CourseCachePort;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
@@ -15,6 +16,7 @@ public class DeleteCourseService implements DeleteCourseUseCase {
 
     private final CourseQueryPort courseQueryPort;
     private final CourseCommandPort courseCommandPort;
+    private final CourseCachePort courseCachePort;
 
     @Override
     @Transactional
@@ -27,5 +29,6 @@ public class DeleteCourseService implements DeleteCourseUseCase {
 
         course.markAsDeleted();
         courseCommandPort.save(course);
+        courseCachePort.deleteCourse(command.courseId());
     }
 }

@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.UpdateCourseUseCase;
+import com.vku.edtech.modules.lms.application.port.out.CourseCachePort;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
@@ -15,6 +16,7 @@ public class UpdateCourseService implements UpdateCourseUseCase {
 
     private final CourseQueryPort courseQueryPort;
     private final CourseCommandPort courseCommandPort;
+    private final CourseCachePort courseCachePort;
 
     @Override
     @Transactional
@@ -28,6 +30,8 @@ public class UpdateCourseService implements UpdateCourseUseCase {
         course.updateDetails(
                 command.title(), command.description(), command.subject(), command.thumbnailUrl());
 
-        return courseCommandPort.save(course);
+        Course updated = courseCommandPort.save(course);
+        courseCachePort.deleteCourse(updated.getId());
+        return updated;
     }
 }
