@@ -28,6 +28,11 @@ import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_
 import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_chat_event.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_bloc.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_event.dart';
+import 'package:mobile_app/features/mock_exam/presentation/screens/camera_check_screen.dart';
+import 'package:mobile_app/features/mock_exam/presentation/screens/exam_library_screen.dart';
+import 'package:mobile_app/features/mock_exam/presentation/screens/exam_taking_screen.dart';
+import 'package:mobile_app/features/mock_exam/presentation/screens/exam_waiting_room_screen.dart';
+import 'package:mobile_app/features/mock_exam/presentation/screens/exam_result_screen.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -48,7 +53,7 @@ import '../features/assessment/presentation/screens/universities_screen.dart';
 
 // Khởi tạo trực tiếp GoRouter 
 final appRouter = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/exam',
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -165,7 +170,35 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(routes: [GoRoute(path: '/exam', builder: (context, state) => const Scaffold(body: Center(child: Text('Thi thử'))))]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/exam', builder: (context, state) => const ExamLibraryScreen(),
+             routes: [
+                GoRoute(path: 'exam-waiting-room',
+                builder:(context, state) {
+                    return ExamWaitingRoomScreen();
+                },
+                ),
+                GoRoute(path: 'camera-check',
+                builder:(context, state) {
+                    return CameraCheckScreen();
+                },
+                ),
+                GoRoute(path: 'exam-session',
+                builder:(context, state) {
+                    return BlocProvider(
+                      create: (context) => ScannerBloc()..add(const StartScanning()),
+                      child: const ExamTakingScreen(),
+                    );
+                }
+                ),
+           GoRoute(path: 'exam-result',
+           builder:(context, state) {
+              return const ExamResultScreen();
+           }
+           ),
+             ]
+          )],
+          ),
         StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))]),
       ],
     ),
