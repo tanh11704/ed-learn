@@ -20,12 +20,12 @@ class NotebookScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'),
         ),
         title: Text('Lưu vào sổ tay', style: AppTextStyles.heading2),
         actions: [
           TextButton(
-            onPressed: () => context.pop(),
+            onPressed: () => context.go('/home'),
             child: Text(
               'Xong',
               style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary),
@@ -46,9 +46,23 @@ class NotebookScreen extends StatelessWidget {
                 notebooks: state.notebooks,
                 selectedIndex: state.selectedIndex,
                 showHeader: false,
-        onSelectNotebook: (index) => context.read<NotebookBloc>().add(
-          SelectNotebook(index),
-        ),
+                onSelectNotebook: (index) async {
+                  context.read<NotebookBloc>().add(SelectNotebook(index));
+
+                  ScaffoldMessenger.of(context)
+                    ..hideCurrentSnackBar()
+                    ..showSnackBar(
+                      SnackBar(
+                        content: Text('Đã lưu vào ${state.notebooks[index]}'),
+                        duration: const Duration(milliseconds: 500),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  if (!context.mounted) return;
+                  context.go('/home');
+                },
                 onCreateNew: () => context.read<NotebookBloc>().add(
                       const CreateNotebook('Sổ tay mới'),
                     ),

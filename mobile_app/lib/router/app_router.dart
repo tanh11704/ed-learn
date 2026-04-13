@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/home/presentation/screens/home_screen.dart';
@@ -47,6 +46,18 @@ import 'package:mobile_app/features/analytics/presentation/screens/mistake_bank_
 import 'package:mobile_app/features/analytics/presentation/screens/mistake_detail_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/screens/redo_question_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/bloc/mistake_bank_bloc/mistake_bank_state.dart';
+import 'package:mobile_app/features/profile/presentation/screens/profile_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/edit_profile_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/study_goal_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/premium_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/payment_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/settings_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/notification_settings_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/learning_tasks_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/ranking_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/badges_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/badge_detail_screen.dart';
+import 'package:mobile_app/features/profile/presentation/screens/xp_store_screen.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -281,9 +292,62 @@ final appRouter = GoRouter(
             ],
           )
         ]),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))
-        ])
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/profile',
+              builder: (context, state) => const ProfileScreen(),
+              routes: [
+                GoRoute(
+                  path: 'edit',
+                  builder: (context, state) => const EditProfileScreen(),
+                ),
+                GoRoute(
+                  path: 'study-goal',
+                  builder: (context, state) => const StudyGoalScreen(),
+                ),
+                GoRoute(
+                  path: 'premium',
+                  builder: (context, state) => const PremiumScreen(),
+                ),
+                GoRoute(
+                  path: 'payment',
+                  builder: (context, state) => const PaymentScreen(),
+                ),
+                GoRoute(
+                  path: 'settings',
+                  builder: (context, state) => const SettingsScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'notifications',
+                      builder: (context, state) => const NotificationSettingsScreen(),
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: 'tasks',
+                  builder: (context, state) => const LearningTasksScreen(),
+                ),
+                GoRoute(
+                  path: 'ranking',
+                  builder: (context, state) => const RankingScreen(),
+                ),
+                GoRoute(
+                  path: 'badges',
+                  builder: (context, state) => const BadgesScreen(),
+                ),
+                GoRoute(
+                  path: 'badges/detail',
+                  builder: (context, state) => const BadgeDetailScreen(),
+                ),
+                GoRoute(
+                  path: 'xp-store',
+                  builder: (context, state) => const XpStoreScreen(),
+                ),
+              ],
+            ),
+          ],
+        )
       ],
     ),
     GoRoute(

@@ -93,7 +93,7 @@ class SaveNotebookBottomSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 110,
+            height: 124,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: notebooks.length,
@@ -105,7 +105,7 @@ class SaveNotebookBottomSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                   child: Container(
                     width: 110,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                     decoration: BoxDecoration(
                       color: isSelected ? AppColors.primaryLight : AppColors.white,
                       borderRadius: BorderRadius.circular(16),
@@ -132,13 +132,15 @@ class SaveNotebookBottomSheet extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          notebooks[index],
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodyMedium.copyWith(
-                            color: AppColors.textPrimary,
-                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        Expanded(
+                          child: Text(
+                            notebooks[index],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                            ),
                           ),
                         ),
                       ],
