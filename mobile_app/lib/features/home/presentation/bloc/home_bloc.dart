@@ -45,7 +45,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         emit(HomeLoaded(
           tasks: mockTasks,
           dailyProgress: 65,
-          daysRemaining: 120,
+          daysRemaining: 57,
           streak: 7,
           userName: userInfo.name,
           userEmail: userInfo.email,
