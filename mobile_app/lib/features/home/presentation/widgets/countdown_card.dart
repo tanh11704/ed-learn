@@ -49,7 +49,7 @@ class CountdownCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 5),
                 const Text(
-                  'KỲ THI THPT QUỐC GIA 2024',
+                  'KỲ THI THPT QUỐC GIA 2026',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -199,7 +199,7 @@ class CountdownCard extends StatelessWidget {
                     ),
                   ),
                   child: const Text(
-                    'Xem lộ trình',
+                    'Học ngay',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 13,

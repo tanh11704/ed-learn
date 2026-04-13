@@ -39,7 +39,9 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final showFab = widget.navigationShell.currentIndex == 0;
+  final location = GoRouterState.of(context).uri.toString();
+    final isSelfStudy = location.startsWith('/home/self-study');
+    final showFab = widget.navigationShell.currentIndex == 0 && !isSelfStudy;
 
     return Scaffold(
       body: widget.navigationShell, // Hiển thị màn hình con tương ứng với tab được chọn

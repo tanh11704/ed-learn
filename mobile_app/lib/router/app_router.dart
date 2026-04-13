@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/home/presentation/screens/home_screen.dart';
 import 'package:mobile_app/features/home/presentation/screens/schedule_screen.dart';
+import 'package:mobile_app/features/home/presentation/screens/self_study_room_screen.dart';
+import 'package:mobile_app/features/home/presentation/screens/self_study_session_screen.dart';
 import 'package:mobile_app/features/home/presentation/bloc/home_bloc.dart';
 import 'package:mobile_app/features/home/data/repositories/home_repository_impl.dart';
 import 'package:mobile_app/features/home/data/datasources/home_remote_datasource.dart';
@@ -33,6 +35,18 @@ import 'package:mobile_app/features/mock_exam/presentation/screens/exam_library_
 import 'package:mobile_app/features/mock_exam/presentation/screens/exam_taking_screen.dart';
 import 'package:mobile_app/features/mock_exam/presentation/screens/exam_waiting_room_screen.dart';
 import 'package:mobile_app/features/mock_exam/presentation/screens/exam_result_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/analytics_shell.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/analytics_dashboard_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/capability_analysis_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/learning_progress_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/time_management_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/score_prediction_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/learning_path_screen.dart'
+  as analytics;
+import 'package:mobile_app/features/analytics/presentation/screens/mistake_bank_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/mistake_detail_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/screens/redo_question_screen.dart';
+import 'package:mobile_app/features/analytics/presentation/bloc/mistake_bank_bloc/mistake_bank_state.dart';
 
 import 'app_shell.dart';
 import '../features/onboarding/screens/onboarding_screen.dart';
@@ -84,6 +98,16 @@ final appRouter = GoRouter(
                     ),
                     child: const ScheduleScreen(),
                   ),
+                ),
+                GoRoute(
+                  path: 'self-study',
+                  builder: (context, state) => const SelfStudyRoomScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'session',
+                      builder: (context, state) => const SelfStudySessionScreen(),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -200,7 +224,62 @@ final appRouter = GoRouter(
           )],
           ),
         StatefulShellBranch(routes: [
-          GoRoute(path: '/statistical', builder: (context, state) => const Scaffold(body: Center(child: Text('Thống kê'))))
+          GoRoute(
+            path: '/statistical',
+            builder: (context, state) => const AnalyticsShell(child: AnalyticsDashboardScreen()),
+            routes: [
+              GoRoute(
+                path: 'capability',
+                builder: (context, state) => const AnalyticsShell(child: CapabilityAnalysisScreen()),
+              ),
+              GoRoute(
+                path: 'progress',
+                builder: (context, state) => const AnalyticsShell(child: LearningProgressScreen()),
+              ),
+              GoRoute(
+                path: 'time',
+                builder: (context, state) => const AnalyticsShell(child: TimeManagementScreen()),
+              ),
+              GoRoute(
+                path: 'prediction',
+                builder: (context, state) => const AnalyticsShell(child: ScorePredictionScreen()),
+              ),
+              GoRoute(
+                path: 'learning-path',
+                builder: (context, state) => const AnalyticsShell(
+                  child: analytics.LearningPathScreen(),
+                ),
+              ),
+              GoRoute(
+                path: 'mistakes',
+                builder: (context, state) => const AnalyticsShell(child: MistakeBankScreen()),
+                routes: [
+                  GoRoute(
+                    path: ':id',
+                    builder: (context, state) {
+                      final item = state.extra as MistakeItem?;
+                      if (item == null) {
+                        return const AnalyticsShell(child: MistakeBankScreen());
+                      }
+                      return AnalyticsShell(child: MistakeDetailScreen(item: item));
+                    },
+                    routes: [
+                      GoRoute(
+                        path: 'redo',
+                        builder: (context, state) {
+                          final item = state.extra as MistakeItem?;
+                          if (item == null) {
+                            return const AnalyticsShell(child: MistakeBankScreen());
+                          }
+                          return AnalyticsShell(child: RedoQuestionScreen(item: item));
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          )
         ]),
         StatefulShellBranch(routes: [
           GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))
