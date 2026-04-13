@@ -53,7 +53,7 @@ import '../features/assessment/presentation/screens/universities_screen.dart';
 
 // Khởi tạo trực tiếp GoRouter 
 final appRouter = GoRouter(
-  initialLocation: '/exam',
+  initialLocation: '/onboarding',
   routes: [
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
@@ -199,7 +199,12 @@ final appRouter = GoRouter(
              ]
           )],
           ),
-        StatefulShellBranch(routes: [GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/statistical', builder: (context, state) => const Scaffold(body: Center(child: Text('Thống kê'))))
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/profile', builder: (context, state) => const Scaffold(body: Center(child: Text('Cá nhân'))))
+        ])
       ],
     ),
     GoRoute(

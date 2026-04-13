@@ -39,40 +39,81 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
+    final showFab = widget.navigationShell.currentIndex == 0;
+
     return Scaffold(
       body: widget.navigationShell, // Hiển thị màn hình con tương ứng với tab được chọn
       
-      // 1. NÚT NỔI Ở GIỮA (GIA SƯ AI)
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Khi bấm nút giữa, đẩy thẳng sang màn hình Camera (ẩn Nav Bar)
-          context.push('/camera'); 
-        },
-        backgroundColor: AppColors.primary,
-        shape: const CircleBorder(),
-        elevation: 4,
-        child: const Icon(Icons.camera_alt, color: AppColors.white, size: 28),
-      ),
-      // Neo nút nổi vào đúng vị trí giữa thanh Nav Bar
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      // 1. NÚT NỔI Ở GÓC PHẢI DƯỚI (GIA SƯ AI)
+      floatingActionButton: showFab
+          ? Padding(
+              padding: const EdgeInsets.only(bottom: 70, right: 8),
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Khi bấm nút, đẩy thẳng sang màn hình Camera (ẩn Nav Bar)
+                  context.push('/camera');
+                },
+                backgroundColor: AppColors.primary,
+                shape: const CircleBorder(),
+                elevation: 6,
+                child: const Icon(Icons.camera_alt, color: AppColors.white, size: 28),
+              ),
+            )
+          : null,
+      // Neo nút nổi vào góc phải dưới, chừa khoảng cho nav bar
+      floatingActionButtonLocation:
+          showFab ? FloatingActionButtonLocation.endDocked : null,
 
       // 2. THANH ĐIỀU HƯỚNG DƯỚI ĐÁY
       bottomNavigationBar: _isBottomSheetOpen ? null : BottomAppBar(
-        shape: const CircularNotchedRectangle(), // Tạo rãnh lõm cho nút nổi
-        notchMargin: 8.0,
+        shape: showFab ? const CircularNotchedRectangle() : null, // Tạo rãnh lõm cho nút nổi
+        notchMargin: showFab ? 6.0 : 0,
         color: AppColors.white,
         child: SizedBox(
           height: 60,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Trang chủ', index: 0),
-              _buildNavItem(icon: Icons.menu_book_outlined, activeIcon: Icons.menu_book, label: 'Học tập', index: 1),
-              
-              const SizedBox(width: 48), // Khoảng trống ở giữa nhường chỗ cho nút Camera
-              
-              _buildNavItem(icon: Icons.edit_document, activeIcon: Icons.edit_square, label: 'Thi thử', index: 2),
-              _buildNavItem(icon: Icons.person_outline, activeIcon: Icons.person, label: 'Cá nhân', index: 3),
+              Expanded(
+                child: _buildNavItem(
+                  icon: Icons.home_outlined,
+                  activeIcon: Icons.home,
+                  label: 'Trang chủ',
+                  index: 0,
+                ),
+              ),
+              Expanded(
+                child: _buildNavItem(
+                  icon: Icons.menu_book_outlined,
+                  activeIcon: Icons.menu_book,
+                  label: 'Học tập',
+                  index: 1,
+                ),
+              ),
+              // const Expanded(child: SizedBox()),
+              Expanded(
+                child: _buildNavItem(
+                  icon: Icons.edit_document,
+                  activeIcon: Icons.edit_square,
+                  label: 'Thi thử',
+                  index: 2,
+                ),
+              ),
+              Expanded(
+                child: _buildNavItem(
+                  icon: Icons.bar_chart_outlined,
+                  activeIcon: Icons.bar_chart,
+                  label: 'Thống kê',
+                  index: 3,
+                ),
+              ),
+              Expanded(
+                child: _buildNavItem(
+                  icon: Icons.person_outline,
+                  activeIcon: Icons.person,
+                  label: 'Cá nhân',
+                  index: 4,
+                ),
+              ),
             ],
           ),
         ),
@@ -86,25 +127,27 @@ class _AppShellState extends State<AppShell> {
     
     return InkWell(
       onTap: () => widget.navigationShell.goBranch(index, initialLocation: index == widget.navigationShell.currentIndex),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            isSelected ? activeIcon : icon,
-            color: isSelected ? AppColors.primary : AppColors.textSecondary,
-            size: 24,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10,
-              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              isSelected ? activeIcon : icon,
               color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              size: 24,
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
