@@ -1,7 +1,6 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase;
-import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase.UploadLessonMediaCommand;
 import com.vku.edtech.modules.lms.application.port.out.LessonCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;

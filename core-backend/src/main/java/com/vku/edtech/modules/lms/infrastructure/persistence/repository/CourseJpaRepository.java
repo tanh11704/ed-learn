@@ -14,7 +14,10 @@ import org.springframework.stereotype.Repository;
 public interface CourseJpaRepository extends JpaRepository<CourseJpaEntity, UUID> {
 
     @Query(
-            "SELECT c FROM CourseJpaEntity c WHERE c.status != 'DELETED' AND (:subject IS NULL OR c.subject = :subject)")
+            "SELECT c FROM CourseJpaEntity c "
+                    + "WHERE :subject IS NULL "
+                    + "OR :subject = '' "
+                    + "OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :subject, '%'))")
     Page<CourseJpaEntity> findBySubjectOrAll(String subject, Pageable pageable);
 
     @Query(
