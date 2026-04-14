@@ -1,12 +1,12 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.UpdateCourseUseCase;
-import com.vku.edtech.modules.lms.application.port.out.CourseCachePort;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +16,12 @@ public class UpdateCourseService implements UpdateCourseUseCase {
 
     private final CourseQueryPort courseQueryPort;
     private final CourseCommandPort courseCommandPort;
-    private final CourseCachePort courseCachePort;
+
+    //    private final CourseCachePort courseCachePort;
 
     @Override
     @Transactional
+    @CacheEvict(value = "courseDetail", key = "#command.courseId()")
     public Course updateCourse(UpdateCourseCommand command) {
         Course course =
                 courseQueryPort
@@ -31,7 +33,7 @@ public class UpdateCourseService implements UpdateCourseUseCase {
                 command.title(), command.description(), command.subject(), command.thumbnailUrl());
 
         Course updated = courseCommandPort.save(course);
-        courseCachePort.deleteCourse(updated.getId());
+        //        courseCachePort.deleteCourse(updated.getId());
         return updated;
     }
 }

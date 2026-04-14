@@ -1,12 +1,5 @@
 package com.vku.edtech.modules.lms.presentation.controller;
 
-import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import com.vku.edtech.modules.lms.application.port.in.CreateCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.in.DeleteCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.in.GetCourseMetadataUseCase;
@@ -18,11 +11,14 @@ import com.vku.edtech.modules.lms.presentation.dto.request.CreateCourseRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateCourseRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.CourseResponse;
 import com.vku.edtech.shared.presentation.dto.CustomPage;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Khóa học", description = "API quản lý khóa học")
 @RestController
@@ -45,11 +41,11 @@ public class CourseController {
             @RequestParam(required = false) String subject,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<Course> courses =
+        CustomPage<Course> courses =
                 getCoursesUseCase.getCourses(
                         new GetCoursesUseCase.GetCoursesQuery(subject, PageRequest.of(page, size)));
-        Page<CourseResponse> responsePage = courses.map(courseResponseMapper::toResponse);
-        return ResponseEntity.ok(CustomPage.from(responsePage));
+
+        return ResponseEntity.ok(courses.map(courseResponseMapper::toResponse));
     }
 
     @Operation(
