@@ -9,7 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // Đảm bảo import đúng tên package của bạn
-import 'package:mobile_app/main.dart'; 
+import 'package:mobile_app/main.dart';
+import 'package:mobile_app/router/app_router.dart';
 
 void main() {
   testWidgets('App bootstraps and shows Bottom Navigation Bar', (WidgetTester tester) async {
@@ -17,10 +18,12 @@ void main() {
     // Bỏ ProviderScope đi vì EdTechApp đã tự bọc MultiBlocProvider rồi
     await tester.pumpWidget(const EdTechApp());
 
-    // 2. Chờ cho tất cả các animation và GoRouter điều hướng xong
-    await tester.pumpAndSettle();
+  // 2. Điều hướng đến trang chủ để kiểm tra thanh tab chính
+  appRouter.go('/home');
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 500));
 
-    // 3. Kiểm tra xem ứng dụng có khởi chạy thành công và hiển thị các tab không
+  // 3. Kiểm tra xem ứng dụng có khởi chạy thành công và hiển thị các tab không
     expect(find.text('Trang chủ'), findsOneWidget);
     expect(find.text('Học tập'), findsOneWidget);
     

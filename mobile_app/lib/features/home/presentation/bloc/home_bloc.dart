@@ -20,6 +20,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     try {
       // Fetch user info từ repository
       final userInfo = await repository.getUserInfo();
+      int currentStreak = 0;
+      try {
+        final streakInfo = await repository.getUserStreak();
+        currentStreak = streakInfo.currentStreak;
+      } catch (_) {
+        currentStreak = 0;
+      }
       
       // Mock tasks
       final mockTasks = [
@@ -46,7 +53,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           tasks: mockTasks,
           dailyProgress: 65,
           daysRemaining: 57,
-          streak: 7,
+          streak: currentStreak,
           userName: userInfo.name,
           userEmail: userInfo.email,
           userAvatar: userInfo.avatar,

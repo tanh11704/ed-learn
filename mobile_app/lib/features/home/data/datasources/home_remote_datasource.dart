@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_app/core/services/token_storage_service.dart';
 import '../models/user_model.dart';
+import '../models/user_streak_model.dart';
 
 abstract class HomeRemoteDataSource {
   Future<UserModel> getUserInfo();
+  Future<UserStreakModel> getUserStreak();
 }
 
 class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
@@ -48,6 +50,45 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
         throw Exception('Server error');
       } else {
         throw Exception('Get user info failed: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  @override
+  Future<UserStreakModel> getUserStreak() async {
+    try {
+      final tokenStorage = TokenStorageService();
+      final accessToken = await tokenStorage.getAccessToken();
+
+      if (accessToken == null) {
+        throw Exception('Access token not found. Please login again.');
+      }
+
+      final response = await http
+          .get(
+            Uri.parse('$baseUrl/user-streaks/me'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': 'Bearer $accessToken',
+            },
+          )
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () => throw Exception('Request timeout'),
+          );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body);
+        return UserStreakModel.fromJson(jsonResponse);
+      } else if (response.statusCode == 401) {
+        throw Exception('Unauthorized - token expired or invalid');
+      } else if (response.statusCode == 500) {
+        throw Exception('Server error');
+      } else {
+        throw Exception('Get user streak failed: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error: $e');
