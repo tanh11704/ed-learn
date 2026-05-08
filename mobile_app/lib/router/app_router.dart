@@ -137,6 +137,7 @@ final appRouter = GoRouter(
                     return ModuleDetailScreen(
                       moduleId: extra?['moduleId'] ?? 'pandas-analysis',
                       moduleName: extra?['moduleName'] ?? 'Pandas Analysis',
+                      courseId: extra?['courseId'],
                     );
                   },
                 ),
@@ -148,6 +149,7 @@ final appRouter = GoRouter(
                       lessonId: extra?['lessonId'] ?? '1',
                       lessonName: extra?['lessonName'] ?? 'Intro to Dataframes',
                       moduleName: extra?['moduleName'] ?? 'Pandas Analysis',
+                      courseId: extra?['courseId'],
                     );
                   },
                 ),

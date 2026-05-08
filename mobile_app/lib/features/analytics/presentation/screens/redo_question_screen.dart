@@ -4,6 +4,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/primary_button.dart';
 import '../bloc/mistake_bank_bloc/mistake_bank_state.dart';
+import '../../data/datasources/error_bank_remote_datasource.dart';
+import '../../data/repositories/error_bank_repository_impl.dart';
 
 class RedoQuestionScreen extends StatefulWidget {
   final MistakeItem item;
@@ -18,9 +20,29 @@ class _RedoQuestionScreenState extends State<RedoQuestionScreen> {
   String? _selectedOption;
   bool _submitted = false;
 
+  bool get _isCorrect => _selectedOption == widget.item.correctAnswer;
+
+  Future<void> _submitReview() async {
+    final repository = ErrorBankRepositoryImpl(ErrorBankRemoteDataSourceImpl());
+    final quality = _isCorrect ? 4 : 2;
+    try {
+      await repository.reviewCard(id: widget.item.id, quality: quality);
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể lưu kết quả ôn tập.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final options = const ['5 cm', '5.5 cm', '6 cm', '7 cm'];
+    final options = <String>{
+      widget.item.correctAnswer,
+      widget.item.wrongAnswer,
+      '6 cm',
+      '7 cm',
+    }.where((option) => option.trim().isNotEmpty).toList();
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -50,7 +72,7 @@ class _RedoQuestionScreenState extends State<RedoQuestionScreen> {
               (option) => _AnswerOption(
                 text: option,
                 isSelected: _selectedOption == option,
-                isCorrect: _submitted && option == options.first,
+                isCorrect: _submitted && option == widget.item.correctAnswer,
                 onTap: () {
                   setState(() {
                     _selectedOption = option;
@@ -61,9 +83,13 @@ class _RedoQuestionScreenState extends State<RedoQuestionScreen> {
             const Spacer(),
             if (_submitted)
               _SuccessBanner(
-                text: 'Tuyệt vời! Bạn làm đúng.',
-                subtitle: 'Áp dụng định lý Pythagoras: BC² = AB² + AC²',
-                onDone: () => context.pop(),
+                text: _isCorrect ? 'Tuyệt vời! Bạn làm đúng.' : 'Chưa chính xác, hãy ôn lại.',
+                subtitle: 'Đáp án đúng: ${widget.item.correctAnswer}',
+                onDone: () async {
+                  await _submitReview();
+                  if (!mounted) return;
+                  context.pop();
+                },
               )
             else
               PrimaryButton(

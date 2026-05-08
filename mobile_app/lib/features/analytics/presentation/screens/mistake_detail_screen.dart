@@ -50,7 +50,7 @@ class MistakeDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text('Lựa chọn của bạn', style: AppTextStyles.bodyMedium),
                   ),
-                  Text('5.5 cm', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
+                  Text(item.wrongAnswer, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
                 ],
               ),
             ),
@@ -68,7 +68,7 @@ class MistakeDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text('Đáp án đúng', style: AppTextStyles.bodyMedium),
                   ),
-                  Text('5 cm', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.success)),
+                  Text(item.correctAnswer, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.success)),
                 ],
               ),
             ),

@@ -26,6 +26,9 @@ class MistakeBankScreen extends StatelessWidget {
       ),
       body: BlocBuilder<MistakeBankBloc, MistakeBankState>(
         builder: (context, state) {
+          if (state.isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(

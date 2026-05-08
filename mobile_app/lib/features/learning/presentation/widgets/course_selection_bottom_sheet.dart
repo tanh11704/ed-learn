@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
+import '../../data/datasources/learning_remote_datasource.dart';
+import '../../data/models/course_models.dart';
+import '../../data/repositories/learning_repository_impl.dart';
 
 class CourseSelectionBottomSheet extends StatefulWidget {
   final VoidCallback? onHideNavBar;
   final VoidCallback? onShowNavBar;
+  final String? selectedCourseId;
 
   const CourseSelectionBottomSheet({
     Key? key,
     this.onHideNavBar,
     this.onShowNavBar,
+    this.selectedCourseId,
   }) : super(key: key);
 
   @override
@@ -18,40 +23,210 @@ class CourseSelectionBottomSheet extends StatefulWidget {
 class _CourseSelectionBottomSheetState
     extends State<CourseSelectionBottomSheet> {
   late String selectedCourseId;
-
-  // Mock data được cập nhật lại icon cho giống ảnh
-  final List<Map<String, dynamic>> courses = [
-    {
-      'id': 'khoa-hoc-du-lieu',
-      'name': 'Khoa học dữ liệu',
-      'description': 'Cấp độ Trung cấp',
-      'icon': Icons.bar_chart,
-    },
-    {
-      'id': 'toan-hoc-12',
-      'name': 'Toán học 12',
-      'description': 'Đang học bài 5',
-      'icon': Icons.functions, // Icon Sigma giống thiết kế
-    },
-    {
-      'id': 'luyen-thi-ielts',
-      'name': 'Luyện thi IELTS 7.0',
-      'description': 'Đang học bài 2',
-      'icon': Icons.language, // Icon quả địa cầu
-    },
-  ];
+  final LearningRepositoryImpl _repository =
+      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  bool _isLoading = true;
+  String? _errorMessage;
+  List<CourseSummary> _myCourses = [];
+  List<CourseSummary> _publicCourses = [];
+  bool _isEnrolling = false;
 
   @override
   void initState() {
     super.initState();
-    selectedCourseId = courses[0]['id'];
     widget.onHideNavBar?.call();
+    selectedCourseId = widget.selectedCourseId ?? '';
+    _loadCourses();
   }
 
   @override
   void dispose() {
     widget.onShowNavBar?.call();
     super.dispose();
+  }
+
+  Future<void> _loadCourses({bool forceRefresh = false}) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      List<CourseSummary> myCourses = [];
+      try {
+        myCourses = await _repository.getMyCourses(forceRefresh: forceRefresh);
+      } catch (_) {
+        myCourses = [];
+      }
+
+      final publicCourses = await _repository.getCourses(
+        page: 0,
+        size: 12,
+        forceRefresh: forceRefresh,
+      );
+
+      final selected = widget.selectedCourseId ??
+          (myCourses.isNotEmpty
+              ? myCourses.first.id
+              : (publicCourses.isNotEmpty ? publicCourses.first.id : ''));
+
+      setState(() {
+        _myCourses = myCourses;
+        _publicCourses = publicCourses;
+        selectedCourseId = selected;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _enrollCourse(CourseSummary course) async {
+    setState(() {
+      _isEnrolling = true;
+    });
+
+    try {
+      await _repository.enrollCourse(course.id);
+      await _loadCourses();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Đã đăng ký khóa học ${course.title}')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể đăng ký: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isEnrolling = false;
+        });
+      }
+    }
+  }
+
+  IconData _courseIcon(CourseSummary course) {
+    final subject = course.subject?.toLowerCase() ?? '';
+    if (subject.contains('math') || subject.contains('toán')) {
+      return Icons.functions;
+    }
+    if (subject.contains('ielts') || subject.contains('english')) {
+      return Icons.language;
+    }
+    if (subject.contains('data')) {
+      return Icons.bar_chart;
+    }
+    return Icons.school;
+  }
+
+  Widget _buildSectionHeader(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: Color(0xFF94A3B8),
+          letterSpacing: 0.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyMessage(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      child: Text(
+        message,
+        style: TextStyle(
+          color: Colors.grey[600],
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseTile({
+    required CourseSummary course,
+    required bool isSelected,
+    VoidCallback? onTap,
+    Widget? trailing,
+  }) {
+    final bgColor = isSelected ? const Color(0xFFF4F8FF) : const Color(0xFFF3F4F6);
+    final borderColor = isSelected ? const Color(0xFF2563EB) : Colors.transparent;
+    final iconBgColor = isSelected ? const Color(0xFFDBEAFE) : const Color(0xFFE5E7EB);
+    final iconColor = isSelected ? const Color(0xFF2563EB) : const Color(0xFF6B7280);
+    final titleColor = isSelected ? const Color(0xFF2563EB) : Colors.black87;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          decoration: BoxDecoration(
+            color: bgColor,
+            border: Border.all(
+              color: borderColor,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: iconBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _courseIcon(course),
+                    color: iconColor,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        course.title,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: titleColor,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        course.subject ?? course.description ?? 'Khóa học phổ biến',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (trailing != null) trailing,
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -91,12 +266,24 @@ class _CourseSelectionBottomSheetState
                         color: Colors.black87,
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.close, size: 24, color: Colors.black54),
-                      onPressed: () => Navigator.pop(context),
-                      splashRadius: 24,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.refresh, size: 22, color: Colors.black54),
+                          onPressed: () => _loadCourses(forceRefresh: true),
+                          splashRadius: 22,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                        const SizedBox(width: 6),
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 24, color: Colors.black54),
+                          onPressed: () => Navigator.pop(context),
+                          splashRadius: 24,
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -104,107 +291,90 @@ class _CourseSelectionBottomSheetState
               const SizedBox(height: 8),
 
               // 3. Danh sách môn học
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Column(
-                  children: List.generate(courses.length, (index) {
-                    final course = courses[index];
-                    final isSelected = selectedCourseId == course['id'];
-
-                    // Định nghĩa màu sắc theo trạng thái để giống hệt UI
-                    final bgColor = isSelected ? const Color(0xFFF4F8FF) : const Color(0xFFF3F4F6); // Blue nhạt vs Xám nhạt
-                    final borderColor = isSelected ? const Color(0xFF2563EB) : Colors.transparent;
-                    final iconBgColor = isSelected ? const Color(0xFFDBEAFE) : const Color(0xFFE5E7EB);
-                    final iconColor = isSelected ? const Color(0xFF2563EB) : const Color(0xFF6B7280);
-                    final titleColor = isSelected ? const Color(0xFF2563EB) : Colors.black87;
-
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          selectedCourseId = course['id'];
-                        });
-                        Future.delayed(const Duration(milliseconds: 250), () {
-                          Navigator.pop(context);
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          decoration: BoxDecoration(
-                            color: bgColor,
-                            border: Border.all(
-                              color: borderColor,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(20), // Bo góc tròn hơn giống ảnh
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
-                            child: Row(
-                              children: [
-                                // Icon Box
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    color: iconBgColor,
-                                    shape: BoxShape.circle, // Đổi sang hình tròn
-                                  ),
-                                  child: Icon(
-                                    course['icon'],
-                                    color: iconColor,
-                                    size: 24,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // Text Content
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        course['name'],
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: titleColor,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        course['description'],
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w400,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                // Trailing Icon (Dấu tick xanh HOẶC Mũi tên xám)
-                                if (isSelected)
-                                  const Icon(
+              if (_isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: CircularProgressIndicator(),
+                )
+              else if (_errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        _errorMessage ?? 'Đã xảy ra lỗi',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.redAccent),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: _loadCourses,
+                        child: const Text('Thử lại'),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildSectionHeader('Khóa học của tôi'),
+                      if (_myCourses.isEmpty)
+                        _buildEmptyMessage('Bạn chưa đăng ký khóa học nào.')
+                      else
+                        ..._myCourses.map(
+                          (course) => _buildCourseTile(
+                            course: course,
+                            isSelected: selectedCourseId == course.id,
+                            onTap: () {
+                              setState(() {
+                                selectedCourseId = course.id;
+                              });
+                              Future.delayed(const Duration(milliseconds: 250), () {
+                                Navigator.pop(context, course);
+                              });
+                            },
+                            trailing: selectedCourseId == course.id
+                                ? const Icon(
                                     Icons.check_circle,
                                     color: Color(0xFF2563EB),
                                     size: 26,
                                   )
-                                else
-                                  const Icon(
+                                : const Icon(
                                     Icons.chevron_right,
                                     color: Colors.black38,
                                     size: 24,
                                   ),
-                              ],
-                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
+                      const SizedBox(height: 16),
+                      _buildSectionHeader('Khám phá khóa học'),
+                      if (_publicCourses.isEmpty)
+                        _buildEmptyMessage('Không có khóa học công khai.')
+                      else
+                        ..._publicCourses.map(
+                          (course) => _buildCourseTile(
+                            course: course,
+                            isSelected: selectedCourseId == course.id,
+                            trailing: _myCourses.any((c) => c.id == course.id)
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Color(0xFF2563EB),
+                                    size: 26,
+                                  )
+                                : TextButton(
+                                    onPressed: _isEnrolling
+                                        ? null
+                                        : () => _enrollCourse(course),
+                                    child: const Text('Đăng ký'),
+                                  ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
-              ),
 
               const SizedBox(height: 8),
 

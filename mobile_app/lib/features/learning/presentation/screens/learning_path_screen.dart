@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/services/learning_cache_service.dart';
+import '../../data/datasources/learning_remote_datasource.dart';
+import '../../data/models/course_models.dart';
+import '../../data/repositories/learning_repository_impl.dart';
 import '../widgets/path_node_item.dart';
 import '../widgets/course_selection_bottom_sheet.dart';
 
@@ -18,56 +22,158 @@ class LearningPathScreen extends StatefulWidget {
 }
 
 class _LearningPathScreenState extends State<LearningPathScreen> {
-  late List<_LessonItem> lessons;
+  final LearningRepositoryImpl _repository =
+      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  final LearningCacheService _cacheService = LearningCacheService();
+  List<_LessonItem> lessons = [];
+  CourseSummary? _selectedCourse;
+  bool _isLoading = true;
+  String? _errorMessage;
+  int _completedLessonsCount = 0;
+  int _totalLessonsCount = 0;
 
   @override
   void initState() {
     super.initState();
-    _initializeLessons();
+    _loadInitialData();
   }
 
-  void _initializeLessons() {
-    lessons = [
-      _LessonItem(
-        id: '1',
-        name: 'Python Basics',
-        status: LessonNodeStatus.mastered,
-        masteredDate: 'Mastered on Oct 12',
-      ),
-      _LessonItem(
-        id: '2',
-        name: 'Data Structures',
-        status: LessonNodeStatus.mastered,
-        masteredDate: 'Mastered on Oct 24',
-      ),
-      _LessonItem(
-        id: '3',
-        name: 'Pandas Analysis',
-        status: LessonNodeStatus.current,
-      ),
-      _LessonItem(
-        id: '4',
-        name: 'Visualization',
-        status: LessonNodeStatus.locked,
-        masteredDate: 'Unlocks at Level 15',
-      ),
-      _LessonItem(
-        id: '5',
-        name: 'Machine Learning',
-        status: LessonNodeStatus.locked,
-        masteredDate: 'Unlocks at Level 20',
-      ),
-    ];
+  Future<void> _loadInitialData({bool forceRefresh = false}) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      List<CourseSummary> myCourses = [];
+      try {
+        myCourses = await _repository.getMyCourses(forceRefresh: forceRefresh);
+      } catch (_) {
+        myCourses = [];
+      }
+
+      final publicCourses = await _repository.getCourses(
+        page: 0,
+        size: 12,
+        forceRefresh: forceRefresh,
+      );
+
+      CourseSummary? selected = myCourses.firstWhere(
+        (course) => course.id == widget.courseId,
+        orElse: () => myCourses.isNotEmpty ? myCourses.first : CourseSummary(id: '', title: ''),
+      );
+
+      if (selected.id.isEmpty) {
+        selected = publicCourses.firstWhere(
+          (course) => course.id == widget.courseId,
+          orElse: () => publicCourses.isNotEmpty ? publicCourses.first : CourseSummary(id: '', title: ''),
+        );
+      }
+
+      if (selected.id.isEmpty) {
+        setState(() {
+          lessons = [];
+          _selectedCourse = null;
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _selectedCourse = selected;
+      await _loadCourseDetail(selected.id, forceRefresh: forceRefresh);
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
   }
 
-  void _showCourseSelection() {
-    showModalBottomSheet(
+  Future<void> _loadCourseDetail(String courseId, {bool forceRefresh = false}) async {
+    try {
+      final detail = await _repository.getCourseDetail(courseId, forceRefresh: forceRefresh);
+      final completedLessonIds =
+          await _cacheService.getCompletedLessonIds(courseId);
+      final chapters = detail.chapters.toList()
+        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+
+      final updatedLessons = <_LessonItem>[];
+      int totalLessons = 0;
+      int completedLessons = 0;
+      bool currentAssigned = false;
+
+      for (final chapter in chapters) {
+        final chapterLessons = chapter.lessons.toList()
+          ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+        totalLessons += chapterLessons.length;
+        final completedInChapter = chapterLessons
+            .where((lesson) => completedLessonIds.contains(lesson.id))
+            .length;
+        completedLessons += completedInChapter;
+
+        LessonNodeStatus status;
+        String? note;
+        if (chapterLessons.isNotEmpty && completedInChapter == chapterLessons.length) {
+          status = LessonNodeStatus.mastered;
+          note = 'Hoàn thành ${chapterLessons.length}/${chapterLessons.length} bài học';
+        } else if (!currentAssigned) {
+          status = LessonNodeStatus.current;
+          currentAssigned = true;
+        } else {
+          status = LessonNodeStatus.locked;
+          note = 'Chưa mở khóa';
+        }
+
+        updatedLessons.add(
+          _LessonItem(
+            id: chapter.id,
+            name: chapter.title,
+            status: status,
+            masteredDate: note,
+          ),
+        );
+      }
+
+      setState(() {
+        lessons = updatedLessons;
+        _completedLessonsCount = completedLessons;
+        _totalLessonsCount = totalLessons;
+        _selectedCourse = CourseSummary(
+          id: detail.id,
+          title: detail.title,
+          description: detail.description,
+          subject: detail.subject,
+          thumbnailUrl: detail.thumbnailUrl,
+        );
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _showCourseSelection() async {
+    final selected = await showModalBottomSheet<CourseSummary>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       enableDrag: true,
-      builder: (context) => const CourseSelectionBottomSheet(),
+      builder: (context) => CourseSelectionBottomSheet(
+        selectedCourseId: _selectedCourse?.id,
+      ),
     );
+
+    if (selected != null && selected.id != _selectedCourse?.id) {
+      setState(() {
+        _selectedCourse = selected;
+        _isLoading = true;
+        _errorMessage = null;
+      });
+      await _loadCourseDetail(selected.id);
+    }
   }
 
   @override
@@ -75,26 +181,43 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
       appBar: _buildAppBar(),
-      body: Stack(
-        children: [
-          // Nội dung chính có thể cuộn
-          ListView(
-            padding: const EdgeInsets.only(bottom: 120),
-            children: [
-              _buildProgressCard(),
-              _buildTimeline(),
-            ],
-          ),
-          
-          // Thẻ Next Up nổi ở dưới
-          Positioned(
-            bottom: 24,
-            left: 16,
-            right: 16,
-            child: _buildNextUpCard(),
-          ),
-        ],
-      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _errorMessage != null
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Lỗi: $_errorMessage'),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () => _loadInitialData(forceRefresh: true),
+                        child: const Text('Thử lại'),
+                      ),
+                    ],
+                  ),
+                )
+              : Stack(
+                  children: [
+                    RefreshIndicator(
+                      onRefresh: () => _loadInitialData(forceRefresh: true),
+                      child: ListView(
+                        padding: const EdgeInsets.only(bottom: 120),
+                        children: [
+                          _buildProgressCard(),
+                          _buildTimeline(),
+                        ],
+                      ),
+                    ),
+                    if (lessons.isNotEmpty)
+                      Positioned(
+                        bottom: 24,
+                        left: 16,
+                        right: 16,
+                        child: _buildNextUpCard(),
+                      ),
+                  ],
+                ),
     );
   }
 
@@ -124,7 +247,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.courseName,
+            _selectedCourse?.title ?? widget.courseName,
             style: const TextStyle(
               color: Color(0xFF0F172A),
               fontSize: 16,
@@ -172,8 +295,25 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   // ==================== PROGRESS CARD ====================
   Widget _buildProgressCard() {
-    int completedCount = lessons.where((l) => l.status == LessonNodeStatus.mastered).length;
-    double progress = completedCount / lessons.length;
+    if (lessons.isEmpty) {
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
+        ),
+        child: const Text(
+          'Chưa có nội dung học tập cho khóa học này.',
+          style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+        ),
+      );
+    }
+
+  int completedCount = _completedLessonsCount;
+  int totalCount = _totalLessonsCount;
+  double progress = totalCount == 0 ? 0 : completedCount / totalCount;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -206,7 +346,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 ),
               ),
               Text(
-                '$completedCount/${lessons.length} Lessons',
+                '$completedCount/$totalCount Lessons',
                 style: const TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -247,6 +387,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   // ==================== TIMELINE ====================
   Widget _buildTimeline() {
+    if (lessons.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -340,6 +483,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             extra: {
               'moduleId': lesson.id,
               'moduleName': lesson.name,
+              'courseId': _selectedCourse?.id,
             },
           );
         },
@@ -433,6 +577,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
   // ==================== NEXT UP CARD ====================
   Widget _buildNextUpCard() {
+    if (lessons.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -478,7 +625,12 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Intro to Dataframes', // Hardcode theo UI mockup hoặc dùng currentLesson.name
+                  lessons
+                      .firstWhere(
+                        (l) => l.status == LessonNodeStatus.current,
+                        orElse: () => lessons.first,
+                      )
+                      .name,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
@@ -495,19 +647,17 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           // Start Button
           ElevatedButton(
             onPressed: () {
-              // Lấy bài học current
               final currentLesson = lessons.firstWhere(
                 (l) => l.status == LessonNodeStatus.current,
                 orElse: () => lessons.first,
               );
-              
-              // Navigate trực tiếp tới lesson play screen (bỏ qua module detail)
+
               context.push(
-                '/learning/lesson-play',
+                '/learning/module-detail',
                 extra: {
-                  'lessonId': currentLesson.id,
-                  'lessonName': currentLesson.name,
-                  'moduleName': 'Pandas Analysis',
+                  'moduleId': currentLesson.id,
+                  'moduleName': currentLesson.name,
+                  'courseId': _selectedCourse?.id,
                 },
               );
             },

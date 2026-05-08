@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../../../core/services/learning_cache_service.dart';
+import '../../data/datasources/learning_remote_datasource.dart';
+import '../../data/models/course_models.dart';
+import '../../data/repositories/learning_repository_impl.dart';
 
 class LessonPlayScreen extends StatefulWidget {
   final String lessonId;
   final String lessonName;
   final String moduleName;
+  final String? courseId;
 
   const LessonPlayScreen({
     Key? key,
     this.lessonId = '1',
     this.lessonName = 'Advanced Calculus: Partial Derivatives & Chain Rule',
     this.moduleName = 'Mathematics',
+    this.courseId,
   }) : super(key: key);
 
   @override
@@ -21,6 +27,70 @@ class LessonPlayScreen extends StatefulWidget {
 
 class _LessonPlayScreenState extends State<LessonPlayScreen> {
   int _selectedTabIndex = 0; // 0: Theory, 1: Attachments, 2: Discussion
+  final LearningRepositoryImpl _repository =
+      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  final LearningCacheService _cacheService = LearningCacheService();
+  bool _isLoading = true;
+  String? _errorMessage;
+  LessonDetail? _lessonDetail;
+  bool _isCompleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLesson();
+  }
+
+  Future<void> _loadLesson() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final lesson = await _repository.playLesson(widget.lessonId);
+      setState(() {
+        _lessonDetail = lesson;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _completeLesson() async {
+    setState(() {
+      _isCompleting = true;
+    });
+
+    try {
+      await _repository.completeLesson(widget.lessonId);
+      if (widget.courseId != null && widget.courseId!.isNotEmpty) {
+        await _cacheService.addCompletedLesson(
+          widget.courseId!,
+          widget.lessonId,
+        );
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Đã hoàn thành bài học!')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể hoàn thành: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCompleting = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,24 +116,34 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         ],
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ==================== VIDEO PLAYER ====================
-              _buildVideoPlayer(),
-
-              // ==================== LESSON INFO ====================
-              _buildLessonInfo(),
-
-              // ==================== TAB NAVIGATION ====================
-              _buildTabNavigation(),
-
-              // ==================== TAB CONTENT ====================
-              _buildTabContent(),
-            ],
-          ),
-        ),
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _errorMessage != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Lỗi: $_errorMessage'),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: _loadLesson,
+                          child: const Text('Thử lại'),
+                        ),
+                      ],
+                    ),
+                  )
+                : SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildVideoPlayer(),
+                        _buildLessonInfo(),
+                        _buildTabNavigation(),
+                        _buildTabContent(),
+                        _buildCompleteButton(),
+                      ],
+                    ),
+                  ),
       ),
     );
   }
@@ -186,7 +266,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
           // Lesson name
           Text(
-            widget.lessonName,
+            _lessonDetail?.title ?? widget.lessonName,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -325,7 +405,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         children: [
           // Summary section
           Text(
-            'Introduction to Partial Derivatives',
+            _lessonDetail?.title ?? 'Nội dung bài học',
             style: AppTextStyles.bodyLarge.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
@@ -378,26 +458,25 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
   // ==================== ATTACHMENTS TAB ====================
   Widget _buildAttachmentsTab() {
-    final attachments = [
-      {
-        'name': 'Lecture_Notes_04.pdf',
-        'size': '2.4 MB',
+    final attachments = <Map<String, dynamic>>[];
+    if (_lessonDetail?.pdfUrl != null && _lessonDetail!.pdfUrl!.isNotEmpty) {
+      attachments.add({
+        'name': _lessonDetail!.pdfUrl!.split('/').last,
+        'size': 'PDF',
         'icon': Icons.picture_as_pdf,
         'color': Colors.red,
-      },
-      {
-        'name': 'Exercise_Set_04.docx',
-        'size': '1.2 MB',
-        'icon': Icons.description,
-        'color': Colors.blue,
-      },
-      {
-        'name': 'Solution_Guide.pdf',
-        'size': '3.1 MB',
-        'icon': Icons.picture_as_pdf,
-        'color': Colors.red,
-      },
-    ];
+      });
+    }
+
+    if (attachments.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Text(
+          'Chưa có tài liệu đính kèm.',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+        ),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -480,6 +559,28 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           }),
           const SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCompleteButton() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: ElevatedButton.icon(
+        onPressed: _isCompleting ? null : _completeLesson,
+        icon: const Icon(Icons.check_circle_outline),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        label: Text(
+          _isCompleting ? 'Đang cập nhật...' : 'Hoàn thành bài học',
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }

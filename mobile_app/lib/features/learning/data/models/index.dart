@@ -4,3 +4,4 @@ export 'module_model.dart';
 export 'quiz_model.dart';
 export 'learning_path_model.dart';
 export 'flashcard_model.dart';
+export 'course_models.dart';

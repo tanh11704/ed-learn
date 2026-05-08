@@ -26,6 +26,8 @@ class MistakeItem extends Equatable {
   final String dateLabel;
   final String attemptsLabel;
   final String hint;
+  final String wrongAnswer;
+  final String correctAnswer;
 
   const MistakeItem({
     required this.id,
@@ -36,8 +38,21 @@ class MistakeItem extends Equatable {
     required this.dateLabel,
     required this.attemptsLabel,
     required this.hint,
+    required this.wrongAnswer,
+    required this.correctAnswer,
   });
 
   @override
-  List<Object?> get props => [id, subject, tag, title, question, dateLabel, attemptsLabel, hint];
+  List<Object?> get props => [
+        id,
+        subject,
+        tag,
+        title,
+        question,
+        dateLabel,
+        attemptsLabel,
+        hint,
+        wrongAnswer,
+        correctAnswer,
+      ];
 }
