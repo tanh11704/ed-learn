@@ -7,11 +7,11 @@ class TaskListItem extends StatefulWidget {
   final VoidCallback? onTap;
 
   const TaskListItem({
-    Key? key,
+    super.key,
     required this.task,
     required this.onCompleted,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<TaskListItem> createState() => _TaskListItemState();

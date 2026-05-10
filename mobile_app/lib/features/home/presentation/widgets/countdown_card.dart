@@ -5,10 +5,10 @@ class CountdownCard extends StatelessWidget {
   final VoidCallback? onViewSchedule;
 
   const CountdownCard({
-    Key? key,
+    super.key,
     required this.daysRemaining,
     this.onViewSchedule,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -11,10 +11,10 @@ class FlashcardScreen extends StatefulWidget {
   final String moduleName;
 
   const FlashcardScreen({
-    Key? key,
+    super.key,
     required this.lessonId,
     required this.moduleName,
-  }) : super(key: key);
+  });
 
   @override
   State<FlashcardScreen> createState() => _FlashcardScreenState();

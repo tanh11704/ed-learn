@@ -5,10 +5,10 @@ class StreakSuccessDialog extends StatefulWidget {
   final VoidCallback onClose;
 
   const StreakSuccessDialog({
-    Key? key,
+    super.key,
     required this.streak,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<StreakSuccessDialog> createState() => _StreakSuccessDialogState();

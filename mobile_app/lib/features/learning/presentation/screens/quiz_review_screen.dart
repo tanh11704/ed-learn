@@ -12,13 +12,13 @@ class QuizReviewScreen extends StatefulWidget {
   final int totalCount;
 
   const QuizReviewScreen({
-    Key? key,
+    super.key,
     required this.quizName,
     required this.userAnswers,
     required this.questions,
     required this.correctCount,
     required this.totalCount,
-  }) : super(key: key);
+  });
 
   @override
   State<QuizReviewScreen> createState() => _QuizReviewScreenState();

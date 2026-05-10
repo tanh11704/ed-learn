@@ -5,10 +5,10 @@ class DailyProgressBar extends StatelessWidget {
   final String message;
   
   const DailyProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

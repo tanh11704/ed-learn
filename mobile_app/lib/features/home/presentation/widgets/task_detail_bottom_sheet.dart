@@ -8,12 +8,12 @@ class TaskDetailBottomSheet extends StatelessWidget {
   final VoidCallback onDelete;
 
   const TaskDetailBottomSheet({
-    Key? key,
+    super.key,
     required this.task,
     required this.onMarkCompleted,
     required this.onEdit,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

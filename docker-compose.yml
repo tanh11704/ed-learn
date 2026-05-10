@@ -15,6 +15,12 @@ services:
     networks:
       - edlearn-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U edlearn -d edlearn_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   # Dùng bản mặc định
   redis:
@@ -40,6 +46,30 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data
+    networks:
+      - edlearn-network
+    restart: unless-stopped
+
+  core-backend:
+    build:
+      context: ./core-backend
+      dockerfile: Dockerfile
+    container_name: edlearn-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_USERNAME: edlearn
+      DB_PASSWORD: "12345"
+      DB_HOST: postgres
+      DB_NAME: edlearn_db
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - edlearn-network
     restart: unless-stopped

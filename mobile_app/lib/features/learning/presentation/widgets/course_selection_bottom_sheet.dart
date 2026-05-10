@@ -5,10 +5,10 @@ class CourseSelectionBottomSheet extends StatefulWidget {
   final VoidCallback? onShowNavBar;
 
   const CourseSelectionBottomSheet({
-    Key? key,
+    super.key,
     this.onHideNavBar,
     this.onShowNavBar,
-  }) : super(key: key);
+  });
 
   @override
   State<CourseSelectionBottomSheet> createState() =>

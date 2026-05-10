@@ -7,10 +7,10 @@ class ModuleDetailScreen extends StatefulWidget {
   final String moduleName;
 
   const ModuleDetailScreen({
-    Key? key,
+    super.key,
     this.moduleId = 'pandas-analysis',
     this.moduleName = 'Pandas Analysis',
-  }) : super(key: key);
+  });
 
   @override
   State<ModuleDetailScreen> createState() => _ModuleDetailScreenState();

@@ -8,13 +8,13 @@ class FlashcardCompletedScreen extends StatelessWidget {
   final double finalScore;
 
   const FlashcardCompletedScreen({
-    Key? key,
+    super.key,
     required this.lessonId,
     required this.moduleName,
     required this.totalFlashcards,
     required this.masteredCount,
     required this.finalScore,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

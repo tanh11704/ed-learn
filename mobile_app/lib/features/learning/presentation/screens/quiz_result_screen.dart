@@ -13,14 +13,14 @@ class QuizResultScreen extends StatelessWidget {
   final List<QuizQuestion> questions;
 
   const QuizResultScreen({
-    Key? key,
+    super.key,
     required this.correctCount,
     required this.totalCount,
     required this.minutes,
     this.quizName = 'Quiz',
     required this.userAnswers,
     required this.questions,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

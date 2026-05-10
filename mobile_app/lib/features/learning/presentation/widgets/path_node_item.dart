@@ -10,13 +10,13 @@ class PathNodeItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const PathNodeItem({
-    Key? key,
+    super.key,
     required this.lessonName,
     required this.status,
     this.masteredDate,
     this.levelRequired,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

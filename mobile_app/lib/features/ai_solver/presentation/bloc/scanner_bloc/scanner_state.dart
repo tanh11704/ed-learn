@@ -22,8 +22,8 @@ class ScannerIdle extends ScannerState {
 }
 
 class ScannerProcessing extends ScannerState {
-  const ScannerProcessing({double progress = 0.65})
-      : super(status: ScannerStatus.processing, progress: progress);
+  const ScannerProcessing({super.progress = 0.65})
+      : super(status: ScannerStatus.processing);
 }
 
 class ScannerBlurError extends ScannerState {

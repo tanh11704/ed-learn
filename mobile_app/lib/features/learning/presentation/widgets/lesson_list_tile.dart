@@ -10,13 +10,13 @@ class LessonListTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const LessonListTile({
-    Key? key,
+    super.key,
     required this.lessonName,
     required this.duration,
     required this.status,
     this.progress,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -21,7 +21,7 @@ class QuestionNavigationGrid extends StatelessWidget {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: totalQuestions,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final isCurrent = index == currentIndex;
           final isAnswered = answeredIndexes.contains(index);

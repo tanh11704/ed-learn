@@ -31,16 +31,16 @@ spring:
     locations: classpath:db/migration
     check-location: true
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 3000
+      database: 0
+
 logging:
   level:
     org.flywaydb: DEBUG
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      timeout: 3000
-      database: 0
 
 server:
   forward-headers-strategy: framework

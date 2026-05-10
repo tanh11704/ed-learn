@@ -8,10 +8,10 @@ class LearningPathScreen extends StatefulWidget {
   final String courseName;
 
   const LearningPathScreen({
-    Key? key,
+    super.key,
     this.courseId = 'data-science',
     this.courseName = 'Data Science',
-  }) : super(key: key);
+  });
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();

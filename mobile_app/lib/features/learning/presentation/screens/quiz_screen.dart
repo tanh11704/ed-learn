@@ -9,10 +9,10 @@ class QuizScreen extends StatefulWidget {
   final String moduleName;
 
   const QuizScreen({
-    Key? key,
+    super.key,
     this.quizName = 'Geography Quiz',
     this.moduleName = 'Pandas Analysis',
-  }) : super(key: key);
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();

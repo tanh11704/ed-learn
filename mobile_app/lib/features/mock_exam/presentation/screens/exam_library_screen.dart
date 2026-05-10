@@ -114,7 +114,7 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
               )
             else
             // Nếu có đề thi thì hiển thị danh sách
-              ...filteredExams.map((item) => _ExamCard(exam: item)).toList(),
+              ...filteredExams.map((item) => _ExamCard(exam: item)),
           ],
         ),
       ),
@@ -196,7 +196,7 @@ class _CategoryTabsState extends State<CategoryTabs> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: _subjects.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final item = _subjects[index];
           final isSelected = _selectedId == item.id;

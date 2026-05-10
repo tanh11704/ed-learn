@@ -6,7 +6,7 @@ import '../bloc/home_state.dart';
 import '../widgets/task_list_item.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({Key? key}) : super(key: key);
+  const ScheduleScreen({super.key});
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();

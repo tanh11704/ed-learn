@@ -9,11 +9,11 @@ class LessonPlayScreen extends StatefulWidget {
   final String moduleName;
 
   const LessonPlayScreen({
-    Key? key,
+    super.key,
     this.lessonId = '1',
     this.lessonName = 'Advanced Calculus: Partial Derivatives & Chain Rule',
     this.moduleName = 'Mathematics',
-  }) : super(key: key);
+  });
 
   @override
   State<LessonPlayScreen> createState() => _LessonPlayScreenState();
