@@ -1,5 +1,6 @@
 package com.vku.edtech.shared.infrastructure.security.config;
 
+import com.vku.edtech.shared.config.CorsProperties;
 import com.vku.edtech.shared.infrastructure.security.exception.JwtAccessDeniedHandler;
 import com.vku.edtech.shared.infrastructure.security.exception.JwtAuthenticationEntryPoint;
 import com.vku.edtech.shared.infrastructure.security.filter.JwtAuthenticationFilter;
@@ -23,71 +24,64 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final JwtAuthenticationFilter jwtAuthFilter;
+  private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+  private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+  private final CorsProperties corsProperties;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .exceptionHandling(
-                        exception ->
-                                exception
-                                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                                        .accessDeniedHandler(jwtAccessDeniedHandler))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers(
-                                                "/api/v1/auth/login",
-                                                "/api/v1/auth/register",
-                                                "/api/v1/auth/refresh",
-                                                "/api/v1/auth/logout",
-                                                "/v3/api-docs/**",
-                                                "/swagger-ui/**",
-                                                "/swagger-ui.html")
-                                        .permitAll()
-                                        .requestMatchers(
-                                                HttpMethod.GET,
-                                                "/api/v1/courses/**",
-                                                "/api/v1/chapters/**")
-                                        .permitAll()
-                                        .requestMatchers(
-                                                HttpMethod.POST, "/api/v1/courses/*/enroll")
-                                        .authenticated()
-                                        .requestMatchers("/api/v1/learning/error-bank/**")
-                                        .authenticated()
-                                        .requestMatchers(
-                                                HttpMethod.GET, "/api/v1/learning/lessons/**")
-                                        .permitAll()
-                                        .requestMatchers("/api/v1/management/**")
-                                        .hasRole("ADMIN")
-                                        .requestMatchers(
-                                                "/api/v1/courses/**", "/api/v1/chapters/**")
-                                        .hasRole("ADMIN")
-                                        .anyRequest()
-                                        .authenticated())
-                .sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+  @Bean
+  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .csrf(AbstractHttpConfigurer::disable)
+        .exceptionHandling(
+            exception ->
+                exception
+                    .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                    .accessDeniedHandler(jwtAccessDeniedHandler))
+        .authorizeHttpRequests(
+            auth ->
+                auth.requestMatchers(
+                        "/api/v1/auth/login",
+                        "/api/v1/auth/register",
+                        "/api/v1/auth/refresh",
+                        "/api/v1/auth/logout",
+                        "/v3/api-docs/**",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/courses/**", "/api/v1/chapters/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/courses/*/enroll")
+                    .authenticated()
+                    .requestMatchers("/api/v1/learning/error-bank/**")
+                    .authenticated()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/learning/lessons/**")
+                    .permitAll()
+                    .requestMatchers("/api/v1/management/**")
+                    .hasRole("ADMIN")
+                    .requestMatchers("/api/v1/courses/**", "/api/v1/chapters/**")
+                    .hasRole("ADMIN")
+                    .anyRequest()
+                    .authenticated())
+        .sessionManagement(
+            session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
-    }
+    return http.build();
+  }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Cho phép tất cả các domain gọi tới (Sau này lên Production có thể thay bằng domain thật
-        // của app)
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(
-                List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true);
+  @Bean
+  public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    // Sử dụng allowed origins từ cấu hình
+    configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Áp dụng luật CORS này cho TẤT CẢ các API của chúng ta
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    // Áp dụng luật CORS này cho TẤT CẢ các API của chúng ta
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+  }
 }
