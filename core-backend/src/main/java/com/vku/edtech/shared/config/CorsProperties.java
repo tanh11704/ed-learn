@@ -1,20 +1,24 @@
 package com.vku.edtech.shared.config;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @ConfigurationProperties(prefix = "cors")
 public class CorsProperties {
-    private List<String> allowedOrigins;
+  private String allowedOrigins;
 
-    public List<String> getAllowedOrigins() {
-        return allowedOrigins;
+  public List<String> getAllowedOrigins() {
+    if (allowedOrigins == null || allowedOrigins.trim().isEmpty()) {
+      return Arrays.asList("http://localhost:5173", "https://localhost:5173");
     }
+    return Arrays.asList(allowedOrigins.split(","));
+  }
 
-    public void setAllowedOrigins(List<String> allowedOrigins) {
-        this.allowedOrigins = allowedOrigins;
-    }
+  public void setAllowedOrigins(String allowedOrigins) {
+    this.allowedOrigins = allowedOrigins;
+  }
 }
