@@ -2,15 +2,20 @@ package com.vku.edtech.modules.identity.presentation.controller;
 
 import com.vku.edtech.modules.identity.application.dto.UserProfileResult;
 import com.vku.edtech.modules.identity.application.port.in.GetCurrentUserUseCase;
+import com.vku.edtech.modules.identity.application.port.in.UpdateCurrentUserUseCase;
 import com.vku.edtech.modules.identity.presentation.dto.mapper.UserMapper;
+import com.vku.edtech.modules.identity.presentation.dto.request.UpdateUserProfileRequest;
 import com.vku.edtech.modules.identity.presentation.dto.response.UserProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.security.Principal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final GetCurrentUserUseCase getCurrentUserUseCase;
+    private final UpdateCurrentUserUseCase updateCurrentUserUseCase;
     private final UserMapper userMapper;
 
     @Operation(
@@ -36,6 +42,25 @@ public class UserController {
                 new GetCurrentUserUseCase.GetCurrentUserQuery(email);
 
         UserProfileResult result = getCurrentUserUseCase.getCurrentUser(query);
+
+        UserProfileResponse response = userMapper.toResponse(result);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "Cập nhật thông tin cá nhân",
+            description = "Cập nhật họ và tên của người dùng hiện tại",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/me")
+    public ResponseEntity<UserProfileResponse> updateMe(
+            Principal principal, @RequestBody @Valid UpdateUserProfileRequest request) {
+        String email = principal.getName();
+
+        UpdateCurrentUserUseCase.UpdateCurrentUserCommand command =
+                new UpdateCurrentUserUseCase.UpdateCurrentUserCommand(email, request.fullName());
+
+        UserProfileResult result = updateCurrentUserUseCase.updateCurrentUser(command);
 
         UserProfileResponse response = userMapper.toResponse(result);
 

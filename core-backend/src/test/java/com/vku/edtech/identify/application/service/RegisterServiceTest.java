@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.vku.edtech.modules.identity.application.dto.AuthResult;
+import com.vku.edtech.modules.identity.application.port.in.CreateUserStreakUseCase;
 import com.vku.edtech.modules.identity.application.port.in.RegisterUseCase;
 import com.vku.edtech.modules.identity.application.port.out.*;
 import com.vku.edtech.modules.identity.application.service.RegisterService;
@@ -31,6 +32,7 @@ public class RegisterServiceTest {
     @Mock private PasswordEncoderPort passwordEncoderPort;
     @Mock private TokenGeneratorPort tokenGeneratorPort;
     @Mock private RefreshTokenCommandPort refreshTokenCommandPort;
+    @Mock private CreateUserStreakUseCase createUserStreakUseCase;
 
     @InjectMocks private RegisterService registerService;
 
