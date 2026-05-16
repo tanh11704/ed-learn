@@ -4,7 +4,7 @@ import com.vku.edtech.modules.lms.application.port.in.DeleteLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.out.LessonCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
+import com.vku.edtech.modules.lms.application.exception.LmsNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +22,7 @@ public class DeleteLessonService implements DeleteLessonUseCase {
         Lesson lesson =
                 lessonQueryPort
                         .findByIdAndNotDeleted(command.lessonId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson"));
+                        .orElseThrow(() -> new LmsNotFoundException("Không tìm thấy lesson"));
 
         lesson.markAsDeleted();
         lessonCommandPort.save(lesson);

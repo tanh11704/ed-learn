@@ -1,6 +1,9 @@
 package com.vku.edtech.shared.presentation.exception;
 
 import com.vku.edtech.modules.identity.application.exception.InvalidCredentialsException;
+import com.vku.edtech.modules.lms.application.exception.LmsBadRequestException;
+import com.vku.edtech.modules.lms.application.exception.LmsForbiddenException;
+import com.vku.edtech.modules.lms.application.exception.LmsNotFoundException;
 import com.vku.edtech.shared.presentation.dto.ErrorResponse;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.vku.edtech")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -55,18 +58,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
-            ResourceNotFoundException ex) {
-
+    @ExceptionHandler({ResourceNotFoundException.class, LmsNotFoundException.class})
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(RuntimeException ex) {
         ErrorResponse response =
                 new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleForbiddenException(ForbiddenException ex) {
+    @ExceptionHandler({ForbiddenException.class, LmsForbiddenException.class})
+    public ResponseEntity<ErrorResponse> handleForbiddenException(RuntimeException ex) {
         ErrorResponse response =
                 new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Forbidden", ex.getMessage());
 
@@ -93,5 +94,12 @@ public class GlobalExceptionHandler {
                 new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
+
+    @ExceptionHandler(LmsBadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleLmsBadRequestException(
+            LmsBadRequestException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "Bad Request", ex.getMessage()));
     }
 }

@@ -14,6 +14,7 @@ import com.vku.edtech.shared.presentation.dto.CustomPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -33,9 +34,7 @@ public class CourseController {
     private final DeleteCourseUseCase deleteCourseUseCase;
     private final CourseResponseMapper courseResponseMapper;
 
-    @Operation(
-            summary = "Lấy danh sách khóa học",
-            description = "Lấy danh sách khóa học có phân trang, có thể lọc theo chủ đề.")
+    @Operation(summary = "Lấy danh sách khóa học", description = "Lấy danh sách khóa học có phân trang, có thể lọc theo chủ đề.")
     @GetMapping
     public ResponseEntity<CustomPage<CourseResponse>> getCourses(
             @RequestParam(required = false) String subject,
@@ -48,9 +47,7 @@ public class CourseController {
         return ResponseEntity.ok(courses.map(courseResponseMapper::toResponse));
     }
 
-    @Operation(
-            summary = "Lấy chi tiết khóa học",
-            description = "Lấy thông tin chi tiết của một khóa học, bao gồm các chương của nó.")
+    @Operation(summary = "Lấy chi tiết khóa học", description = "Lấy thông tin chi tiết của một khóa học, bao gồm các chương của nó.")
     @GetMapping("/{id}")
     public ResponseEntity<CourseResponse> getCourseDetail(@PathVariable UUID id) {
         Course course =
@@ -59,46 +56,30 @@ public class CourseController {
         return ResponseEntity.ok(courseResponseMapper.toResponse(course));
     }
 
-    @Operation(
-            summary = "Tạo khóa học mới",
-            description = "Tạo một khóa học mới và trả về thông tin khóa học vừa tạo.",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @PostMapping
-    public ResponseEntity<CourseResponse> createCourse(@RequestBody CreateCourseRequest request) {
+    @Operation(summary = "Tạo khóa học mới", security = @SecurityRequirement(name = "bearerAuth"))
+    @PostMapping("/admin")
+    public ResponseEntity<CourseResponse> createCourse(@Valid @RequestBody CreateCourseRequest request) {
         CreateCourseUseCase.CreateCourseCommand command =
-                new CreateCourseUseCase.CreateCourseCommand(
-                        request.title(), request.description(), request.subject());
+                new CreateCourseUseCase.CreateCourseCommand(request.title(), request.description(), request.subject());
         Course newCourse = createCourseUseCase.createCourse(command);
         return ResponseEntity.ok(courseResponseMapper.toResponse(newCourse));
     }
 
-    @Operation(
-            summary = "Cập nhật khóa học",
-            description = "Cập nhật thông tin cơ bản của một khóa học.",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @PutMapping("/{id}")
+    @Operation(summary = "Cập nhật khóa học", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/admin/{id}")
     public ResponseEntity<CourseResponse> updateCourse(
-            @PathVariable UUID id, @RequestBody UpdateCourseRequest request) {
+            @PathVariable UUID id, @Valid @RequestBody UpdateCourseRequest request) {
         UpdateCourseUseCase.UpdateCourseCommand command =
                 new UpdateCourseUseCase.UpdateCourseCommand(
-                        id,
-                        request.title(),
-                        request.description(),
-                        request.subject(),
-                        request.thumbnailUrl());
+                        id, request.title(), request.description(), request.subject(), request.thumbnailUrl());
         Course updatedCourse = updateCourseUseCase.updateCourse(command);
         return ResponseEntity.ok(courseResponseMapper.toResponse(updatedCourse));
     }
 
-    @Operation(
-            summary = "Xóa khóa học",
-            description = "Chuyển trạng thái khóa học sang DELETED (Soft Delete).",
-            security = @SecurityRequirement(name = "bearerAuth"))
-    @DeleteMapping("/{id}")
+    @Operation(summary = "Xóa khóa học", security = @SecurityRequirement(name = "bearerAuth"))
+    @DeleteMapping("/admin/{id}")
     public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
-        DeleteCourseUseCase.DeleteCourseCommand command =
-                new DeleteCourseUseCase.DeleteCourseCommand(id);
-        deleteCourseUseCase.deleteCourse(command);
+        deleteCourseUseCase.deleteCourse(new DeleteCourseUseCase.DeleteCourseCommand(id));
         return ResponseEntity.noContent().build();
     }
 }
