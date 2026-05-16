@@ -1,3 +1,9 @@
 package com.vku.edtech.modules.lms.application.port.in;
 
-public interface DeleteChapterUseCase {}
+import java.util.UUID;
+
+public interface DeleteChapterUseCase {
+    void deleteChapter(DeleteChapterCommand command);
+
+    record DeleteChapterCommand(UUID chapterId) {}
+}

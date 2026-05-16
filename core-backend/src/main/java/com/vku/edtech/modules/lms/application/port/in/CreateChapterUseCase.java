@@ -4,7 +4,7 @@ import com.vku.edtech.modules.lms.domain.model.Chapter;
 import java.util.UUID;
 
 public interface CreateChapterUseCase {
-    Chapter execute(CreateChapterCommand command);
+    Chapter createChapter(CreateChapterCommand command);
 
     record CreateChapterCommand(UUID courseId, String title, int orderIdx) {}
 }

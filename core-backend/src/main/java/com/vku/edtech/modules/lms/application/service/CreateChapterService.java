@@ -15,7 +15,7 @@ public class CreateChapterService implements CreateChapterUseCase {
     private final ChapterQueryPort chapterQueryPort;
 
     @Override
-    public Chapter execute(CreateChapterCommand command) {
+    public Chapter createChapter(CreateChapterCommand command) {
         int finalOrderIdx = command.orderIdx();
 
         if (finalOrderIdx <= 0) {
