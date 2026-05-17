@@ -28,6 +28,7 @@ public class UpdateOptionService implements UpdateOptionUseCase {
                 optionQueryPort
                         .findById(command.optionId())
                         .orElseThrow(() -> new ExamNotFoundException("Không tìm thấy option"));
+        validateQuestionScope(option, command.questionId());
 
         ExamQuestion question =
                 questionQueryPort
@@ -37,13 +38,14 @@ public class UpdateOptionService implements UpdateOptionUseCase {
         validateQuestionType(question);
         validateSingleCorrectOption(question, option, command.correct());
 
-        option = ExamQuestionOption.createNew(
-                option.getQuestionId(),
-                command.content() != null ? command.content() : option.getContent(),
-                command.correct() != null ? command.correct() : option.isCorrect(),
-                command.orderIndex() != null ? command.orderIndex() : option.getOrderIndex());
+        return optionCommandPort.save(
+                option.updateDetails(command.content(), command.correct(), command.orderIndex()));
+    }
 
-        return optionCommandPort.save(option);
+    private void validateQuestionScope(ExamQuestionOption option, java.util.UUID questionId) {
+        if (!option.getQuestionId().equals(questionId)) {
+            throw new ExamNotFoundException("Không tìm thấy option trong câu hỏi này");
+        }
     }
 
     private void validateQuestionType(ExamQuestion question) {

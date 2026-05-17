@@ -40,4 +40,18 @@ public class ExamQuestionOption {
                 .updatedAt(Instant.now())
                 .build();
     }
+
+    public ExamQuestionOption updateDetails(String content, Boolean correct, Integer orderIndex) {
+        if (content != null && !content.isBlank()) {
+            this.content = content.trim();
+        }
+        if (correct != null) {
+            this.correct = correct;
+        }
+        if (orderIndex != null) {
+            this.orderIndex = orderIndex;
+        }
+        this.updatedAt = Instant.now();
+        return this;
+    }
 }

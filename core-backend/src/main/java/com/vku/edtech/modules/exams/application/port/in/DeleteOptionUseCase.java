@@ -5,5 +5,5 @@ import java.util.UUID;
 public interface DeleteOptionUseCase {
     void delete(DeleteOptionCommand command);
 
-    record DeleteOptionCommand(UUID optionId) {}
+    record DeleteOptionCommand(UUID questionId, UUID optionId) {}
 }
