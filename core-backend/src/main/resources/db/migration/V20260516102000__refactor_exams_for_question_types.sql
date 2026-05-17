@@ -1,0 +1,12 @@
+ALTER TABLE exam_questions
+    ADD COLUMN IF NOT EXISTS question_type VARCHAR(50) NOT NULL DEFAULT 'MULTIPLE_CHOICE',
+    ADD COLUMN IF NOT EXISTS paper_part VARCHAR(50) NOT NULL DEFAULT 'PART_I',
+    ADD COLUMN IF NOT EXISTS score DOUBLE PRECISION NOT NULL DEFAULT 1,
+    ADD COLUMN IF NOT EXISTS correct_answer TEXT,
+    ADD COLUMN IF NOT EXISTS deleted BOOLEAN NOT NULL DEFAULT FALSE;
+
+ALTER TABLE exam_question_options
+    ADD COLUMN IF NOT EXISTS option_type VARCHAR(50) NOT NULL DEFAULT 'STANDARD';
+
+CREATE INDEX IF NOT EXISTS idx_exam_questions_type ON exam_questions(question_type);
+CREATE INDEX IF NOT EXISTS idx_exam_questions_paper_part ON exam_questions(paper_part);
