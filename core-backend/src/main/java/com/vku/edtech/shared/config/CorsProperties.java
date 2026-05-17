@@ -2,6 +2,7 @@ package com.vku.edtech.shared.config;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -13,9 +14,12 @@ public class CorsProperties {
 
   public List<String> getAllowedOrigins() {
     if (allowedOrigins == null || allowedOrigins.trim().isEmpty()) {
-      return Arrays.asList("http://localhost:5173", "https://localhost:5173");
+      return List.of("*");
     }
-    return Arrays.asList(allowedOrigins.split(","));
+    return Arrays.stream(allowedOrigins.split(","))
+        .map(String::trim)
+        .filter(origin -> !origin.isBlank())
+        .collect(Collectors.toList());
   }
 
   public void setAllowedOrigins(String allowedOrigins) {

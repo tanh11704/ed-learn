@@ -40,7 +40,9 @@ public class SecurityConfig {
                     .accessDeniedHandler(jwtAccessDeniedHandler))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers(
+                auth.requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
+                    .requestMatchers(
                         "/api/v1/auth/login",
                         "/api/v1/auth/register",
                         "/api/v1/auth/refresh",
@@ -73,14 +75,14 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    // Sử dụng allowed origins từ cấu hình
-    configuration.setAllowedOrigins(corsProperties.getAllowedOrigins());
+    configuration.setAllowedOriginPatterns(corsProperties.getAllowedOrigins());
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setExposedHeaders(List.of("Authorization", "Content-Disposition"));
     configuration.setAllowCredentials(true);
+    configuration.setMaxAge(3600L);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    // Áp dụng luật CORS này cho TẤT CẢ các API của chúng ta
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
