@@ -69,7 +69,11 @@ public class ExamOptionAdminController {
         ExamQuestionOption option =
                 updateOptionUseCase.update(
                         new UpdateOptionUseCase.UpdateOptionCommand(
-                                optionId, request.content(), request.correct(), request.orderIndex()));
+                                questionId,
+                                optionId,
+                                request.content(),
+                                request.correct(),
+                                request.orderIndex()));
         return ResponseEntity.ok(optionResponseMapper.toResponse(option));
     }
 
@@ -77,7 +81,7 @@ public class ExamOptionAdminController {
     @DeleteMapping("/{optionId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID questionId, @PathVariable UUID optionId) {
-        deleteOptionUseCase.delete(new DeleteOptionUseCase.DeleteOptionCommand(optionId));
+        deleteOptionUseCase.delete(new DeleteOptionUseCase.DeleteOptionCommand(questionId, optionId));
         return ResponseEntity.noContent().build();
     }
 }

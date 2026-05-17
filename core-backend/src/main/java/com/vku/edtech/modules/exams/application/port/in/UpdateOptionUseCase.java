@@ -6,5 +6,6 @@ import java.util.UUID;
 public interface UpdateOptionUseCase {
     ExamQuestionOption update(UpdateOptionCommand command);
 
-    record UpdateOptionCommand(UUID optionId, String content, Boolean correct, Integer orderIndex) {}
+    record UpdateOptionCommand(
+            UUID questionId, UUID optionId, String content, Boolean correct, Integer orderIndex) {}
 }

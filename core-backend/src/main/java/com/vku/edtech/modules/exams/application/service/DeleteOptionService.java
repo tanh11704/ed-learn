@@ -23,6 +23,9 @@ public class DeleteOptionService implements DeleteOptionUseCase {
                 optionQueryPort
                         .findById(command.optionId())
                         .orElseThrow(() -> new ExamNotFoundException("Không tìm thấy option"));
+        if (!option.getQuestionId().equals(command.questionId())) {
+            throw new ExamNotFoundException("Không tìm thấy option trong câu hỏi này");
+        }
         optionCommandPort.deleteById(option.getId());
     }
 }
