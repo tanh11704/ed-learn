@@ -1,0 +1,60 @@
+@startuml
+title ExamAI - Hoạt động: Học viên tham gia kiểm tra
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Học viên" {
+  :Đăng nhập ExamAI;
+  :Mở danh sách bài kiểm tra;
+  :Chọn bài kiểm tra;
+}
+
+partition "Hệ thống ExamAI" {
+  :Kiểm tra điều kiện tham gia;
+  :Tải thông tin và quy định bài kiểm tra;
+
+  if (Bài kiểm tra khả dụng?) then (có)
+    :Tạo lượt làm bài;
+    :Bắt đầu tính giờ;
+    :Tải câu hỏi;
+  else (không)
+    :Hiển thị thông báo không thể tham gia;
+    stop
+  endif
+}
+
+partition "Học viên" {
+  repeat
+    :Đọc câu hỏi;
+    if (Loại câu hỏi?) then (Trắc nghiệm)
+      :Chọn đáp án;
+    else (Tự luận)
+      :Nhập câu trả lời tự luận;
+    endif
+    :Lưu tiến độ trả lời;
+  repeat while (Còn câu hỏi?) is (có)
+
+  :Kiểm tra lại bài làm;
+  :Nộp bài;
+}
+
+partition "Hệ thống ExamAI" {
+  :Khóa lượt làm bài;
+  :Lưu câu trả lời cuối cùng;
+  :Đánh dấu bài đã nộp;
+  :Khởi động quy trình chấm điểm;
+}
+
+partition "Học viên" {
+  :Nhận xác nhận đã nộp bài;
+}
+
+stop
+
+@enduml

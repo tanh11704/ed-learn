@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../data/models/exam_session_models.dart';
+
 class ExamAnswerOption extends Equatable {
   final String id;
   final String label;
@@ -42,38 +44,81 @@ class ExamTakingLoading extends ExamTakingState {
 }
 
 class ExamTakingLoaded extends ExamTakingState {
+  final String sessionId;
+  final String examId;
+  final String examTitle;
   final List<ExamQuestion> questions;
   final int currentIndex;
   final int remainingSeconds;
   final Map<int, String> selectedAnswers;
+  final bool isSubmitting;
 
   const ExamTakingLoaded({
+    required this.sessionId,
+    required this.examId,
+    required this.examTitle,
     required this.questions,
     required this.currentIndex,
     required this.remainingSeconds,
     required this.selectedAnswers,
+    this.isSubmitting = false,
   });
 
   ExamQuestion get currentQuestion => questions[currentIndex];
 
   ExamTakingLoaded copyWith({
+    String? sessionId,
+    String? examId,
+    String? examTitle,
     List<ExamQuestion>? questions,
     int? currentIndex,
     int? remainingSeconds,
     Map<int, String>? selectedAnswers,
+    bool? isSubmitting,
   }) {
     return ExamTakingLoaded(
+      sessionId: sessionId ?? this.sessionId,
+      examId: examId ?? this.examId,
+      examTitle: examTitle ?? this.examTitle,
       questions: questions ?? this.questions,
       currentIndex: currentIndex ?? this.currentIndex,
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
       selectedAnswers: selectedAnswers ?? this.selectedAnswers,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
     );
   }
 
   @override
-  List<Object?> get props => [questions, currentIndex, remainingSeconds, selectedAnswers];
+  List<Object?> get props => [
+        sessionId,
+        examId,
+        examTitle,
+        questions,
+        currentIndex,
+        remainingSeconds,
+        selectedAnswers,
+        isSubmitting,
+      ];
 }
 
 class ExamTakingFinished extends ExamTakingState {
-  const ExamTakingFinished();
+  final ExamSubmissionResult result;
+  final String examTitle;
+
+  const ExamTakingFinished({
+    required this.result,
+    required this.examTitle,
+  });
+
+  @override
+  List<Object?> get props => [result, examTitle];
+}
+
+class ExamTakingError extends ExamTakingState {
+  final String message;
+
+  const ExamTakingError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }

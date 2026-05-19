@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile_app/core/network/api_config.dart';
 import '../../../../core/services/token_storage_service.dart';
 import '../models/user_badge_models.dart';
 
@@ -8,7 +9,7 @@ abstract class UserBadgeRemoteDataSource {
 }
 
 class UserBadgeRemoteDataSourceImpl implements UserBadgeRemoteDataSource {
-  final String baseUrl = 'https://api.phuocanh.me/api/v1';
+  final String baseUrl = ApiConfig.baseUrl;
 
   @override
   Future<PageUserBadgeResponse> getMyBadges({int page = 0, int size = 10}) async {

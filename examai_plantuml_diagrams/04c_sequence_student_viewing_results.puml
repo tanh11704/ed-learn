@@ -1,0 +1,39 @@
+@startuml
+title ExamAI - Tuần tự: Học viên xem kết quả
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Học viên" as Student
+participant "Ứng dụng di động/trình duyệt" as App
+participant "Dịch vụ kết quả" as Result
+database "Cơ sở dữ liệu" as DB
+participant "Dịch vụ phân tích" as Analytics
+
+Student -> App : Mở trang kết quả
+App -> Result : Yêu cầu kết quả của học viên
+Result -> DB : Đọc bài đã chấm và phản hồi
+DB --> Result : Lịch sử bài nộp
+
+alt Kết quả đã công bố
+  Result -> Analytics : Tính xu hướng và chủ đề còn yếu
+  Analytics --> Result : Xu hướng điểm và gợi ý
+  Result --> App : Kết quả, phản hồi và xu hướng
+  App --> Student : Hiển thị điểm và lời khuyên học tập
+else Kết quả vẫn đang được chấm
+  Result --> App : Bài vẫn đang chấm điểm
+  App --> Student : Hiển thị trạng thái chờ
+end
+
+Student -> App : Mở chi tiết bài kiểm tra
+App -> Result : Yêu cầu xem lại từng câu hỏi
+Result -> DB : Đọc câu trả lời, đáp án đúng,\nphản hồi tự luận và ghi chú tiêu chí
+DB --> Result : Dữ liệu kết quả chi tiết
+Result --> App : Nội dung xem lại bài kiểm tra
+App --> Student : Hiển thị đáp án và phản hồi
+
+@enduml

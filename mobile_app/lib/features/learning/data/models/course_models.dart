@@ -139,6 +139,8 @@ class LessonDetail {
   final String? pdfUrl;
   final int orderIndex;
   final bool isPreview;
+  final String? description;
+  final int? durationMinutes;
 
   LessonDetail({
     required this.id,
@@ -148,6 +150,8 @@ class LessonDetail {
     required this.pdfUrl,
     required this.orderIndex,
     required this.isPreview,
+    this.description,
+    this.durationMinutes,
   });
 
   factory LessonDetail.fromJson(Map<String, dynamic> json) {
@@ -159,6 +163,8 @@ class LessonDetail {
       pdfUrl: json['pdfUrl']?.toString(),
       orderIndex: (json['orderIndex'] as num?)?.toInt() ?? 0,
       isPreview: json['isPreview'] as bool? ?? false,
+      description: json['description']?.toString(),
+      durationMinutes: (json['durationMinutes'] as num?)?.toInt(),
     );
   }
 
@@ -171,6 +177,8 @@ class LessonDetail {
       'pdfUrl': pdfUrl,
       'orderIndex': orderIndex,
       'isPreview': isPreview,
+      'description': description,
+      'durationMinutes': durationMinutes,
     };
   }
 }

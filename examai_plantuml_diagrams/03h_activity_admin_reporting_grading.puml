@@ -1,0 +1,76 @@
+@startuml
+title ExamAI - Hoạt động: Quản lý báo cáo và chấm điểm
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Quản trị viên" {
+  :Mở Báo cáo và chấm điểm;
+  :Chọn bộ lọc khóa học, lớp,\nhọc viên hoặc bài thi;
+}
+
+partition "Hệ thống ExamAI" {
+  :Lấy thống kê điểm số;
+  :Tải lịch sử làm bài của học viên;
+  :Tải kết quả tự luận do AI chấm;
+  :Tổng hợp báo cáo hiệu suất;
+}
+
+partition "Quản trị viên" {
+  if (Chọn hoạt động báo cáo?) then (Xem thống kê)
+    :Xem phân bố điểm,\nđiểm trung bình, tỷ lệ đạt\nvà xếp hạng;
+  elseif (Xem lịch sử làm bài)
+    :Kiểm tra lịch sử làm bài của học viên;
+    :Xem câu trả lời, thời lượng,\nđiểm số và phản hồi;
+  else (Kiểm tra AI chấm tự luận)
+    :Mở bài tự luận do AI chấm;
+    :So sánh câu trả lời với tiêu chí chấm;
+    :Kiểm tra điểm và phản hồi của AI;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  if (Chọn kiểm tra AI chấm điểm?) then (có)
+    :Hiển thị bài tự luận gốc,\ntiêu chí chấm, phản hồi AI\nvà nhật ký AI;
+  else (không)
+    :Chuẩn bị báo cáo để xem\nhoặc xuất file;
+  endif
+}
+
+partition "Quản trị viên" {
+  if (Điểm AI có thể chấp nhận?) then (có)
+    :Phê duyệt kết quả AI chấm;
+  elseif (Cần sửa thủ công)
+    :Điều chỉnh điểm hoặc phản hồi;
+    :Thêm ghi chú người duyệt;
+  else (Yêu cầu chấm lại)
+    :Yêu cầu AI chấm lại;
+  endif
+}
+
+partition "Công cụ AI" {
+  if (Có yêu cầu AI chấm lại?) then (có)
+    :Chấm lại bài tự luận theo tiêu chí;
+    :Trả về điểm và phản hồi đã cập nhật;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  :Lưu phê duyệt, chỉnh sửa\nhoặc kết quả chấm lại;
+  :Cập nhật điểm cuối nếu thay đổi;
+  :Ghi lịch sử kiểm toán chấm điểm;
+  :Làm mới thống kê và báo cáo;
+}
+
+partition "Quản trị viên" {
+  :Xem báo cáo và trạng thái chấm điểm\nđã cập nhật;
+}
+
+stop
+
+@enduml

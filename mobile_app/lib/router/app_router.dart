@@ -220,13 +220,9 @@ final appRouter = GoRouter(
                     return CameraCheckScreen();
                 },
                 ),
-                GoRoute(path: 'exam-session',
-                builder:(context, state) {
-                    return BlocProvider(
-                      create: (context) => ScannerBloc()..add(const StartScanning()),
-                      child: const ExamTakingScreen(),
-                    );
-                }
+                GoRoute(
+                  path: 'exam-session',
+                  builder: (context, state) => const ExamTakingScreen(),
                 ),
            GoRoute(path: 'exam-result',
            builder:(context, state) {

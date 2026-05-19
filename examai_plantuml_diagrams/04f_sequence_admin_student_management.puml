@@ -1,0 +1,57 @@
+@startuml
+title ExamAI - Tuần tự: Quản trị học viên
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Quản trị viên" as Admin
+participant "Cổng quản trị" as Portal
+participant "Dịch vụ học viên" as StudentService
+database "Cơ sở dữ liệu" as DB
+participant "Dịch vụ thông báo" as Notify
+
+Admin -> Portal : Mở quản lý học viên
+Portal -> StudentService : Yêu cầu danh sách và bộ lọc học viên
+StudentService -> DB : Đọc học viên, lớp học\nvà ghi danh khóa học
+DB --> StudentService : Dữ liệu quản lý học viên
+StudentService --> Portal : Danh sách học viên
+Portal --> Admin : Hiển thị bảng học viên có thể tìm kiếm
+
+alt Tạo học viên
+  Admin -> Portal : Nhập hồ sơ học viên mới
+  Portal -> StudentService : Gửi yêu cầu tạo học viên
+  StudentService -> StudentService : Kiểm tra hồ sơ và ghi danh
+  StudentService -> DB : Lưu học viên mới và ghi danh
+  StudentService -> Notify : Gửi lời mời tài khoản
+  Notify --> StudentService : Lời mời đã được đưa vào hàng đợi
+  StudentService --> Portal : Đã tạo học viên
+
+else Cập nhật học viên
+  Admin -> Portal : Chỉnh sửa thông tin học viên
+  Portal -> StudentService : Gửi cập nhật học viên
+  StudentService -> StudentService : Kiểm tra thay đổi
+  StudentService -> DB : Lưu dữ liệu học viên đã cập nhật
+  StudentService --> Portal : Đã cập nhật học viên
+
+else Nhập danh sách học viên
+  Admin -> Portal : Tải lên file nhập liệu
+  Portal -> StudentService : Gửi yêu cầu nhập học viên
+  StudentService -> StudentService : Kiểm tra các dòng trong file
+  StudentService -> DB : Lưu các học viên hợp lệ
+  StudentService --> Portal : Tóm tắt kết quả nhập
+
+else Vô hiệu hóa học viên
+  Admin -> Portal : Xác nhận vô hiệu hóa tài khoản
+  Portal -> StudentService : Gửi yêu cầu vô hiệu hóa
+  StudentService -> DB : Vô hiệu hóa tài khoản học viên
+  StudentService -> Notify : Thông báo thay đổi trạng thái tài khoản
+  StudentService --> Portal : Đã vô hiệu hóa học viên
+end
+
+Portal --> Admin : Hiển thị danh sách học viên đã làm mới
+
+@enduml

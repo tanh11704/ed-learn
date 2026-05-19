@@ -1,39 +1,83 @@
 import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../data/mappers/exam_question_mapper.dart';
+import '../../../data/repositories/exam_repository.dart';
+import '../../../data/repositories/exam_repository_impl.dart';
 import 'exam_taking_event.dart';
 import 'exam_taking_state.dart';
 
 class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
-  Timer? _timer;
-
-  ExamTakingBloc() : super(const ExamTakingLoading()) {
+  ExamTakingBloc({ExamRepository? repository})
+      : _repository = repository ?? ExamRepositoryImpl(),
+        super(const ExamTakingLoading()) {
     on<LoadExamTaking>(_onLoadExamTaking);
     on<SelectAnswer>(_onSelectAnswer);
     on<GoToQuestion>(_onGoToQuestion);
     on<TickTimer>(_onTickTimer);
+    on<SubmitExam>(_onSubmitExam);
   }
 
-  void _onLoadExamTaking(LoadExamTaking event, Emitter<ExamTakingState> emit) {
-    final questions = _mockQuestions();
-    emit(
-      ExamTakingLoaded(
-        questions: questions,
-        currentIndex: 0,
-        remainingSeconds: 45 * 60,
-        selectedAnswers: const {},
-      ),
-    );
+  final ExamRepository _repository;
+  Timer? _timer;
 
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => add(const TickTimer()));
+  Future<void> _onLoadExamTaking(
+    LoadExamTaking event,
+    Emitter<ExamTakingState> emit,
+  ) async {
+    emit(const ExamTakingLoading());
+    try {
+      final session = await _repository.startExamSession(
+        examId: event.examId,
+        durationMinutes: event.durationMinutes,
+      );
+
+      final questions = mapSessionQuestions(session.questions);
+      if (questions.isEmpty) {
+        emit(const ExamTakingError('Đề thi chưa có câu hỏi'));
+        return;
+      }
+
+      emit(
+        ExamTakingLoaded(
+          sessionId: session.sessionId,
+          examId: session.examId,
+          examTitle: event.examTitle,
+          questions: questions,
+          currentIndex: 0,
+          remainingSeconds: session.durationMinutes * 60,
+          selectedAnswers: const {},
+        ),
+      );
+
+      _timer?.cancel();
+      _timer = Timer.periodic(
+        const Duration(seconds: 1),
+        (_) => add(const TickTimer()),
+      );
+    } catch (e) {
+      emit(ExamTakingError(e.toString()));
+    }
   }
 
-  void _onSelectAnswer(SelectAnswer event, Emitter<ExamTakingState> emit) {
+  Future<void> _onSelectAnswer(
+    SelectAnswer event,
+    Emitter<ExamTakingState> emit,
+  ) async {
     if (state is! ExamTakingLoaded) return;
     final currentState = state as ExamTakingLoaded;
     final updated = Map<int, String>.from(currentState.selectedAnswers);
     updated[event.questionIndex] = event.optionId;
+
     emit(currentState.copyWith(selectedAnswers: updated));
+
+    final question = currentState.questions[event.questionIndex];
+    await _repository.saveDraftAnswer(
+      sessionId: currentState.sessionId,
+      questionId: question.id,
+      optionId: event.optionId,
+    );
   }
 
   void _onGoToQuestion(GoToQuestion event, Emitter<ExamTakingState> emit) {
@@ -47,10 +91,43 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
     final currentState = state as ExamTakingLoaded;
     final remaining = currentState.remainingSeconds - 1;
     if (remaining <= 0) {
-      _timer?.cancel();
-      emit(const ExamTakingFinished());
+      add(const SubmitExam());
     } else {
       emit(currentState.copyWith(remainingSeconds: remaining));
+    }
+  }
+
+  Future<void> _onSubmitExam(
+    SubmitExam event,
+    Emitter<ExamTakingState> emit,
+  ) async {
+    if (state is! ExamTakingLoaded) return;
+    final currentState = state as ExamTakingLoaded;
+    if (currentState.isSubmitting) return;
+
+    emit(currentState.copyWith(isSubmitting: true));
+    _timer?.cancel();
+
+    final answers = currentState.selectedAnswers.entries
+        .map(
+          (e) => (
+            questionId: currentState.questions[e.key].id,
+            optionId: e.value,
+          ),
+        )
+        .toList();
+
+    try {
+      final result = await _repository.submitExam(
+        sessionId: currentState.sessionId,
+        answers: answers,
+      );
+      emit(ExamTakingFinished(
+        result: result,
+        examTitle: currentState.examTitle,
+      ));
+    } catch (e) {
+      emit(ExamTakingError(e.toString()));
     }
   }
 
@@ -58,41 +135,5 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
   Future<void> close() {
     _timer?.cancel();
     return super.close();
-  }
-
-  List<ExamQuestion> _mockQuestions() {
-    return const [
-      ExamQuestion(
-        id: 'q1',
-        content:
-            'Trong các đặc điểm sau đây, đặc điểm nào là quan trọng nhất để phân biệt một hợp chất hữu cơ với một hợp chất vô cơ?',
-        options: [
-          ExamAnswerOption(id: 'A', label: 'A.', text: 'Khả năng tan trong nước'),
-          ExamAnswerOption(id: 'B', label: 'B.', text: 'Sự hiện diện của nguyên tố Carbon'),
-          ExamAnswerOption(id: 'C', label: 'C.', text: 'Trạng thái vật lý ở nhiệt độ thường'),
-          ExamAnswerOption(id: 'D', label: 'D.', text: 'Màu sắc đặc trưng của hợp chất'),
-        ],
-      ),
-      ExamQuestion(
-        id: 'q2',
-        content: 'Hợp chất nào sau đây là hợp chất hữu cơ?',
-        options: [
-          ExamAnswerOption(id: 'A', label: 'A.', text: 'CO2'),
-          ExamAnswerOption(id: 'B', label: 'B.', text: 'NaCl'),
-          ExamAnswerOption(id: 'C', label: 'C.', text: 'CH4'),
-          ExamAnswerOption(id: 'D', label: 'D.', text: 'H2SO4'),
-        ],
-      ),
-      ExamQuestion(
-        id: 'q3',
-        content: 'Đặc trưng của liên kết trong hợp chất hữu cơ là gì?',
-        options: [
-          ExamAnswerOption(id: 'A', label: 'A.', text: 'Liên kết ion'),
-          ExamAnswerOption(id: 'B', label: 'B.', text: 'Liên kết cộng hoá trị'),
-          ExamAnswerOption(id: 'C', label: 'C.', text: 'Liên kết kim loại'),
-          ExamAnswerOption(id: 'D', label: 'D.', text: 'Liên kết hidro'),
-        ],
-      ),
-    ];
   }
 }

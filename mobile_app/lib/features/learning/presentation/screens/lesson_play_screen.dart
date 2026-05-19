@@ -34,6 +34,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   String? _errorMessage;
   LessonDetail? _lessonDetail;
   bool _isCompleting = false;
+  bool _isCompleted = false;
 
   @override
   void initState() {
@@ -62,6 +63,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   }
 
   Future<void> _completeLesson() async {
+    if (_isCompleted) return;
     setState(() {
       _isCompleting = true;
     });
@@ -75,8 +77,14 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         );
       }
       if (!mounted) return;
+      setState(() {
+        _isCompleted = true;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Đã hoàn thành bài học!')),
+        const SnackBar(
+          content: Text('Đã hoàn thành bài học!'),
+          backgroundColor: Colors.green,
+        ),
       );
     } catch (e) {
       if (!mounted) return;
@@ -90,6 +98,14 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         });
       }
     }
+  }
+
+  String _formatDuration(int? minutes) {
+    if (minutes == null || minutes <= 0) return '';
+    if (minutes < 60) return '$minutes phút';
+    final h = minutes ~/ 60;
+    final m = minutes % 60;
+    return m == 0 ? '$h giờ' : '$h giờ $m phút';
   }
 
   @override
@@ -150,6 +166,10 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
   // ==================== VIDEO PLAYER ====================
   Widget _buildVideoPlayer() {
+    final hasVideo = _lessonDetail?.videoUrl != null &&
+        _lessonDetail!.videoUrl!.isNotEmpty;
+    final durationLabel = _formatDuration(_lessonDetail?.durationMinutes);
+
     return Container(
       height: 240,
       margin: const EdgeInsets.all(16),
@@ -167,67 +187,121 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          // Play button overlay
           Container(
             decoration: BoxDecoration(
               color: const Color(0xFF1a1f3a),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
+              child: GestureDetector(
+                onTap: hasVideo
+                    ? () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Video: ${_lessonDetail!.videoUrl}'),
+                          ),
+                        );
+                      }
+                    : null,
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withOpacity(0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    hasVideo
+                        ? Icons.play_arrow_rounded
+                        : Icons.videocam_off_outlined,
+                    color: Colors.white,
+                    size: 48,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Video URL badge (top left)
+          if (hasVideo)
+            Positioned(
+              top: 12,
+              left: 12,
               child: Container(
-                width: 80,
-                height: 80,
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.3),
-                  shape: BoxShape.circle,
+                  color: Colors.green.withOpacity(0.85),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 48,
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.videocam, color: Colors.white, size: 12),
+                    SizedBox(width: 4),
+                    Text(
+                      'VIDEO',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
 
-          // Duration badge
-          Positioned(
-            bottom: 12,
-            right: 12,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.7),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Text(
-                '12:45 / 45:00',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+          // Duration badge (bottom right)
+          if (durationLabel.isNotEmpty)
+            Positioned(
+              bottom: 12,
+              right: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.7),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  durationLabel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          // Progress bar indicator
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ClipRRect(
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
-              ),
-              child: LinearProgressIndicator(
-                value: 0.28, // 12:45 / 45:00
-                minHeight: 4,
-                backgroundColor: Colors.grey[700],
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+          // Completed overlay
+          if (_isCompleted)
+            Positioned(
+              bottom: 12,
+              left: 12,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.9),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.white, size: 12),
+                    SizedBox(width: 4),
+                    Text(
+                      'Đã hoàn thành',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -296,39 +370,45 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
           const SizedBox(height: 12),
 
-          // Duration & Difficulty row
+          // Duration & Preview row
           Row(
             children: [
-              // Duration
-              Expanded(
-                child: Row(
-                  children: [
-                    const Icon(Icons.schedule_rounded, size: 14, color: AppColors.textSecondary),
-                    const SizedBox(width: 6),
-                    Text(
-                      '45 phút',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+              // Duration from API
+              if (_lessonDetail?.durationMinutes != null &&
+                  _lessonDetail!.durationMinutes! > 0) ...[
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.schedule_rounded,
+                          size: 14, color: AppColors.textSecondary),
+                      const SizedBox(width: 6),
+                      Text(
+                        _formatDuration(_lessonDetail!.durationMinutes),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              // Difficulty
-              Expanded(
-                child: Row(
-                  children: [
-                    const Icon(Icons.trending_up_rounded, size: 14, color: Color(0xFFFFB84D)),
-                    const SizedBox(width: 6),
-                    Text(
-                      'Trung bình',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.textSecondary,
+              ],
+              // Preview badge
+              if (_lessonDetail?.isPreview == true)
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock_open_rounded,
+                          size: 14, color: Color(0xFF34D399)),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Xem thử miễn phí',
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFF34D399),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ],
@@ -398,58 +478,105 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
   // ==================== THEORY TAB ====================
   Widget _buildTheoryTab() {
+    final description = _lessonDetail?.description;
+    final hasDescription =
+        description != null && description.trim().isNotEmpty;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Summary section
+          // Lesson title
           Text(
-            _lessonDetail?.title ?? 'Nội dung bài học',
+            _lessonDetail?.title ?? widget.lessonName,
             style: AppTextStyles.bodyLarge.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
-          Text(
-            'In mathematics, a partial derivative of a function of several variables is its derivative with respect to one of those variables, with the others held constant. Partial derivatives are used in vector calculus and differential geometry.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textSecondary,
-              height: 1.6,
-            ),
-          ),
-          const SizedBox(height: 16),
 
-          // Formula section
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.background,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey[300]!),
-            ),
-            child: Text(
-              'ƒₓ(x, y) = lim_{h→0} [f(x+h, y) - f(x, y)] / h',
-              style: const TextStyle(
-                fontSize: 13,
-                fontFamily: 'Courier',
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w500,
+          // Description from API or empty state
+          if (hasDescription)
+            Text(
+              description,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.7,
+              ),
+            )
+          else
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.grey[200]!),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.info_outline,
+                      size: 18, color: Colors.grey[400]),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Nội dung bài học chưa có mô tả. Vui lòng xem video để học.',
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: AppColors.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
 
-          // Historical note
-          Text(
-            'The symbol ∂ used to denote partial derivatives is a modification of the ordinary d of calculus. It was first used in mathematics by Marquis de Condorcet in 1770 for partial differences.',
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: Colors.grey[600],
-              fontStyle: FontStyle.italic,
-              height: 1.6,
+          // Video URL section (if available)
+          if (_lessonDetail?.videoUrl != null &&
+              _lessonDetail!.videoUrl!.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.05),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                    color: AppColors.primary.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.play_circle_outline,
+                      color: AppColors.primary, size: 20),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Video bài học',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          _lessonDetail!.videoUrl!,
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
+          ],
+
           const SizedBox(height: 32),
         ],
       ),
@@ -567,18 +694,31 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: ElevatedButton.icon(
-        onPressed: _isCompleting ? null : _completeLesson,
-        icon: const Icon(Icons.check_circle_outline),
+        onPressed: (_isCompleting || _isCompleted) ? null : _completeLesson,
+        icon: Icon(
+          _isCompleted
+              ? Icons.check_circle
+              : Icons.check_circle_outline,
+        ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor:
+              _isCompleted ? Colors.green : AppColors.primary,
           foregroundColor: Colors.white,
+          disabledBackgroundColor:
+              _isCompleted ? Colors.green.withOpacity(0.8) : null,
+          disabledForegroundColor:
+              _isCompleted ? Colors.white : null,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
         label: Text(
-          _isCompleting ? 'Đang cập nhật...' : 'Hoàn thành bài học',
+          _isCompleting
+              ? 'Đang cập nhật...'
+              : _isCompleted
+                  ? 'Đã hoàn thành'
+                  : 'Hoàn thành bài học',
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),

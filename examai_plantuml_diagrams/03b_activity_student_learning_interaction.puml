@@ -1,0 +1,55 @@
+@startuml
+title ExamAI - Hoạt động: Học tập và tương tác
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Học viên" {
+  :Đăng nhập ExamAI;
+  :Mở bảng học tập;
+  :Chọn khóa học hoặc bài học;
+}
+
+partition "Hệ thống ExamAI" {
+  :Tải nội dung khóa học;
+  :Tải tiến độ học hiện tại;
+  :Hiển thị bài học, tài liệu,\nbài quiz và hoạt động;
+}
+
+partition "Học viên" {
+  :Học nội dung bài học;
+  :Đọc ví dụ và tài liệu;
+
+  if (Tương tác với bài luyện tập?) then (có)
+    :Trả lời quiz hoặc bài luyện tập;
+  else (không)
+    :Tiếp tục bài học;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  if (Đã nộp bài luyện tập?) then (có)
+    :Kiểm tra câu trả lời;
+    :Tạo phản hồi;
+    :Cập nhật điểm luyện tập;
+  else (không)
+    :Theo dõi tiến độ đọc hoặc xem video;
+  endif
+
+  :Lưu tiến độ học tập;
+  :Cập nhật trạng thái hoàn thành khóa học;
+}
+
+partition "Học viên" {
+  :Xem tiến độ và phản hồi;
+  :Tiếp tục học hoặc thoát bài học;
+}
+
+stop
+
+@enduml

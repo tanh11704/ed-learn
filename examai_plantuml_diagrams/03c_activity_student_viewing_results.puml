@@ -1,0 +1,49 @@
+@startuml
+title ExamAI - Hoạt động: Học viên xem kết quả
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Học viên" {
+  :Đăng nhập ExamAI;
+  :Mở trang Kết quả hoặc Báo cáo;
+  :Chọn báo cáo bài kiểm tra hoặc khóa học;
+}
+
+partition "Hệ thống ExamAI" {
+  :Lấy các bài đã chấm;
+  :Lấy điểm số, phản hồi\nvà lịch sử làm bài;
+
+  if (Kết quả đã được công bố?) then (có)
+    :Tính toán chỉ số tổng quan;
+    :Tải phản hồi theo từng câu hỏi;
+  else (không)
+    :Hiển thị trạng thái đang chấm điểm;
+    stop
+  endif
+}
+
+partition "Học viên" {
+  :Xem điểm cuối cùng;
+  :Xem lại câu đúng và câu sai;
+  :Đọc phản hồi từ AI hoặc giáo viên;
+  :Kiểm tra trạng thái đạt hoặc chưa đạt;
+}
+
+partition "Hệ thống ExamAI" {
+  :Hiển thị xu hướng tiến bộ;
+  :Đề xuất chủ đề cần ôn tập;
+}
+
+partition "Học viên" {
+  :Chọn hành động học tập tiếp theo;
+}
+
+stop
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title ExamAI - Tuần tự: Quản lý nội dung và đề thi
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Quản trị viên" as Admin
+participant "Cổng quản trị" as Portal
+participant "Dịch vụ nội dung" as Content
+database "Cơ sở dữ liệu" as DB
+participant "Công cụ AI" as AI
+participant "Dịch vụ thông báo" as Notify
+
+Admin -> Portal : Mở quản lý nội dung và đề thi
+Portal -> Content : Yêu cầu nội dung khóa học và đề thi
+Content -> DB : Đọc bài học, ngân hàng câu hỏi\nvà đề thi hiện có
+DB --> Content : Dữ liệu quản lý nội dung
+Content --> Portal : Nội dung và danh sách đề có thể chỉnh sửa
+Portal --> Admin : Hiển thị không gian quản lý
+
+alt Quản lý nội dung học tập
+  Admin -> Portal : Chỉnh sửa bài học hoặc tải tài liệu
+  Portal -> Content : Gửi thay đổi nội dung
+  Content -> Content : Kiểm tra thông tin nội dung
+  Content -> DB : Lưu bài học hoặc tài liệu
+  Content --> Portal : Đã lưu bản nháp nội dung
+
+else Tạo đề thi thủ công
+  Admin -> Portal : Nhập thông tin đề thi và câu hỏi
+  Portal -> Content : Gửi đề thi thủ công
+  Content -> Content : Kiểm tra câu hỏi, đáp án\nvà tiêu chí chấm điểm
+  Content -> DB : Lưu bản nháp đề thi
+  Content --> Portal : Đã lưu bản nháp đề thủ công
+
+else Sinh đề thi bằng AI
+  Admin -> Portal : Cấu hình sinh đề bằng AI
+  Portal -> Content : Gửi yêu cầu sinh đề
+  Content -> DB : Tải cài đặt AI và ngữ cảnh khóa học
+  Content -> AI : Yêu cầu sinh câu hỏi
+  AI --> Content : Nội dung đề thi có cấu trúc
+  Content -> Content : Kiểm tra nội dung được sinh
+  Content -> DB : Lưu bản nháp đề thi được sinh
+  Content --> Portal : Đề thi đã sẵn sàng để duyệt
+end
+
+Admin -> Portal : Công bố nội dung hoặc đề thi đã duyệt
+Portal -> Content : Gửi phê duyệt công bố
+Content -> DB : Đánh dấu nội dung hoặc đề thi đã công bố
+Content -> Notify : Thông báo cho học viên đã ghi danh
+Notify --> Content : Thông báo đã đưa vào hàng đợi
+Content --> Portal : Công bố thành công
+Portal --> Admin : Hiển thị trạng thái đã công bố
+
+@enduml

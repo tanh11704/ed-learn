@@ -1,48 +1,28 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:mobile_app/core/services/token_storage_service.dart';
+
+import 'package:mobile_app/core/network/api_client.dart';
 import '../models/user_model.dart';
 import '../models/user_streak_model.dart';
 
 abstract class HomeRemoteDataSource {
   Future<UserModel> getUserInfo();
   Future<UserStreakModel> getUserStreak();
+  Future<UserModel> updateUserProfile({required String fullName});
 }
 
 class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
-  final String baseUrl = 'https://api.phuocanh.me/api/v1';
+  HomeRemoteDatasourceImpl({ApiClient? apiClient})
+      : _client = apiClient ?? ApiClient();
 
-  HomeRemoteDatasourceImpl();
-  
-  // Hàm lấy thông tin người dùng, sử dụng accessToken để xác thực
+  final ApiClient _client;
+
   @override
   Future<UserModel> getUserInfo() async {
     try {
-      // Lấy token từ TokenStorageService
-      final tokenStorage = TokenStorageService();
-      final accessToken = await tokenStorage.getAccessToken();
+      final response = await _client.get('/users/me');
 
-      if (accessToken == null) {
-        throw Exception('Access token not found. Please login again.');
-      }
-
-      final response = await http
-          .get(
-            // Gọi API để lấy thông tin người dùng
-            Uri.parse('$baseUrl/users/me'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'Bearer $accessToken',
-            },
-          )
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => throw Exception('Request timeout'),
-          );
-      // Xử lý phản hồi từ API
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
         return UserModel.fromJson(jsonResponse);
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized - token expired or invalid');
@@ -59,29 +39,10 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
   @override
   Future<UserStreakModel> getUserStreak() async {
     try {
-      final tokenStorage = TokenStorageService();
-      final accessToken = await tokenStorage.getAccessToken();
-
-      if (accessToken == null) {
-        throw Exception('Access token not found. Please login again.');
-      }
-
-      final response = await http
-          .get(
-            Uri.parse('$baseUrl/user-streaks/me'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Authorization': 'Bearer $accessToken',
-            },
-          )
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () => throw Exception('Request timeout'),
-          );
+      final response = await _client.get('/user-streaks/me');
 
       if (response.statusCode == 200) {
-        final jsonResponse = jsonDecode(response.body);
+        final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
         return UserStreakModel.fromJson(jsonResponse);
       } else if (response.statusCode == 401) {
         throw Exception('Unauthorized - token expired or invalid');
@@ -91,6 +52,30 @@ class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
         throw Exception('Get user streak failed: ${response.statusCode}');
       }
     } catch (e) {
+      throw Exception('Error: $e');
+    }
+  }
+
+  @override
+  Future<UserModel> updateUserProfile({required String fullName}) async {
+    try {
+      final response = await _client.put(
+        '/users/me',
+        body: {'fullName': fullName.trim()},
+      );
+
+      if (response.statusCode == 200) {
+        final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
+        return UserModel.fromJson(jsonResponse);
+      } else if (response.statusCode == 400) {
+        throw Exception('Dữ liệu không hợp lệ');
+      } else if (response.statusCode == 401) {
+        throw Exception('Phiên đăng nhập hết hạn');
+      } else {
+        throw Exception('Cập nhật hồ sơ thất bại: ${response.statusCode}');
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
       throw Exception('Error: $e');
     }
   }

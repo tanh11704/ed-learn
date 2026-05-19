@@ -1,0 +1,58 @@
+@startuml
+title ExamAI - Hoạt động: Chụp ảnh giải bài bằng AI
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Học viên" {
+  :Mở công cụ giải bài bằng ảnh;
+  :Chụp hoặc tải ảnh bài toán;
+  :Bổ sung ngữ cảnh câu hỏi nếu cần;
+  :Gửi ảnh để AI giải;
+}
+
+partition "Hệ thống ExamAI" {
+  :Kiểm tra định dạng và dung lượng ảnh;
+
+  if (Ảnh hợp lệ?) then (có)
+    :Tiền xử lý ảnh;
+    :Tạo yêu cầu AI kèm ngữ cảnh ảnh;
+    :Ghi nhật ký tương tác AI;
+  else (không)
+    :Hiển thị lỗi tải ảnh;
+    stop
+  endif
+}
+
+partition "Công cụ AI" {
+  :Phân tích ảnh bài toán;
+  :Trích xuất nội dung câu hỏi;
+  :Sinh lời giải từng bước;
+  :Trả về lời giải và đáp án cuối;
+}
+
+partition "Hệ thống ExamAI" {
+  if (AI phản hồi thành công?) then (có)
+    :Lưu nhật ký phản hồi AI;
+    :Định dạng lời giải để hiển thị;
+  else (không)
+    :Lưu nhật ký lỗi AI;
+    :Hiển thị thông báo thử lại;
+    stop
+  endif
+}
+
+partition "Học viên" {
+  :Xem giải thích từng bước;
+  :Hỏi tiếp nếu cần;
+  :Lưu lời giải vào lịch sử học tập;
+}
+
+stop
+
+@enduml

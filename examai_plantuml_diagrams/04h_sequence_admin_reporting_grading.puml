@@ -1,0 +1,72 @@
+@startuml
+title ExamAI - Tuần tự: Quản lý báo cáo và chấm điểm
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Quản trị viên" as Admin
+participant "Cổng quản trị" as Portal
+participant "Dịch vụ báo cáo" as Reporting
+database "Cơ sở dữ liệu" as DB
+participant "Công cụ AI" as AI
+participant "Dịch vụ thông báo" as Notify
+
+Admin -> Portal : Mở báo cáo và chấm điểm
+Portal -> Reporting : Yêu cầu bộ lọc và tóm tắt báo cáo
+Reporting -> DB : Đọc thống kê điểm,\nlịch sử làm bài và hàng đợi chấm điểm
+DB --> Reporting : Dữ liệu báo cáo
+Reporting -> Reporting : Tổng hợp xu hướng và xếp hạng
+Reporting --> Portal : Báo cáo và hàng đợi chấm điểm
+Portal --> Admin : Hiển thị bảng báo cáo
+
+alt Xem thống kê điểm số
+  Admin -> Portal : Chọn chế độ xem thống kê
+  Portal -> Reporting : Yêu cầu phân tích điểm
+  Reporting -> DB : Đọc các bài nộp phù hợp
+  DB --> Reporting : Dữ liệu điểm số
+  Reporting -> Reporting : Tính điểm trung bình,\ntỷ lệ đạt và xếp hạng
+  Reporting --> Portal : Báo cáo thống kê
+  Portal --> Admin : Hiển thị biểu đồ và tóm tắt
+
+else Xem lịch sử làm bài của học viên
+  Admin -> Portal : Chọn lịch sử làm bài của học viên
+  Portal -> Reporting : Yêu cầu chi tiết các lượt làm bài
+  Reporting -> DB : Đọc lượt làm, câu trả lời,\nthời gian làm và phản hồi
+  DB --> Reporting : Lịch sử làm bài
+  Reporting --> Portal : Lịch sử chi tiết
+  Portal --> Admin : Hiển thị dòng thời gian làm bài
+
+else Kiểm tra AI chấm tự luận
+  Admin -> Portal : Mở bài tự luận do AI chấm
+  Portal -> Reporting : Yêu cầu chi tiết chấm điểm
+  Reporting -> DB : Đọc bài tự luận, tiêu chí,\nđiểm AI, phản hồi và nhật ký
+  DB --> Reporting : Dữ liệu kiểm tra chấm điểm
+  Reporting --> Portal : Chi tiết AI chấm điểm
+  Portal --> Admin : Hiển thị màn hình kiểm tra tự luận
+
+  alt Phê duyệt điểm AI
+    Admin -> Portal : Phê duyệt kết quả chấm
+    Portal -> Reporting : Xác nhận phê duyệt
+    Reporting -> DB : Lưu lịch sử kiểm toán phê duyệt
+  else Điều chỉnh thủ công
+    Admin -> Portal : Sửa điểm hoặc phản hồi
+    Portal -> Reporting : Gửi chỉnh sửa thủ công
+    Reporting -> DB : Lưu điểm đã sửa và ghi chú người duyệt
+    Reporting -> Notify : Thông báo học viên về cập nhật kết quả
+  else Yêu cầu AI chấm lại
+    Admin -> Portal : Yêu cầu chấm lại
+    Portal -> Reporting : Gửi yêu cầu chấm lại
+    Reporting -> AI : Chấm lại bài tự luận theo tiêu chí
+    AI --> Reporting : Điểm và phản hồi đã điều chỉnh
+    Reporting -> DB : Lưu kết quả chấm lại
+  end
+end
+
+Reporting --> Portal : Báo cáo hoặc trạng thái chấm điểm đã cập nhật
+Portal --> Admin : Hiển thị kết quả đã làm mới
+
+@enduml

@@ -1,0 +1,77 @@
+@startuml
+title ExamAI - Hoạt động: Quản lý nội dung và đề thi
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Quản trị viên" {
+  :Mở Quản lý nội dung và đề thi;
+  :Chọn khóa học hoặc chủ đề;
+}
+
+partition "Hệ thống ExamAI" {
+  :Tải bài học hiện có,\nngân hàng câu hỏi và đề thi;
+}
+
+partition "Quản trị viên" {
+  if (Chọn thao tác quản lý?) then (Quản lý nội dung)
+    :Tạo hoặc chỉnh sửa nội dung bài học;
+    :Tải lên tài liệu học tập;
+  elseif (Tạo đề thủ công)
+    :Nhập thông tin đề thi;
+    :Thêm câu hỏi, đáp án\nvà tiêu chí chấm điểm thủ công;
+  else (Sinh đề bằng AI)
+    :Cấu hình chủ đề, độ khó,\nloại câu hỏi và thời lượng;
+    :Yêu cầu AI sinh đề;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  if (Có yêu cầu sinh bằng AI?) then (có)
+    :Tạo prompt và cấu trúc dữ liệu cho AI;
+    :Gọi nhà cung cấp AI;
+  else (không)
+    :Kiểm tra nội dung thủ công;
+  endif
+}
+
+partition "Công cụ AI" {
+  if (Có yêu cầu sinh bằng AI?) then (có)
+    :Sinh câu hỏi đề thi\nvà đáp án;
+    :Trả về dữ liệu có cấu trúc;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  if (Nội dung hoặc đề thi hợp lệ?) then (có)
+    :Lưu bản nháp nội dung hoặc đề thi;
+  else (không)
+    :Trả về lỗi kiểm tra dữ liệu;
+    stop
+  endif
+}
+
+partition "Quản trị viên" {
+  :Duyệt nội dung và câu hỏi;
+
+  if (Công bố ngay?) then (có)
+    :Phê duyệt và công bố;
+  else (không)
+    :Giữ ở trạng thái bản nháp;
+    stop
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  :Đặt nội dung hoặc đề thi là đã công bố;
+  :Thông báo cho học viên đã ghi danh;
+}
+
+stop
+
+@enduml

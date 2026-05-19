@@ -1,0 +1,97 @@
+@startuml
+title ExamAI - Biểu đồ ca sử dụng tổng quan hệ thống
+
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 18
+skinparam packageStyle rectangle
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+skinparam actorStyle awesome
+
+skinparam usecase {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #0F172A
+}
+
+skinparam package {
+  BackgroundColor #EFF6FF
+  BorderColor #2563EB
+  FontColor #1E3A8A
+}
+
+actor "Quản trị viên" as admin
+actor "Học viên" as student
+actor "Công cụ AI\n(OpenAI/Gemini)" as ai
+
+rectangle "Nền tảng ExamAI" {
+  package "Xác thực" {
+    usecase "Đăng nhập" as UC_Login
+    usecase "Xác thực\nhai yếu tố" as UC_2FA
+    usecase "Làm mới phiên\nđăng nhập" as UC_Refresh
+    usecase "Đăng xuất" as UC_Logout
+  }
+
+  package "Quản lý" {
+    usecase "Quản lý học viên" as UC_Students
+    usecase "Tạo học viên" as UC_CreateStudent
+    usecase "Cập nhật học viên" as UC_UpdateStudent
+    usecase "Vô hiệu hóa học viên" as UC_DeactivateStudent
+    usecase "Quản lý cài đặt\nvà khóa API" as UC_Settings
+    usecase "Cấu hình nhà cung cấp AI" as UC_AIConfig
+    usecase "Bật/tắt bảo trì\nvà giao diện" as UC_SystemToggles
+  }
+
+  package "Tạo đề thi" {
+    usecase "Tạo đề thi thủ công" as UC_ManualExam
+    usecase "Sinh đề thi bằng AI" as UC_AIExam
+    usecase "Duyệt câu hỏi được sinh" as UC_ReviewQuestions
+    usecase "Công bố đề thi" as UC_PublishExam
+  }
+
+  package "Làm bài và chấm điểm" {
+    usecase "Tham gia kiểm tra" as UC_TakeExam
+    usecase "Nộp bài làm" as UC_Submit
+    usecase "AI tự động chấm điểm" as UC_AIGrading
+    usecase "Xem báo cáo" as UC_Reports
+    usecase "Xem kết quả" as UC_Results
+  }
+}
+
+admin --> UC_Login
+student --> UC_Login
+admin --> UC_Logout
+student --> UC_Logout
+
+UC_Login ..> UC_2FA : <<include>>
+UC_Login ..> UC_Refresh : <<extend>>
+
+admin --> UC_Students
+UC_Students ..> UC_CreateStudent : <<include>>
+UC_Students ..> UC_UpdateStudent : <<include>>
+UC_Students ..> UC_DeactivateStudent : <<include>>
+
+admin --> UC_Settings
+UC_Settings ..> UC_AIConfig : <<include>>
+UC_Settings ..> UC_SystemToggles : <<include>>
+
+admin --> UC_ManualExam
+admin --> UC_AIExam
+UC_AIExam ..> UC_ReviewQuestions : <<include>>
+UC_ReviewQuestions ..> UC_PublishExam : <<include>>
+
+student --> UC_TakeExam
+UC_TakeExam ..> UC_Submit : <<include>>
+UC_Submit ..> UC_AIGrading : <<include>>
+
+admin --> UC_Reports
+student --> UC_Results
+
+ai --> UC_AIExam
+ai --> UC_AIGrading
+UC_AIConfig ..> ai : xác thực thông tin kết nối
+
+@enduml
