@@ -1,0 +1,49 @@
+@startuml
+title ExamAI - Tuần tự: Quản trị cài đặt hệ thống
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Quản trị viên" as Admin
+participant "Cổng quản trị" as Portal
+participant "Dịch vụ cài đặt" as Settings
+database "Cơ sở dữ liệu" as DB
+participant "Công cụ AI" as AI
+participant "Cấu hình đang chạy" as Runtime
+
+Admin -> Portal : Mở cài đặt hệ thống
+Portal -> Settings : Yêu cầu cài đặt hiện tại
+Settings -> DB : Đọc cài đặt đã lưu
+DB --> Settings : Cài đặt hiện tại
+Settings --> Portal : Dữ liệu biểu mẫu cài đặt
+Portal --> Admin : Hiển thị màn hình cài đặt
+
+Admin -> Portal : Lưu cài đặt đã cập nhật
+Portal -> Settings : Gửi thay đổi cài đặt
+Settings -> Settings : Kiểm tra quyền và giá trị
+
+alt Khóa AI thay đổi
+  Settings -> Settings : Mã hóa khóa API mới
+  Settings -> AI : Kiểm tra thông tin nhà cung cấp
+  AI --> Settings : Kết quả kiểm tra
+else Khóa AI không thay đổi
+  Settings -> Settings : Giữ thông tin nhà cung cấp hiện tại
+end
+
+alt Cài đặt hợp lệ
+  Settings -> DB : Lưu cài đặt đã cập nhật
+  Settings -> DB : Ghi bản ghi kiểm toán
+  Settings -> Runtime : Làm mới cấu hình đang hoạt động
+  Runtime --> Settings : Cấu hình đã được làm mới
+  Settings --> Portal : Đã lưu cài đặt
+  Portal --> Admin : Hiển thị thông báo thành công
+else Cài đặt không hợp lệ
+  Settings --> Portal : Lỗi kiểm tra dữ liệu
+  Portal --> Admin : Hiển thị thông báo cần chỉnh sửa
+end
+
+@enduml

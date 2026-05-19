@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../data/datasources/user_badge_remote_datasource.dart';
+import '../../data/repositories/user_badge_repository_impl.dart';
 
 class XpStoreScreen extends StatefulWidget {
   const XpStoreScreen({super.key});
@@ -11,27 +13,53 @@ class XpStoreScreen extends StatefulWidget {
 
 class _XpStoreScreenState extends State<XpStoreScreen> {
   int _selectedTab = 0;
+  int _totalXp = 0;
+  bool _isLoading = true;
+
+  late final UserBadgeRepositoryImpl _badgeRepository;
 
   final List<String> _tabs = const ['Khung Avatar', 'Giao diện', 'Voucher'];
 
   final List<_StoreItem> _avatarItems = const [
-    _StoreItem(name: 'Khung Avatar\nLửa Thiêng', priceXp: 500, color: Color(0xFFFF7A1A), icon: Icons.blur_circular, unlocked: true),
-    _StoreItem(name: 'Khung Avatar\nPhi Hành Gia', priceXp: 800, color: Color(0xFF6A64FF), icon: Icons.crop_square_rounded, unlocked: true),
-    _StoreItem(name: 'Khung Avatar\nVương Miện', requiredLevel: 'Cần Cấp 15', color: Color(0xFFA0846A), icon: Icons.workspace_premium, unlocked: false),
-    _StoreItem(name: 'Khung Avatar\nKim Cương', requiredLevel: 'Cần Cấp 15', color: Color(0xFF7D889A), icon: Icons.diamond_outlined, unlocked: false),
+    _StoreItem(name: 'Khung Avatar\nLửa Thiêng', priceXp: 500, color: Color(0xFFFF7A1A), icon: Icons.blur_circular),
+    _StoreItem(name: 'Khung Avatar\nPhi Hành Gia', priceXp: 800, color: Color(0xFF6A64FF), icon: Icons.crop_square_rounded),
+    _StoreItem(name: 'Khung Avatar\nVương Miện', priceXp: 1500, requiredLevel: 'Cần Cấp 15', color: Color(0xFFA0846A), icon: Icons.workspace_premium),
+    _StoreItem(name: 'Khung Avatar\nKim Cương', priceXp: 2000, requiredLevel: 'Cần Cấp 20', color: Color(0xFF7D889A), icon: Icons.diamond_outlined),
   ];
 
   final List<_StoreItem> _themeItems = const [
-    _StoreItem(name: 'Theme Neon', priceXp: 600, color: Color(0xFF00C2FF), icon: Icons.color_lens_outlined, unlocked: true),
-    _StoreItem(name: 'Theme Tối', priceXp: 750, color: Color(0xFF454A5E), icon: Icons.dark_mode_outlined, unlocked: true),
-    _StoreItem(name: 'Theme Galaxy', requiredLevel: 'Cần Cấp 14', color: Color(0xFF5A4AC9), icon: Icons.auto_awesome, unlocked: false),
+    _StoreItem(name: 'Theme Neon', priceXp: 600, color: Color(0xFF00C2FF), icon: Icons.color_lens_outlined),
+    _StoreItem(name: 'Theme Tối', priceXp: 750, color: Color(0xFF454A5E), icon: Icons.dark_mode_outlined),
+    _StoreItem(name: 'Theme Galaxy', priceXp: 1200, requiredLevel: 'Cần Cấp 14', color: Color(0xFF5A4AC9), icon: Icons.auto_awesome),
   ];
 
   final List<_StoreItem> _voucherItems = const [
-    _StoreItem(name: 'Voucher giảm 10%', priceXp: 900, color: Color(0xFF29B36A), icon: Icons.local_offer_outlined, unlocked: true),
-    _StoreItem(name: 'Voucher 50.000đ', priceXp: 1200, color: Color(0xFF1D9BF0), icon: Icons.card_giftcard_outlined, unlocked: true),
-    _StoreItem(name: 'Voucher 100.000đ', requiredLevel: 'Cần Cấp 16', color: Color(0xFF7D889A), icon: Icons.lock_outline_rounded, unlocked: false),
+    _StoreItem(name: 'Voucher giảm 10%', priceXp: 900, color: Color(0xFF29B36A), icon: Icons.local_offer_outlined),
+    _StoreItem(name: 'Voucher 50.000đ', priceXp: 1200, color: Color(0xFF1D9BF0), icon: Icons.card_giftcard_outlined),
+    _StoreItem(name: 'Voucher 100.000đ', priceXp: 2500, requiredLevel: 'Cần Cấp 16', color: Color(0xFF7D889A), icon: Icons.lock_outline_rounded),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _badgeRepository = UserBadgeRepositoryImpl(UserBadgeRemoteDataSourceImpl());
+    _loadXpBalance();
+  }
+
+  Future<void> _loadXpBalance() async {
+    try {
+      final result = await _badgeRepository.getMyBadges(page: 0, size: 100);
+      final earned = result.content.fold<int>(0, (sum, b) => sum + b.xpReward);
+      if (mounted) {
+        setState(() {
+          _totalXp = earned;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +78,7 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // XP balance card
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(14),
@@ -58,29 +87,79 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFFD4E2FF)),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.workspace_premium_outlined, size: 16, color: AppColors.primary),
-                      const SizedBox(width: 6),
-                      Text('SỐ DƯ HIỆN TẠI', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  RichText(
-                    text: TextSpan(
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextSpan(text: '1,250', style: AppTextStyles.heading1.copyWith(fontWeight: FontWeight.w800)),
-                        TextSpan(text: ' XP', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                        Row(
+                          children: [
+                            const Icon(Icons.workspace_premium_outlined, size: 16, color: AppColors.primary),
+                            const SizedBox(width: 6),
+                            Text('SỐ DƯ HIỆN TẠI', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        _isLoading
+                            ? const SizedBox(
+                                height: 28,
+                                width: 28,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: _formatXp(_totalXp),
+                                      style: AppTextStyles.heading1.copyWith(fontWeight: FontWeight.w800),
+                                    ),
+                                    TextSpan(
+                                      text: ' XP',
+                                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                                    ),
+                                  ],
+                                ),
+                              ),
                       ],
+                    ),
+                  ),
+                  // Refresh button
+                  IconButton(
+                    onPressed: () {
+                      setState(() => _isLoading = true);
+                      _loadXpBalance();
+                    },
+                    icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+                    tooltip: 'Làm mới',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            // Source note
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF8EC),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFFFFDFA0)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, size: 14, color: Color(0xFFD48A00)),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'XP được tích lũy từ các huy hiệu bạn đã đạt được',
+                      style: AppTextStyles.caption.copyWith(color: const Color(0xFFD48A00)),
                     ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 18),
+            // Tabs
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -143,7 +222,7 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 ],
               ),
               child: Text(
-                'Cày thêm XP để đổi Voucher giảm 20% khóa học Luyện thi khối A!',
+                'Hoàn thành thử thách để kiếm thêm XP và mở khóa phần thưởng độc quyền!',
                 style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
               ),
             ),
@@ -154,7 +233,9 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
   }
 
   Widget _storeCard(_StoreItem item) {
-    final locked = !item.unlocked;
+    final canAfford = _totalXp >= item.priceXp;
+    final hasLevelReq = item.requiredLevel != null;
+
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -172,75 +253,206 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: locked
-                    ? [const Color(0xFFB8BFCC), const Color(0xFF8E97A8)]
-                    : [item.color.withValues(alpha: 0.86), item.color],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          Stack(
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: hasLevelReq
+                        ? [const Color(0xFFB8BFCC), const Color(0xFF8E97A8)]
+                        : [item.color.withValues(alpha: 0.86), item.color],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+                child: Icon(
+                  hasLevelReq ? Icons.lock_outline_rounded : item.icon,
+                  color: Colors.white,
+                  size: 34,
+                ),
               ),
-            ),
-            child: Icon(
-              item.icon,
-              color: Colors.white,
-              size: 34,
-            ),
+              if (!hasLevelReq && !canAfford)
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFF4444),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 10),
           Text(
             item.name,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: locked ? AppColors.textSecondary : AppColors.textPrimary,
+              color: hasLevelReq ? AppColors.textSecondary : AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
           const Spacer(),
-          if (locked)
+          if (hasLevelReq)
             Text(
-              item.requiredLevel ?? '',
+              item.requiredLevel!,
               style: AppTextStyles.caption,
               textAlign: TextAlign.center,
             )
           else
-            Container(
-              width: double.infinity,
-              height: 34,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: item.priceXp == 800 ? const Color(0xFFF4BE22) : const Color(0xFFFF7A1A),
-                borderRadius: BorderRadius.circular(20),
+            GestureDetector(
+              onTap: () => _onRedeem(item),
+              child: Container(
+                width: double.infinity,
+                height: 34,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: canAfford
+                      ? (item.priceXp == 800 ? const Color(0xFFF4BE22) : const Color(0xFFFF7A1A))
+                      : const Color(0xFFCDD0D8),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  '${item.priceXp} XP',
+                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                ),
               ),
-              child: Text(
-                '${item.priceXp} XP',
-                style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
-              ),
-            )
+            ),
         ],
       ),
     );
+  }
+
+  void _onRedeem(_StoreItem item) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [item.color.withValues(alpha: 0.86), item.color],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Icon(item.icon, color: Colors.white, size: 38),
+            ),
+            const SizedBox(height: 16),
+            Text(item.name.replaceAll('\n', ' '), style: AppTextStyles.heading2, textAlign: TextAlign.center),
+            const SizedBox(height: 8),
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(text: 'Giá: ', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                  TextSpan(
+                    text: '${item.priceXp} XP',
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                  ),
+                  TextSpan(
+                    text: '  •  Số dư: ${_formatXp(_totalXp)} XP',
+                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (_totalXp < item.priceXp)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF0F0),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFFCCCC)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFFF4444), size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Không đủ XP. Cần thêm ${item.priceXp - _totalXp} XP nữa.',
+                        style: AppTextStyles.caption.copyWith(color: const Color(0xFFFF4444)),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FFF4),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFB2DFDB)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Color(0xFF29B36A), size: 18),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Tính năng đổi thưởng sẽ sớm ra mắt. Hãy tiếp tục tích lũy XP!',
+                        style: AppTextStyles.caption.copyWith(color: const Color(0xFF29B36A)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+                child: Text('Đóng', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatXp(int xp) {
+    if (xp >= 1000) {
+      return '${(xp / 1000).toStringAsFixed(xp % 1000 == 0 ? 0 : 1)}k';
+    }
+    return xp.toString();
   }
 }
 
 class _StoreItem {
   final String name;
-  final int? priceXp;
+  final int priceXp;
   final String? requiredLevel;
   final Color color;
   final IconData icon;
-  final bool unlocked;
 
   const _StoreItem({
     required this.name,
+    required this.priceXp,
     required this.color,
     required this.icon,
-    required this.unlocked,
-    this.priceXp,
     this.requiredLevel,
   });
 }

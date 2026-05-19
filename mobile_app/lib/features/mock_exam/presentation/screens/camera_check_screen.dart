@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:mobile_app/features/mock_exam/presentation/screens/exam_taking_screen.dart'; // 1. Import thư viện camera
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile_app/features/mock_exam/data/models/exam_session_args.dart';
 
 
 class CameraCheckScreen extends StatefulWidget {
@@ -151,10 +152,14 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton.icon(
-                  onPressed: _isInitialized ? () {
-                    // Logic khi nhấn bắt đầu làm bài
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const ExamTakingScreen())); // Thay thế bằng
-                  } : null, // Disable nút nếu camera chưa sẵn sàng
+                  onPressed: _isInitialized
+                      ? () {
+                          final args = ExamSessionArgs.fromExtra(
+                            GoRouterState.of(context).extra,
+                          );
+                          context.go('/exam/exam-session', extra: args);
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
                     disabledBackgroundColor: Colors.grey.withOpacity(0.3),

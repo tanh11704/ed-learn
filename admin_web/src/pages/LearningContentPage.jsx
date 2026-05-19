@@ -1,0 +1,321 @@
+import { useEffect, useMemo, useState } from 'react';
+import { FileUp, Plus, Trash2 } from 'lucide-react';
+import PageHeader from '../components/PageHeader.jsx';
+import Alert from '../components/Alert.jsx';
+import * as coursesApi from '../api/courses.js';
+import * as chaptersApi from '../api/chapters.js';
+import * as lessonsApi from '../api/lessons.js';
+
+export default function LearningContentPage() {
+  const [courses, setCourses] = useState([]);
+  const [courseId, setCourseId] = useState('');
+  const [chapters, setChapters] = useState([]);
+  const [chapterTitle, setChapterTitle] = useState('');
+  const [lessonForm, setLessonForm] = useState({
+    chapterId: '',
+    title: '',
+    isPreview: false,
+  });
+  const [uploadLessonId, setUploadLessonId] = useState('');
+  const [uploadFile, setUploadFile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [contentLoading, setContentLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const selectedCourse = useMemo(
+    () => courses.find((course) => course.id === courseId),
+    [courses, courseId],
+  );
+
+  async function loadCourses() {
+    setLoading(true);
+    setError('');
+    try {
+      const data = await coursesApi.getCourses({ page: 0, size: 100 });
+      const list = data.content || [];
+      setCourses(list);
+      if (!courseId && list.length > 0) setCourseId(list[0].id);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadContent(id = courseId) {
+    if (!id) {
+      setChapters([]);
+      return;
+    }
+    setContentLoading(true);
+    setError('');
+    try {
+      const chapterList = await chaptersApi.getChaptersByCourse(id);
+      setChapters(Array.isArray(chapterList) ? chapterList : []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setContentLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
+  useEffect(() => {
+    loadContent(courseId);
+    setLessonForm({ chapterId: '', title: '', isPreview: false });
+  }, [courseId]);
+
+  async function addChapter(e) {
+    e.preventDefault();
+    if (!courseId) return;
+    setError('');
+    try {
+      await chaptersApi.createChapter({
+        courseId,
+        title: chapterTitle,
+        orderIndex: chapters.length + 1,
+      });
+      setChapterTitle('');
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function deleteChapter(chapterId) {
+    if (!confirm('Xóa chương này?')) return;
+    setError('');
+    try {
+      await chaptersApi.deleteChapter(chapterId);
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function addLesson(e) {
+    e.preventDefault();
+    if (!lessonForm.chapterId) return;
+    setError('');
+    try {
+      await lessonsApi.createLesson({
+        chapterId: lessonForm.chapterId,
+        title: lessonForm.title,
+        isPreview: lessonForm.isPreview,
+      });
+      setLessonForm({ chapterId: '', title: '', isPreview: false });
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function deleteLesson(lessonId) {
+    if (!confirm('Xóa bài học này?')) return;
+    setError('');
+    try {
+      await lessonsApi.deleteLesson(lessonId);
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleUpload(e) {
+    e.preventDefault();
+    if (!uploadLessonId || !uploadFile) return;
+    setError('');
+    try {
+      const type = uploadFile.type.includes('pdf') ? 'PDF' : 'VIDEO';
+      await lessonsApi.uploadLessonMedia(uploadLessonId, uploadFile, type);
+      setUploadLessonId('');
+      setUploadFile(null);
+      e.target.reset();
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  return (
+    <div>
+      <PageHeader
+        title="Nội dung học"
+        subtitle="Quản lý chương, bài học và media"
+      />
+      {error && <Alert>{error}</Alert>}
+
+      <section className="panel">
+        <h2>Khóa học</h2>
+        {loading ? (
+          <p className="muted">Đang tải...</p>
+        ) : (
+          <label className="field-label">
+            Chọn khóa học
+            <select
+              value={courseId}
+              onChange={(e) => setCourseId(e.target.value)}
+            >
+              {courses.map((course) => (
+                <option key={course.id} value={course.id}>
+                  {course.title}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        {selectedCourse && (
+          <p className="muted">
+            {selectedCourse.subject || 'Không có chủ đề'} - {selectedCourse.id}
+          </p>
+        )}
+      </section>
+
+      <section className="panel">
+        <h2>Thêm chương</h2>
+        <form className="inline-form" onSubmit={addChapter}>
+          <input
+            value={chapterTitle}
+            onChange={(e) => setChapterTitle(e.target.value)}
+            placeholder="Tên chương"
+            required
+          />
+          <button type="submit" className="btn btn-primary btn-sm">
+            <Plus size={14} /> Thêm
+          </button>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>Thêm bài học</h2>
+        <form className="form-grid" onSubmit={addLesson}>
+          <label>
+            Chương
+            <select
+              value={lessonForm.chapterId}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, chapterId: e.target.value })
+              }
+              required
+            >
+              <option value="">-- Chọn chương --</option>
+              {chapters.map((chapter) => (
+                <option key={chapter.id} value={chapter.id}>
+                  {chapter.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Tiêu đề bài
+            <input
+              value={lessonForm.title}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, title: e.target.value })
+              }
+              required
+            />
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={lessonForm.isPreview}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, isPreview: e.target.checked })
+              }
+            />
+            Cho phép học thử
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              Tạo bài học
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>Upload media bài học</h2>
+        <form className="form-grid" onSubmit={handleUpload}>
+          <label>
+            Lesson ID
+            <input
+              value={uploadLessonId}
+              onChange={(e) => setUploadLessonId(e.target.value)}
+              placeholder="UUID bài học"
+              required
+            />
+          </label>
+          <label>
+            File
+            <input
+              type="file"
+              accept="video/*,application/pdf"
+              onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+              required
+            />
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              <FileUp size={14} /> Upload
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>Danh sách nội dung</h2>
+        {contentLoading ? (
+          <p className="muted">Đang tải...</p>
+        ) : chapters.length === 0 ? (
+          <p className="muted">Chưa có chương</p>
+        ) : (
+          chapters.map((chapter) => (
+            <div key={chapter.id} className="content-group">
+              <div className="panel-head">
+                <div>
+                  <h3>{chapter.title}</h3>
+                  <p className="muted">Chapter ID: {chapter.id}</p>
+                </div>
+                <button
+                  type="button"
+                  className="btn-icon danger"
+                  onClick={() => deleteChapter(chapter.id)}
+                  title="Xóa chương"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+              {(chapter.lessons || []).length === 0 ? (
+                <p className="muted">Chưa có bài học</p>
+              ) : (
+                <ul className="lesson-list">
+                  {chapter.lessons.map((lesson) => (
+                    <li key={lesson.id}>
+                      <span>{lesson.title}</span>
+                      <span className="muted">
+                        {lesson.id}
+                        {lesson.isPreview ? ' - Preview' : ''}
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-icon danger"
+                        onClick={() => deleteLesson(lesson.id)}
+                        title="Xóa bài học"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))
+        )}
+      </section>
+    </div>
+  );
+}

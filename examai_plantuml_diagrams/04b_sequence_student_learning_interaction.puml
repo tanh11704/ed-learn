@@ -1,0 +1,48 @@
+@startuml
+title ExamAI - Tuần tự: Học tập và tương tác
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Học viên" as Student
+participant "Ứng dụng di động/trình duyệt" as App
+participant "Dịch vụ học tập" as Learning
+database "Cơ sở dữ liệu" as DB
+participant "Bộ gợi ý học tập" as Recommend
+
+Student -> App : Mở bảng học tập
+App -> Learning : Yêu cầu khóa học đã ghi danh và tiến độ
+Learning -> DB : Đọc nội dung khóa học và tiến độ
+DB --> Learning : Khóa học, bài học và tiến độ
+Learning --> App : Dữ liệu bảng học tập
+App --> Student : Hiển thị bảng học tập
+
+Student -> App : Chọn bài học
+App -> Learning : Tải bài học đã chọn
+Learning -> DB : Đọc nội dung và hoạt động của bài học
+DB --> Learning : Nội dung bài học
+Learning --> App : Chi tiết bài học
+App --> Student : Hiển thị bài học
+
+Student -> App : Học nội dung và hoàn thành hoạt động
+App -> Learning : Lưu tương tác học tập
+Learning -> DB : Lưu tiến độ và kết quả hoạt động
+
+alt Đã nộp hoạt động luyện tập
+  Learning -> Learning : Kiểm tra câu trả lời luyện tập
+  Learning -> DB : Lưu điểm luyện tập và phản hồi
+  Learning -> Recommend : Yêu cầu gợi ý học tiếp theo
+  Recommend --> Learning : Chủ đề được gợi ý
+  Learning --> App : Phản hồi và gợi ý
+else Chỉ cập nhật tiến độ nội dung
+  Learning -> DB : Cập nhật tiến độ hoàn thành
+  Learning --> App : Tiến độ đã cập nhật
+end
+
+App --> Student : Hiển thị tiến độ và phản hồi
+
+@enduml

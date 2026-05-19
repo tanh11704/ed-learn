@@ -1,0 +1,56 @@
+@startuml
+title ExamAI - Hoạt động: Quản trị cài đặt hệ thống
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Quản trị viên" {
+  :Đăng nhập cổng quản trị;
+  :Mở Cài đặt hệ thống;
+  :Cập nhật hồ sơ hoặc tùy chọn hệ thống;
+  :Cấu hình nhà cung cấp AI và khóa API;
+  :Bật/tắt chế độ bảo trì hoặc giao diện;
+}
+
+partition "Hệ thống ExamAI" {
+  :Kiểm tra quyền quản trị;
+  :Kiểm tra giá trị cài đặt;
+
+  if (Khóa API thay đổi?) then (có)
+    :Mã hóa khóa API;
+    :Gửi yêu cầu kiểm tra nhà cung cấp;
+  else (không)
+    :Giữ cấu hình API hiện tại;
+  endif
+}
+
+partition "Công cụ AI" {
+  if (Có yêu cầu kiểm tra nhà cung cấp?) then (có)
+    :Kiểm tra thông tin xác thực API;
+    :Trả về kết quả kiểm tra;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  if (Cài đặt hợp lệ?) then (có)
+    :Lưu cài đặt hệ thống;
+    :Làm mới cấu hình đang chạy;
+    :Ghi nhật ký kiểm toán;
+  else (không)
+    :Trả về lỗi kiểm tra dữ liệu;
+    stop
+  endif
+}
+
+partition "Quản trị viên" {
+  :Xem xác nhận đã lưu cài đặt;
+}
+
+stop
+
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title ExamAI - Tuần tự: Học viên tham gia kiểm tra
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Học viên" as Student
+participant "Ứng dụng di động/trình duyệt" as App
+participant "Bộ điều phối bài thi" as Exam
+database "Cơ sở dữ liệu" as DB
+queue "Hàng đợi chấm điểm" as Queue
+
+Student -> App : Mở danh sách bài kiểm tra
+App -> Exam : Yêu cầu danh sách bài kiểm tra khả dụng
+Exam -> DB : Đọc khóa học đã ghi danh và bài thi đã công bố
+DB --> Exam : Danh sách bài kiểm tra khả dụng
+Exam --> App : Danh sách bài kiểm tra để hiển thị
+App --> Student : Hiển thị bài kiểm tra khả dụng
+
+Student -> App : Chọn và bắt đầu bài kiểm tra
+App -> Exam : Khởi tạo bài kiểm tra đã chọn
+Exam -> DB : Kiểm tra điều kiện tham gia và thời gian mở bài
+
+alt Có thể bắt đầu bài kiểm tra
+  Exam -> DB : Tạo lượt làm bài
+  Exam -> DB : Tải câu hỏi bài kiểm tra
+  DB --> Exam : Lượt làm bài và câu hỏi
+  Exam --> App : Phiên làm bài kèm bộ đếm thời gian
+  App --> Student : Hiển thị câu hỏi
+
+  loop Trong khi trả lời câu hỏi
+    Student -> App : Nhập hoặc chọn câu trả lời
+    App -> Exam : Lưu tiến độ trả lời
+    Exam -> DB : Lưu bản nháp câu trả lời
+    DB --> Exam : Đã lưu bản nháp
+    Exam --> App : Đã lưu tiến độ
+  end
+
+  Student -> App : Nộp bài kiểm tra
+  App -> Exam : Hoàn tất lượt làm bài
+  Exam -> DB : Khóa bài nộp và lưu câu trả lời cuối
+  Exam -> Queue : Bắt đầu quy trình chấm điểm
+  Exam --> App : Xác nhận đã nộp bài
+  App --> Student : Hiển thị trạng thái chấm điểm
+else Bài kiểm tra không khả dụng
+  Exam --> App : Giải thích lý do không thể bắt đầu
+  App --> Student : Hiển thị thông báo không khả dụng
+end
+
+@enduml

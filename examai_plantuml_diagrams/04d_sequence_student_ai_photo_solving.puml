@@ -1,0 +1,47 @@
+@startuml
+title ExamAI - Tuần tự: Chụp ảnh giải bài bằng AI
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam sequenceMessageAlign center
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+actor "Học viên" as Student
+participant "Ứng dụng di động/trình duyệt" as App
+participant "Dịch vụ gia sư AI" as Tutor
+database "Cơ sở dữ liệu" as DB
+participant "Công cụ AI" as AI
+
+Student -> App : Chụp hoặc tải ảnh bài toán
+App -> Tutor : Gửi ảnh và ngữ cảnh nếu có
+Tutor -> Tutor : Kiểm tra định dạng và dung lượng ảnh
+
+alt Ảnh hợp lệ
+  Tutor -> DB : Tạo nhật ký giải bài bằng AI
+  Tutor -> Tutor : Chuẩn bị yêu cầu kèm ảnh
+  Tutor -> AI : Yêu cầu lời giải từng bước
+
+  alt AI trả về lời giải
+    AI --> Tutor : Giải thích và đáp án cuối
+    Tutor -> DB : Lưu lời giải và nhật ký AI
+    Tutor --> App : Lời giải đã định dạng
+    App --> Student : Hiển thị đáp án từng bước
+  else AI không giải được
+    AI --> Tutor : Phản hồi không thể giải
+    Tutor -> DB : Lưu nhật ký AI thất bại
+    Tutor --> App : Yêu cầu ảnh rõ hơn hoặc thử lại
+    App --> Student : Hiển thị hướng dẫn thử lại
+  end
+else Ảnh không hợp lệ
+  Tutor --> App : Thông báo lỗi tải ảnh
+  App --> Student : Hiển thị lỗi ảnh
+end
+
+Student -> App : Lưu lời giải vào lịch sử
+App -> Tutor : Gửi yêu cầu lưu lời giải
+Tutor -> DB : Liên kết lời giải với lịch sử học viên
+Tutor --> App : Xác nhận đã lưu
+
+@enduml

@@ -39,6 +39,15 @@ Hệ thống được chia làm 3 phân hệ chính giao tiếp với nhau:
 
 ---
 
+## 🔌 Tài liệu API
+
+| Tài liệu | Mô tả |
+|----------|--------|
+| [API_INTEGRATION.md](./API_INTEGRATION.md) | API đã kết nối / còn thiếu (hiện tại) |
+| [FULL_PRODUCT_API.md](./FULL_PRODUCT_API.md) | Toàn bộ ~141 API cho sản phẩm đầy đủ |
+
+---
+
 ## 🗂️ Cấu trúc thư mục (Repository Structure)
 
 Dự án được quản lý theo mô hình Monorepo:
@@ -51,6 +60,21 @@ ed-learn/
 ├── docker-compose.yml  # File cấu hình hạ tầng (Postgres, Redis, ChromaDB)
 └── README.md
 ```
+
+---
+
+## 4.1. Cấu trúc tổ chức dự án
+
+Dự án được tổ chức theo mô hình **Monorepo** để dễ quản lý và chia sẻ tài nguyên giữa các phân hệ. Mỗi thư mục con tương ứng một phân hệ độc lập, có thể phát triển và triển khai riêng nhưng vẫn dùng chung bộ tài liệu, hạ tầng và quy ước.
+
+- `core-backend/`: Backend lõi viết bằng Spring Boot (Java 17). Chứa domain, application, infrastructure, bảo mật và API phục vụ toàn hệ thống.
+- `ai-service/`: Dịch vụ AI FastAPI (Python 3.10) xử lý RAG, trích xuất PDF, vector database và giao tiếp LLM.
+- `mobile_app/`: Ứng dụng Flutter (Dart) cho sinh viên, tích hợp học tập chủ động và AI tutor.
+- `admin_web/`: Giao diện quản trị web (Vite + React) dùng cho quản lý nội dung, người dùng và báo cáo.
+- `docker-compose.yml`: Khởi tạo các dịch vụ hạ tầng (PostgreSQL, Redis, ChromaDB) phục vụ phát triển cục bộ.
+- `uploads/`: Lưu trữ tạm các tài liệu và bài học do người dùng tải lên trong môi trường dev.
+
+Việc phân tách như trên giúp **tách biệt trách nhiệm**, **dễ mở rộng**, và **triển khai linh hoạt** từng phân hệ theo nhu cầu thực tế.
 
 ---
 

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile_app/core/network/api_config.dart';
 import 'package:mobile_app/core/services/token_storage_service.dart';
 import '../models/error_bank_models.dart';
 
@@ -9,7 +10,7 @@ abstract class ErrorBankRemoteDataSource {
 }
 
 class ErrorBankRemoteDataSourceImpl implements ErrorBankRemoteDataSource {
-  final String baseUrl = 'https://api.phuocanh.me/api/v1';
+  final String baseUrl = ApiConfig.baseUrl;
 
   @override
   Future<List<ErrorBankCard>> getDueCards({int limit = 50}) async {

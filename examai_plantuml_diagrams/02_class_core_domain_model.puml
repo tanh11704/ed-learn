@@ -1,0 +1,182 @@
+@startuml
+title ExamAI - Biểu đồ lớp mô hình miền cốt lõi
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam classAttributeIconSize 0
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+skinparam class {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #0F172A
+}
+
+skinparam enum {
+  BackgroundColor #EEF2FF
+  BorderColor #4F46E5
+}
+
+enum "VaiTro" as Role {
+  QUAN_TRI_VIEN
+  HOC_VIEN
+}
+
+enum "TrangThaiBaiThi" as ExamStatus {
+  BAN_NHAP
+  DANG_DUYET
+  DA_CONG_BO
+  DA_LUU_TRU
+}
+
+enum "TrangThaiBaiNop" as SubmissionStatus {
+  DANG_LAM
+  DA_NOP
+  DA_CHAM
+}
+
+enum "NhaCungCapAI" as AIProvider {
+  OPENAI
+  GEMINI
+}
+
+class "NguoiDung" as User {
+  +id: UUID
+  +hoTen: Chuoi
+  +email: Chuoi
+  +matKhauDaBam: Chuoi
+  +vaiTro: VaiTro
+  +batXacThucHaiYeuTo: DungSai
+  +dangHoatDong: DungSai
+  +ngayTao: ThoiGian
+  +ngayCapNhat: ThoiGian
+  +dangNhap(matKhau: Chuoi): PhienDangNhap
+  +batXacThucHaiYeuTo(): KhongTraVe
+  +voHieuHoa(): KhongTraVe
+}
+
+class "CaiDatHeThong" as SystemSetting {
+  +id: UUID
+  +nhaCungCapAI: NhaCungCapAI
+  +khoaApiDaMaHoa: Chuoi
+  +cheDoBaoTri: DungSai
+  +giaoDien: Chuoi
+  +thoiLuongThiToiDaPhut: SoNguyen
+  +ngayCapNhat: ThoiGian
+  +kiemTraKhoaApi(): DungSai
+  +batTatBaoTri(bat: DungSai): KhongTraVe
+  +thayKhoaApi(khoaMoi: Chuoi): KhongTraVe
+}
+
+class "KhoaHoc" as Course {
+  +id: UUID
+  +tieuDe: Chuoi
+  +moTa: VanBan
+  +maKhoaHoc: Chuoi
+  +dangHoatDong: DungSai
+  +ngayTao: ThoiGian
+  +ghiDanh(hocVien: NguoiDung): KhongTraVe
+  +luuTru(): KhongTraVe
+}
+
+class "BaiThi" as Exam {
+  +id: UUID
+  +khoaHocId: UUID
+  +tieuDe: Chuoi
+  +moTa: VanBan
+  +trangThai: TrangThaiBaiThi
+  +thoiLuongPhut: SoNguyen
+  +diemDat: SoThuc
+  +nguoiTaoId: UUID
+  +ngayCongBo: ThoiGian
+  +congBo(): KhongTraVe
+  +tinhDiemToiDa(): SoThuc
+  +themCauHoi(cauHoi: CauHoi): KhongTraVe
+}
+
+abstract class "CauHoi" as Question {
+  +id: UUID
+  +baiThiId: UUID
+  +noiDung: VanBan
+  +diem: SoThuc
+  +thuTu: SoNguyen
+  +doKho: Chuoi
+  +kiemTraHopLe(): DungSai
+  +chamDiem(cauTraLoi: CauTraLoi): SoThuc
+}
+
+class "CauHoiTracNghiem" as MultipleChoiceQuestion {
+  +luaChon: DanhSach<Chuoi>
+  +chiSoDapAnDung: SoNguyen
+  +tronLuaChon: DungSai
+  +chamDiem(cauTraLoi: CauTraLoi): SoThuc
+}
+
+class "CauHoiTuLuan" as EssayQuestion {
+  +tieuChiChamDiem: VanBan
+  +tuKhoaKyVong: DanhSach<Chuoi>
+  +soTuToiDa: SoNguyen
+  +chamBangAI(cauTraLoi: CauTraLoi): SoThuc
+}
+
+class "BaiNop" as ExamSubmission {
+  +id: UUID
+  +baiThiId: UUID
+  +hocVienId: UUID
+  +trangThai: TrangThaiBaiNop
+  +batDauLuc: ThoiGian
+  +nopLuc: ThoiGian
+  +chamLuc: ThoiGian
+  +tongDiem: SoThuc
+  +batDau(): KhongTraVe
+  +nopBai(): KhongTraVe
+  +tinhDiemCuoi(): SoThuc
+  +danhDauDaCham(): KhongTraVe
+}
+
+class "CauTraLoi" as Answer {
+  +id: UUID
+  +baiNopId: UUID
+  +cauHoiId: UUID
+  +chiSoLuaChonDaChon: SoNguyen
+  +noiDungTuLuan: VanBan
+  +diem: SoThuc
+  +nhanXet: VanBan
+  +duocChamBangAI: DungSai
+  +chamDiem(): SoThuc
+}
+
+class "NhatKyAI" as AI_Log {
+  +id: UUID
+  +nhaCungCap: NhaCungCapAI
+  +tacVu: Chuoi
+  +duLieuYeuCau: JSON
+  +duLieuPhanHoi: JSON
+  +maTrangThai: SoNguyen
+  +thongBaoLoi: VanBan
+  +doTreMs: SoNguyen
+  +ngayTao: ThoiGian
+  +danhDauThanhCong(phanHoi: JSON): KhongTraVe
+  +danhDauThatBai(loi: Chuoi): KhongTraVe
+}
+
+Question <|-- MultipleChoiceQuestion
+Question <|-- EssayQuestion
+
+User "1" -- "0..*" Course : tạo >
+User "1" -- "0..*" Exam : biên soạn >
+User "1" -- "0..*" ExamSubmission : nộp >
+User "0..*" -- "0..*" Course : ghi danh
+
+Course "1" o-- "0..*" Exam : chứa
+Exam "1" *-- "1..*" Question : gồm
+Exam "1" -- "0..*" ExamSubmission : nhận bài nộp
+ExamSubmission "1" *-- "1..*" Answer : chứa
+Answer "1" --> "1" Question : trả lời
+SystemSetting "1" --> "0..*" AI_Log : cấu hình nhà cung cấp cho
+AI_Log "0..*" --> "0..1" Exam : sinh đề thi
+AI_Log "0..*" --> "0..1" Answer : chấm câu trả lời
+
+@enduml

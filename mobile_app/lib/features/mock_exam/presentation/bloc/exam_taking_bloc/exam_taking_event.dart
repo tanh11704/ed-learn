@@ -8,7 +8,18 @@ abstract class ExamTakingEvent extends Equatable {
 }
 
 class LoadExamTaking extends ExamTakingEvent {
-  const LoadExamTaking();
+  final String examId;
+  final String examTitle;
+  final int durationMinutes;
+
+  const LoadExamTaking({
+    required this.examId,
+    required this.examTitle,
+    this.durationMinutes = 45,
+  });
+
+  @override
+  List<Object?> get props => [examId, examTitle, durationMinutes];
 }
 
 class SelectAnswer extends ExamTakingEvent {
@@ -32,4 +43,8 @@ class GoToQuestion extends ExamTakingEvent {
 
 class TickTimer extends ExamTakingEvent {
   const TickTimer();
+}
+
+class SubmitExam extends ExamTakingEvent {
+  const SubmitExam();
 }

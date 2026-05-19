@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:mobile_app/core/network/api_config.dart';
 import '../models/login_response_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -10,7 +11,7 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDataSource {
-    final String baseUrl = 'https://api.phuocanh.me/api/v1';
+    final String baseUrl = ApiConfig.baseUrl;
 
     @override
     Future<LoginResponseModel> login(String email, String password) async {

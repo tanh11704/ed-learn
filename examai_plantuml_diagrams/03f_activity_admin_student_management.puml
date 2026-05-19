@@ -1,0 +1,58 @@
+@startuml
+title ExamAI - Hoạt động: Quản trị học viên
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 16
+skinparam defaultFontName Inter
+skinparam defaultFontSize 13
+
+start
+
+partition "Quản trị viên" {
+  :Mở Quản lý học viên;
+  :Tìm kiếm, lọc hoặc chọn học viên;
+}
+
+partition "Hệ thống ExamAI" {
+  :Tải danh sách học viên;
+  :Tải lớp học, khóa học\nvà dữ liệu ghi danh;
+}
+
+partition "Quản trị viên" {
+  if (Chọn thao tác học viên?) then (Tạo mới)
+    :Nhập hồ sơ học viên mới;
+    :Gán lớp hoặc khóa học;
+  elseif (Cập nhật)
+    :Chỉnh sửa thông tin học viên;
+    :Cập nhật trạng thái ghi danh;
+  elseif (Nhập file)
+    :Tải lên file danh sách học viên;
+  else (Vô hiệu hóa)
+    :Chọn tài khoản học viên;
+    :Xác nhận vô hiệu hóa;
+  endif
+}
+
+partition "Hệ thống ExamAI" {
+  :Kiểm tra dữ liệu đã gửi;
+
+  if (Dữ liệu hợp lệ?) then (có)
+    :Tạo, cập nhật, nhập file\nhoặc vô hiệu hóa học viên;
+    :Cập nhật ghi danh khóa học;
+    :Làm mới bộ nhớ đệm học viên;
+    :Ghi nhật ký kiểm toán;
+  else (không)
+    :Trả về lỗi kiểm tra dữ liệu;
+    stop
+  endif
+}
+
+partition "Quản trị viên" {
+  :Xem danh sách học viên đã cập nhật;
+  :Xác nhận kết quả quản lý học viên;
+}
+
+stop
+
+@enduml

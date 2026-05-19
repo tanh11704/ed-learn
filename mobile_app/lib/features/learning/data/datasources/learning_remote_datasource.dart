@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile_app/core/network/api_config.dart';
 import '../../../../core/services/token_storage_service.dart';
 import '../models/course_models.dart';
 
@@ -13,7 +14,7 @@ abstract class LearningRemoteDataSource {
 }
 
 class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
-  final String baseUrl = 'https://api.phuocanh.me/api/v1';
+  final String baseUrl = ApiConfig.baseUrl;
 
   @override
   Future<List<CourseSummary>> getCourses({String? subject, int page = 0, int size = 10}) async {

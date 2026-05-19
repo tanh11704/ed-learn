@@ -10,6 +10,7 @@ import '../widgets/task_list_item.dart';
 import '../widgets/empty_dashboard_view.dart';
 import '../widgets/streak_success_dialog.dart';
 import '../widgets/task_detail_bottom_sheet.dart';
+import '../widgets/top_courses_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -162,6 +163,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
 
+                    if (state.topCourses.isNotEmpty) ...[
+                      TopCoursesSection(courses: state.topCourses),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // ── Streak card (data từ API /user-streaks/me) ──
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: _buildStreakCard(context, state),
+                    ),
+                    const SizedBox(height: 12),
+
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
@@ -270,33 +283,71 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 12),
 
+                    if (!state.tasksFromApi)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                        child: Text(
+                          'Đang hiển thị nhiệm vụ mẫu (API chưa sẵn sàng)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.orange[700],
+                          ),
+                        ),
+                      ),
+
                     // Task list
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: state.tasks.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(height: 10),
-                        itemBuilder: (context, index) {
-                          final task = state.tasks[index];
-                          return TaskListItem(
-                            task: task,
-                            onTap: () {
-                              _showTaskDetail(context, task);
-                            },
-                            onCompleted: () {
-                              context.read<HomeBloc>().add(
-                                MarkTaskCompleted(task.id),
-                              );
-                              if (state.streak == 7 && !task.isCompleted) {
-                                _showStreakDialog(context, state.streak);
-                              }
-                            },
-                          );
-                        },
-                      ),
+                      child: state.tasks.isEmpty
+                          ? Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: Colors.grey[200]!),
+                              ),
+                              child: Column(
+                                children: [
+                                  Icon(Icons.task_alt,
+                                      size: 36, color: Colors.grey[400]),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Chưa có nhiệm vụ hôm nay',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: state.tasks.length,
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 10),
+                              itemBuilder: (context, index) {
+                                final task = state.tasks[index];
+                                return TaskListItem(
+                                  task: task,
+                                  onTap: () {
+                                    _showTaskDetail(context, task);
+                                  },
+                                  onCompleted: () {
+                                    context.read<HomeBloc>().add(
+                                          MarkTaskCompleted(task.id),
+                                        );
+                                    if (state.streak > 0 &&
+                                        !task.isCompleted) {
+                                      _showStreakDialog(
+                                          context, state.streak);
+                                    }
+                                  },
+                                );
+                              },
+                            ),
                     ),
                     const SizedBox(height: 20),
 
@@ -392,10 +443,234 @@ class _HomeScreenState extends State<HomeScreen> {
       barrierDismissible: false,
       builder: (context) => StreakSuccessDialog(
         streak: streak,
-        onClose: () {
-          // Handle streak dialog close
-        },
+        onClose: () {},
       ),
+    );
+  }
+
+  // ── Streak card — hiển thị dữ liệu từ API /user-streaks/me ──
+  Widget _buildStreakCard(BuildContext context, HomeLoaded state) {
+    final isActive = (state.streakStatus ?? 'ACTIVE') == 'ACTIVE';
+    final accentColor = isActive ? Colors.deepOrange : Colors.grey;
+
+    // Định dạng ngày hoạt động cuối
+    String lastActivityLabel = 'Chưa có';
+    if (state.lastActivityDay != null && state.lastActivityDay!.isNotEmpty) {
+      try {
+        final parts = state.lastActivityDay!.split('-');
+        if (parts.length == 3) {
+          lastActivityLabel = '${parts[2]}/${parts[1]}/${parts[0]}';
+        } else {
+          lastActivityLabel = state.lastActivityDay!;
+        }
+      } catch (_) {
+        lastActivityLabel = state.lastActivityDay!;
+      }
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (state.streak > 0) {
+          _showStreakDialog(context, state.streak);
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: accentColor.withValues(alpha: 0.25),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row
+            Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    Icons.local_fire_department_rounded,
+                    color: accentColor,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Chuỗi ngày học',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      Text(
+                        isActive ? 'Đang duy trì' : 'Chưa hoạt động',
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isActive ? Colors.green[600] : Colors.grey[500],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Status badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: isActive
+                        ? Colors.green.withValues(alpha: 0.1)
+                        : Colors.grey.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                    child: Text(
+                    isActive ? 'ACTIVE' : (state.streakStatus ?? 'INACTIVE'),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      color: isActive ? Colors.green[700] : Colors.grey[600],
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+
+            // Stats row
+            Row(
+              children: [
+                // Current streak
+                Expanded(
+                  child: _buildStreakStat(
+                    label: 'Hiện tại',
+                    value: '${state.streak}',
+                    unit: 'ngày',
+                    icon: Icons.local_fire_department,
+                    color: state.streak > 0 ? Colors.deepOrange : Colors.grey,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.grey[200],
+                ),
+                // Longest streak
+                Expanded(
+                  child: _buildStreakStat(
+                    label: 'Dài nhất',
+                    value: '${state.longestStreak}',
+                    unit: 'ngày',
+                    icon: Icons.emoji_events_rounded,
+                    color: Colors.amber[700]!,
+                  ),
+                ),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: Colors.grey[200],
+                ),
+                // Freeze count
+                Expanded(
+                  child: _buildStreakStat(
+                    label: 'Lượt đóng băng',
+                    value: '${state.streakFreezeCount}',
+                    unit: 'lượt',
+                    icon: Icons.ac_unit_rounded,
+                    color: Colors.blue[400]!,
+                  ),
+                ),
+              ],
+            ),
+
+            // Last activity
+            if (state.lastActivityDay != null) ...[
+              const SizedBox(height: 10),
+              const Divider(height: 1),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.calendar_today_rounded,
+                      size: 12, color: Colors.grey[500]),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Hoạt động gần nhất: $lastActivityLabel',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey[500],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStreakStat({
+    required String label,
+    required String value,
+    required String unit,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: color, size: 18),
+        const SizedBox(height: 4),
+        RichText(
+          text: TextSpan(
+            children: [
+              TextSpan(
+                text: value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                  color: color,
+                ),
+              ),
+              TextSpan(
+                text: ' $unit',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[500],
+                ),
+              ),
+            ],
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 
