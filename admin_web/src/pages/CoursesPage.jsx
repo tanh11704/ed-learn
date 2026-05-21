@@ -156,6 +156,7 @@ export default function CoursesPage() {
               <tr>
                 <th>Tiêu đề</th>
                 <th>Chủ đề</th>
+                <th>Trạng thái</th>
                 <th></th>
               </tr>
             </thead>
@@ -168,6 +169,11 @@ export default function CoursesPage() {
                     </Link>
                   </td>
                   <td>{c.subject}</td>
+                  <td>
+                    <span className={`status-pill ${c.isDeleted ? 'danger' : 'success'}`}>
+                      {c.isDeleted ? 'Đã xóa' : 'Đang hoạt động'}
+                    </span>
+                  </td>
                   <td className="actions-cell">
                     <Link
                       to={`/courses/${c.id}/manage`}
