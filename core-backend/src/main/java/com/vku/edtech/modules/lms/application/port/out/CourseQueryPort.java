@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CourseQueryPort {
-    Page<Course> findCourses(String subject, Pageable pageable);
+    Page<Course> findCourses(String subject, Pageable pageable, boolean includeDeleted);
 
     Optional<Course> findByIdWithChapters(UUID id);
 }

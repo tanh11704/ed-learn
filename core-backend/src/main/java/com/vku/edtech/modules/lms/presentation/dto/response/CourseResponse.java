@@ -10,6 +10,7 @@ public record CourseResponse(
         String description,
         String subject,
         String thumbnailUrl,
+        boolean isDeleted,
         List<ChapterResponse> chapters,
         Instant createdAt,
         Instant updatedAt) {}
