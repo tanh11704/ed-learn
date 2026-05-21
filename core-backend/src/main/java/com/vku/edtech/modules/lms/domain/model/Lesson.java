@@ -33,7 +33,6 @@ public class Lesson {
         validateTitle(title);
 
         return Lesson.builder()
-                .id(UUID.randomUUID())
                 .chapterId(chapterId)
                 .title(title.trim())
                 .orderIndex(orderIndex)
