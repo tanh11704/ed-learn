@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.domain.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
@@ -17,6 +18,14 @@ class LessonTest {
         assertThrows(
                 InvalidDomainDataException.class,
                 () -> Lesson.create(UUID.randomUUID(), " ", 1, false));
+    }
+
+    @Test
+    @DisplayName("Create lesson mới chưa tự gán id trước khi lưu DB")
+    void create_doesNotAssignId() {
+        Lesson lesson = Lesson.create(UUID.randomUUID(), "Lesson 1", 1, false);
+
+        assertNull(lesson.getId());
     }
 
     @Test

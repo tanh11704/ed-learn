@@ -31,7 +31,6 @@ public class Chapter {
             throw new InvalidDomainDataException("Tiêu đề chương không được để trống");
         }
         return Chapter.builder()
-                .id(UUID.randomUUID())
                 .courseId(courseId)
                 .title(title)
                 .orderIndex(orderIndex)

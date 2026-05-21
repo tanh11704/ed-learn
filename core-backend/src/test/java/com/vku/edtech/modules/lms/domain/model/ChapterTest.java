@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.domain.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
@@ -15,6 +16,14 @@ class ChapterTest {
     @DisplayName("Tạo chapter với title rỗng phải ném lỗi domain")
     void createNew_blankTitle() {
         assertThrows(InvalidDomainDataException.class, () -> Chapter.createNew(UUID.randomUUID(), "", 1));
+    }
+
+    @Test
+    @DisplayName("Tạo chapter mới chưa tự gán id trước khi lưu DB")
+    void createNew_doesNotAssignId() {
+        Chapter chapter = Chapter.createNew(UUID.randomUUID(), "Chapter 1", 1);
+
+        assertNull(chapter.getId());
     }
 
     @Test
