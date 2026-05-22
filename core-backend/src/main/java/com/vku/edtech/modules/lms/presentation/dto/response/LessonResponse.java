@@ -11,5 +11,6 @@ public record LessonResponse(
         String pdfUrl,
         Integer orderIndex,
         Boolean isPreview,
+        Boolean isDeleted,
         Instant createdAt,
         Instant updatedAt) {}

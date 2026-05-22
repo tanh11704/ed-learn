@@ -4,6 +4,7 @@ import com.vku.edtech.modules.lms.application.port.in.CreateCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,7 @@ public class CreateCourseService implements CreateCourseUseCase {
 
     @Override
     @Transactional
+    @CacheEvict(value = "coursePage", allEntries = true)
     public Course createCourse(CreateCourseCommand command) {
         Course newCourse =
                 Course.createNew(command.title(), command.description(), command.subject());

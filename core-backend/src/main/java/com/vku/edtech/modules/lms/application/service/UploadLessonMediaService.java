@@ -8,6 +8,7 @@ import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,7 @@ public class UploadLessonMediaService implements UploadLessonMediaUseCase {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"courseDetail", "coursePage"}, allEntries = true)
     public Lesson uploadMedia(UploadLessonMediaCommand command) {
         Lesson lesson =
                 lessonQueryPort

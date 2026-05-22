@@ -34,6 +34,7 @@ public class Chapter {
                 .courseId(courseId)
                 .title(title)
                 .orderIndex(orderIndex)
+                .isDeleted(false)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

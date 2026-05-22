@@ -6,6 +6,7 @@ import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.application.exception.LmsNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ public class DeleteLessonService implements DeleteLessonUseCase {
 
     @Override
     @Transactional
+    @CacheEvict(value = {"courseDetail", "coursePage"}, allEntries = true)
     public void delete(DeleteLessonCommand command) {
         Lesson lesson =
                 lessonQueryPort

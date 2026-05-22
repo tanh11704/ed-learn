@@ -2,12 +2,16 @@ package com.vku.edtech.shared.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
@@ -26,6 +30,7 @@ public class RedisConfig {
     public ObjectMapper objectMapper() {
         return JsonMapper.builder()
                 .findAndAddModules()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .activateDefaultTyping(
                         BasicPolymorphicTypeValidator.builder()
                                 .allowIfSubType("com.vku.edtech")
@@ -58,7 +63,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisCacheManager cacheManager(
+    @ConditionalOnProperty(name = "app.cache.enabled", havingValue = "true", matchIfMissing = true)
+    public RedisCacheManager redisCacheManager(
             RedisConnectionFactory connectionFactory, ObjectMapper objectMapper) {
         GenericJackson2JsonRedisSerializer jsonSerializer =
                 new GenericJackson2JsonRedisSerializer(objectMapper);
@@ -81,5 +87,11 @@ public class RedisConfig {
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(cacheConfigurations)
                 .build();
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.cache.enabled", havingValue = "false")
+    public CacheManager noOpCacheManager() {
+        return new NoOpCacheManager();
     }
 }
