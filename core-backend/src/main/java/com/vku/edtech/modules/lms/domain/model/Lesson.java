@@ -1,5 +1,8 @@
 package com.vku.edtech.modules.lms.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
 import java.time.Instant;
 import java.util.UUID;
@@ -13,6 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Lesson {
     private final UUID id;
     private UUID chapterId;
@@ -20,7 +24,12 @@ public class Lesson {
     private String videoUrl;
     private String pdfUrl;
     private Integer orderIndex;
+    @JsonProperty("isPreview")
+    @JsonAlias("preview")
     private boolean isPreview;
+
+    @JsonProperty("isDeleted")
+    @JsonAlias("deleted")
     private boolean isDeleted;
     private final Instant createdAt;
     private Instant updatedAt;

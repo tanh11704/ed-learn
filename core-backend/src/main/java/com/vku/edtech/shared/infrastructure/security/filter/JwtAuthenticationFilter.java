@@ -89,8 +89,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
 
-            filterChain.doFilter(request, response);
-
         } catch (ExpiredJwtException e) {
             // Lỗi 1: Token hết thời gian sống
             sendErrorResponse(
@@ -113,6 +111,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     "Đã xảy ra lỗi trong quá trình xác thực.");
             return;
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private Key getSignKey() {
