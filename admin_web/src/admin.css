@@ -264,6 +264,70 @@ select {
   background: #2563eb;
 }
 
+.progress-medium .progress-track span {
+  background: #f59e0b;
+}
+
+.progress-low .progress-track span {
+  background: #ef4444;
+}
+
+.progress-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: min(620px, 100%);
+}
+
+.progress-filter {
+  width: min(210px, 100%);
+}
+
+.progress-filter select {
+  min-height: 36px;
+  background: #fff;
+}
+
+.progress-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-note {
+  margin: 6px 0 0;
+}
+
+.course-progress-table {
+  min-width: 860px;
+}
+
+.table-subtext {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 36px 16px;
+  color: #64748b;
+  text-align: center;
+}
+
+.empty-state h3,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state svg {
+  color: #94a3b8;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

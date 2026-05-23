@@ -4,7 +4,7 @@ import com.vku.edtech.modules.lms.application.dto.DashboardSummaryResult;
 import com.vku.edtech.modules.lms.application.dto.MonthlyEnrollmentResult;
 import com.vku.edtech.modules.lms.application.dto.TopCourseResult;
 import com.vku.edtech.modules.lms.application.port.out.StatisticsQueryPort;
-import com.vku.edtech.modules.lms.infrastructure.persistence.repository.JpaEnrollmentRepository;
+import com.vku.edtech.modules.lms.infrastructure.persistence.repository.EnrollmentStatisticsJpaRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Year;
@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class StatisticsPersistenceAdapter implements StatisticsQueryPort {
 
-    private final JpaEnrollmentRepository enrollmentRepository;
+    private final EnrollmentStatisticsJpaRepository enrollmentStatisticsRepository;
 
     @Override
     public List<TopCourseResult> getTopCourses(int limit) {
-        return enrollmentRepository.findTopCourses(limit).stream()
+        return enrollmentStatisticsRepository.findTopCourses(limit).stream()
                 .map(
                         projection ->
                                 new TopCourseResult(
@@ -46,11 +46,12 @@ public class StatisticsPersistenceAdapter implements StatisticsQueryPort {
         Instant endDate =
                 yearMonth.plusMonths(1).atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-        long totalStudents = enrollmentRepository.countTotalStudents();
-        long totalActiveCourses = enrollmentRepository.countTotalCourses();
+        long totalStudents = enrollmentStatisticsRepository.countTotalStudents();
+        long totalActiveCourses = enrollmentStatisticsRepository.countTotalCourses();
         long currentMonthEnrollments =
-                enrollmentRepository.countCurrentMonthEnrollments(startDate, endDate);
-        Long currentMonthRevenue = enrollmentRepository.sumCurrentMonthRevenue(startDate, endDate);
+                enrollmentStatisticsRepository.countCurrentMonthEnrollments(startDate, endDate);
+        Long currentMonthRevenue =
+                enrollmentStatisticsRepository.sumCurrentMonthRevenue(startDate, endDate);
 
         return new DashboardSummaryResult(
                 totalStudents,
@@ -65,7 +66,7 @@ public class StatisticsPersistenceAdapter implements StatisticsQueryPort {
         Instant endDate =
                 Year.of(year + 1).atDay(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
-        return enrollmentRepository.countMonthlyEnrollments(startDate, endDate).stream()
+        return enrollmentStatisticsRepository.countMonthlyEnrollments(startDate, endDate).stream()
                 .map(
                         projection ->
                                 new MonthlyEnrollmentResult(
