@@ -1,14 +1,30 @@
 import { API_BASE_URL, REFRESH_KEY, TOKEN_KEY } from './config.js';
 
+export const AUTH_EXPIRED_EVENT = 'edlearn:auth-expired';
+
+function expireAuthSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_KEY);
+  window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+}
+
 async function refreshAccessToken() {
   const refreshToken = localStorage.getItem(REFRESH_KEY);
   if (!refreshToken) return null;
 
-  const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let res;
+  try {
+    res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch {
+    return null;
+  }
 
   if (!res.ok) return null;
   const data = await res.json();
@@ -64,6 +80,8 @@ export async function apiRequest(path, options = {}) {
               ? JSON.stringify(body)
               : undefined,
       });
+    } else {
+      expireAuthSession();
     }
   }
 

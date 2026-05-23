@@ -1,11 +1,29 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import * as authApi from '../api/auth.js';
 import { isAuthenticated } from '../api/auth.js';
+import { AUTH_EXPIRED_EVENT } from '../api/client.js';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [authed, setAuthed] = useState(isAuthenticated());
+
+  useEffect(() => {
+    function handleAuthExpired() {
+      setAuthed(false);
+    }
+
+    window.addEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    return () => {
+      window.removeEventListener(AUTH_EXPIRED_EVENT, handleAuthExpired);
+    };
+  }, []);
 
   const login = useCallback(async (email, password) => {
     await authApi.login(email, password);

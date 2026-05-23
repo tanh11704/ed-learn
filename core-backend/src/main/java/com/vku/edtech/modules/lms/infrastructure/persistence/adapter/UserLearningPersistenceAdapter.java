@@ -34,8 +34,8 @@ public class UserLearningPersistenceAdapter implements UserLearningQueryPort {
     }
 
     @Override
-    public List<AdminCourseProgressResult> findAllCourseProgress() {
-        return userLearningRepository.findAllCourseProgress().stream()
+    public List<AdminCourseProgressResult> findCourseProgressByCourseId(UUID courseId) {
+        return userLearningRepository.findCourseProgressByCourseId(courseId).stream()
                 .map(
                         projection ->
                                 new AdminCourseProgressResult(

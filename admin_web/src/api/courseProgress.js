@@ -1,5 +1,6 @@
 import { apiRequest } from './client.js';
 
-export function getCourseProgress() {
-  return apiRequest('/management/course-progress');
+export function getCourseProgress(courseId) {
+  const params = new URLSearchParams({ courseId });
+  return apiRequest(`/management/course-progress?${params}`);
 }

@@ -109,8 +109,10 @@ public interface UserLearningJpaRepository extends Repository<EnrollmentJpaEntit
             ) completed_lessons ON completed_lessons.course_id = c.id AND completed_lessons.user_id = e.user_id
             WHERE e.status = 'ACTIVE'
               AND c.status = 'ACTIVE'
+              AND e.course_id = :courseId
             ORDER BY last_activity DESC, e.created_at DESC
             """,
             nativeQuery = true)
-    List<AdminCourseProgressProjection> findAllCourseProgress();
+    List<AdminCourseProgressProjection> findCourseProgressByCourseId(
+            @Param("courseId") UUID courseId);
 }

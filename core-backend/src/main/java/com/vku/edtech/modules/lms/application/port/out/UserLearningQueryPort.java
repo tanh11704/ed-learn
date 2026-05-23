@@ -8,5 +8,5 @@ import java.util.UUID;
 public interface UserLearningQueryPort {
     List<EnrolledCourseResult> findEnrolledCoursesByUserId(UUID userId);
 
-    List<AdminCourseProgressResult> findAllCourseProgress();
+    List<AdminCourseProgressResult> findCourseProgressByCourseId(UUID courseId);
 }
