@@ -52,6 +52,7 @@ public class SubmitExamAttemptService implements SubmitExamAttemptUseCase {
                         .orElseThrow(() -> new ExamNotFoundException("Khong tim thay de thi"));
         Map<UUID, SubmitAnswerCommand> submittedAnswers = toSubmittedAnswerMap(command.answers());
         validateQuestionIds(exam, submittedAnswers);
+        validateSelectedOptions(exam, submittedAnswers);
         List<ExamScoringEngine.QuestionAnswer> scoringAnswers =
                 exam.getQuestions().stream()
                         .map(
@@ -104,6 +105,23 @@ public class SubmitExamAttemptService implements SubmitExamAttemptUseCase {
         }
     }
 
+    private void validateSelectedOptions(
+            Exam exam, Map<UUID, SubmitAnswerCommand> submittedAnswers) {
+        for (ExamQuestion question : exam.getQuestions()) {
+            SubmitAnswerCommand answer = submittedAnswers.get(question.getId());
+            if (answer == null || answer.selectedOptionId() == null) {
+                continue;
+            }
+
+            boolean optionBelongsToQuestion =
+                    question.getOptions().stream()
+                            .anyMatch(option -> option.getId().equals(answer.selectedOptionId()));
+            if (!optionBelongsToQuestion) {
+                throw new ExamBadRequestException("Lua chon khong thuoc cau hoi da nop");
+            }
+        }
+    }
+
     private ExamAttemptAnswer buildAnswer(
             UUID attemptId,
             ExamStructure scoringStructure,
@@ -137,6 +155,6 @@ public class SubmitExamAttemptService implements SubmitExamAttemptUseCase {
                 .filter(option -> option.getId().equals(answer.selectedOptionId()))
                 .findFirst()
                 .map(ExamQuestionOption::getContent)
-                .orElse(answer.answerText());
+                .orElseThrow(() -> new ExamBadRequestException("Lua chon khong thuoc cau hoi da nop"));
     }
 }

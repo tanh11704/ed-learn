@@ -1,7 +1,7 @@
 CREATE TABLE exam_attempts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     exam_id UUID NOT NULL REFERENCES exams(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
     grade_level INTEGER NOT NULL,
     class_name VARCHAR(100),
     status VARCHAR(30) NOT NULL DEFAULT 'IN_PROGRESS',

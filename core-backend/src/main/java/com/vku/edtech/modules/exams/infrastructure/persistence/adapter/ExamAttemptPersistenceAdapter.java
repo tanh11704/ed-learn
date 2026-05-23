@@ -1,5 +1,6 @@
 package com.vku.edtech.modules.exams.infrastructure.persistence.adapter;
 
+import com.vku.edtech.modules.exams.application.exception.ExamNotFoundException;
 import com.vku.edtech.modules.exams.application.dto.ExamAttemptSummaryResult;
 import com.vku.edtech.modules.exams.application.dto.ExamAttemptStudentResult;
 import com.vku.edtech.modules.exams.application.dto.ExamAttemptsByGradeResult;
@@ -44,6 +45,9 @@ public class ExamAttemptPersistenceAdapter
     @Override
     public ExamAttemptSummaryResult getSummaryByExamId(UUID examId) {
         var projection = repository.getSummaryByExamId(examId);
+        if (projection == null) {
+            throw new ExamNotFoundException("Khong tim thay de thi");
+        }
         return new ExamAttemptSummaryResult(
                 projection.getExamId(),
                 projection.getExamTitle(),
