@@ -254,7 +254,7 @@ export default function CourseProgressPage() {
             </thead>
             <tbody>
               {filtered.map((item) => (
-                <tr key={item.id}>
+                <tr key={item.enrollmentId}>
                   <td>
                     <strong>{item.studentName}</strong>
                     <span className="table-subtext">{item.email}</span>

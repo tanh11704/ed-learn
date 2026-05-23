@@ -1,9 +1,11 @@
 package com.vku.edtech.modules.exams.application.service;
 
+import com.vku.edtech.modules.exams.application.exception.ExamBadRequestException;
 import com.vku.edtech.modules.exams.application.exception.ExamNotFoundException;
 import com.vku.edtech.modules.exams.application.port.in.StartExamAttemptUseCase;
 import com.vku.edtech.modules.exams.application.port.out.ExamAttemptCommandPort;
 import com.vku.edtech.modules.exams.application.port.out.ExamQueryPort;
+import com.vku.edtech.modules.exams.domain.model.Exam;
 import com.vku.edtech.modules.exams.domain.model.ExamAttempt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,13 @@ public class StartExamAttemptService implements StartExamAttemptUseCase {
     @Override
     @Transactional
     public ExamAttempt start(StartExamAttemptCommand command) {
-        examQueryPort
-                .findById(command.examId())
-                .orElseThrow(() -> new ExamNotFoundException("Khong tim thay de thi"));
+        Exam exam =
+                examQueryPort
+                        .findById(command.examId())
+                        .orElseThrow(() -> new ExamNotFoundException("Khong tim thay de thi"));
+        if (!"PUBLISHED".equals(exam.getStatus())) {
+            throw new ExamBadRequestException("Chi co the bat dau lam de da xuat ban");
+        }
 
         return attemptCommandPort.save(
                 ExamAttempt.start(
