@@ -425,6 +425,10 @@ select {
   min-width: 980px;
 }
 
+.error-bank-table {
+  min-width: 1080px;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
