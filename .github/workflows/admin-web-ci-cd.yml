@@ -90,7 +90,7 @@ jobs:
           script: |
             set -e
 
-            DEPLOY_PATH="${DEPLOY_PATH:-$HOME/edlearn/admin_web}"
+            DEPLOY_PATH="${DEPLOY_PATH:-/opt/edlearn/admin_web}"
             TMP_DIR="$(mktemp -d)"
             tar -xzf "$REMOTE_RELEASE_DIR/admin-web-dist.tar.gz" -C "$TMP_DIR"
 
