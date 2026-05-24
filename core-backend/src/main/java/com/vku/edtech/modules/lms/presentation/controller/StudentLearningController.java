@@ -46,7 +46,11 @@ public class StudentLearningController {
                                                 res.courseId(),
                                                 res.title(),
                                                 res.thumbnailUrl(),
-                                                res.enrolledDate()))
+                                                res.enrolledDate(),
+                                                res.progressPercent(),
+                                                res.completedLessons(),
+                                                res.totalLessons(),
+                                                res.lastAccessedLessonId()))
                         .collect(Collectors.toList());
 
         return ResponseEntity.ok(responses);

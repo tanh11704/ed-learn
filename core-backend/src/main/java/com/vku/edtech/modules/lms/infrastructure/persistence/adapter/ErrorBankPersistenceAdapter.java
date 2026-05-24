@@ -1,5 +1,6 @@
 package com.vku.edtech.modules.lms.infrastructure.persistence.adapter;
 
+import com.vku.edtech.modules.lms.application.dto.ErrorBankStudentStatisticResult;
 import com.vku.edtech.modules.lms.application.port.out.ErrorBankCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.ErrorBankQueryPort;
 import com.vku.edtech.modules.lms.domain.model.ErrorBankCard;
@@ -34,6 +35,36 @@ public class ErrorBankPersistenceAdapter implements ErrorBankQueryPort, ErrorBan
     @Override
     public Optional<ErrorBankCard> findByIdAndUserId(UUID id, UUID userId) {
         return repository.findByIdAndUserId(id, userId).map(mapper::toDomain);
+    }
+
+    @Override
+    public List<ErrorBankStudentStatisticResult> getStudentStatistics(Instant now) {
+        return repository.getStudentStatistics(now).stream()
+                .map(
+                        projection ->
+                                new ErrorBankStudentStatisticResult(
+                                        projection.getStudentId(),
+                                        projection.getStudentName(),
+                                        projection.getEmail(),
+                                        projection.getGradeLevel(),
+                                        projection.getClassName(),
+                                        projection.getTotalErrors() == null
+                                                ? 0
+                                                : projection.getTotalErrors(),
+                                        projection.getDueErrors() == null
+                                                ? 0
+                                                : projection.getDueErrors(),
+                                        projection.getReviewedErrors() == null
+                                                ? 0
+                                                : projection.getReviewedErrors(),
+                                        projection.getMasteredErrors() == null
+                                                ? 0
+                                                : projection.getMasteredErrors(),
+                                        projection.getAverageEaseFactor(),
+                                        projection.getAverageIntervalDays(),
+                                        projection.getNextReviewDate(),
+                                        projection.getLastUpdatedAt()))
+                .toList();
     }
 
     @Override

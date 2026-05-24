@@ -2,7 +2,8 @@ package com.vku.edtech.modules.identity.application.service;
 
 import com.vku.edtech.modules.identity.application.port.in.CheckUserStreakUseCase;
 import com.vku.edtech.modules.identity.application.port.in.CreateUserStreakUseCase;
-import com.vku.edtech.modules.identity.application.port.out.UserStreakPort;
+import com.vku.edtech.modules.identity.application.port.out.UserStreakCommandPort;
+import com.vku.edtech.modules.identity.application.port.out.UserStreakQueryPort;
 import com.vku.edtech.modules.identity.domain.model.UserStreak;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import java.time.LocalDate;
@@ -17,18 +18,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserStreakService implements CheckUserStreakUseCase, CreateUserStreakUseCase {
 
-    private final UserStreakPort userStreakPort;
+    private final UserStreakQueryPort userStreakQueryPort;
+    private final UserStreakCommandPort userStreakCommandPort;
 
     @Override
     public UserStreak createInitialStreak(UUID userId) {
         UserStreak newStreak = UserStreak.createInitialStreak(userId);
-        return userStreakPort.save(newStreak);
+        return userStreakCommandPort.save(newStreak);
     }
 
     @Override
     public UserStreak getUserStreak(CheckUserStreakCommand command) {
         UserStreak userStreak =
-                userStreakPort
+                userStreakQueryPort
                         .findByUserId(command.userId())
                         .orElseThrow(
                                 () ->
@@ -41,7 +43,7 @@ public class UserStreakService implements CheckUserStreakUseCase, CreateUserStre
 
         boolean changed = userStreak.checkAndUpdateStatus(today);
         if (changed) {
-            return userStreakPort.save(userStreak);
+            return userStreakCommandPort.save(userStreak);
         }
         return userStreak;
     }
@@ -49,7 +51,7 @@ public class UserStreakService implements CheckUserStreakUseCase, CreateUserStre
     @Override
     public UserStreak recordActivity(CheckUserStreakCommand command) {
         UserStreak userStreak =
-                userStreakPort
+                userStreakQueryPort
                         .findByUserId(command.userId())
                         .orElseThrow(
                                 () ->
@@ -61,6 +63,6 @@ public class UserStreakService implements CheckUserStreakUseCase, CreateUserStre
         LocalDate today = LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
         userStreak.recordActivity(today);
-        return userStreakPort.save(userStreak);
+        return userStreakCommandPort.save(userStreak);
     }
 }

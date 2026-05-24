@@ -264,6 +264,171 @@ select {
   background: #2563eb;
 }
 
+.progress-medium .progress-track span {
+  background: #f59e0b;
+}
+
+.progress-low .progress-track span {
+  background: #ef4444;
+}
+
+.progress-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  min-width: min(620px, 100%);
+}
+
+.progress-filter {
+  width: min(210px, 100%);
+}
+
+.progress-filter select {
+  min-height: 36px;
+  background: #fff;
+}
+
+.progress-stat-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.panel-note {
+  margin: 6px 0 0;
+}
+
+.course-progress-table {
+  min-width: 860px;
+}
+
+.table-subtext {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 36px 16px;
+  color: #64748b;
+  text-align: center;
+}
+
+.empty-state h3,
+.empty-state p {
+  margin: 0;
+}
+
+.empty-state svg {
+  color: #94a3b8;
+}
+
+.course-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 12px;
+}
+
+.course-picker-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.course-picker-card:hover,
+.course-picker-card.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.course-picker-card strong {
+  overflow-wrap: anywhere;
+}
+
+.course-picker-card > span:not(.status-pill) {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.exam-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+  gap: 12px;
+}
+
+.exam-picker-card {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: start;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    background 0.15s;
+}
+
+.exam-picker-card:hover,
+.exam-picker-card.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+.exam-picker-card svg {
+  grid-row: span 4;
+  color: #2563eb;
+}
+
+.exam-picker-card strong,
+.exam-picker-card span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.exam-picker-card > span:not(.status-pill) {
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.exam-picker-card .status-pill {
+  width: fit-content;
+}
+
+.exam-session-table {
+  min-width: 980px;
+}
+
+.error-bank-table {
+  min-width: 1080px;
+}
+
 .stat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));

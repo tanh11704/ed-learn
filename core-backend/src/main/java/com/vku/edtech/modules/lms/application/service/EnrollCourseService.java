@@ -3,6 +3,7 @@ package com.vku.edtech.modules.lms.application.service;
 import com.vku.edtech.modules.lms.application.port.in.EnrollCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.EnrollmentCommandPort;
+import com.vku.edtech.modules.lms.application.port.out.EnrollmentQueryPort;
 import com.vku.edtech.modules.lms.domain.exception.InvalidDomainDataException;
 import com.vku.edtech.modules.lms.domain.model.Enrollment;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
@@ -16,6 +17,7 @@ public class EnrollCourseService implements EnrollCourseUseCase {
 
     private final CourseQueryPort courseQueryPort;
     private final EnrollmentCommandPort enrollmentCommandPort;
+    private final EnrollmentQueryPort enrollmentQueryPort;
 
     @Override
     @Transactional
@@ -26,7 +28,7 @@ public class EnrollCourseService implements EnrollCourseUseCase {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy khóa học"));
 
         // Kiểm tra xem đã đăng ký chưa
-        if (enrollmentCommandPort.existsByUserIdAndCourseId(command.userId(), command.courseId())) {
+        if (enrollmentQueryPort.existsByUserIdAndCourseId(command.userId(), command.courseId())) {
             throw new InvalidDomainDataException("User đã đăng ký khóa học này rồi");
         }
 

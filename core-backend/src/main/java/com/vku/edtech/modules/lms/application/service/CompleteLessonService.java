@@ -2,7 +2,7 @@ package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.event.LessonCompletedEvent;
 import com.vku.edtech.modules.lms.application.port.in.CompleteLessonUseCase;
-import com.vku.edtech.modules.lms.application.port.out.EnrollmentCommandPort;
+import com.vku.edtech.modules.lms.application.port.out.EnrollmentQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.UserCourseProgressCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.UserCourseProgressQueryPort;
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CompleteLessonService implements CompleteLessonUseCase {
 
     private final LessonQueryPort lessonQueryPort;
-    private final EnrollmentCommandPort enrollmentCommandPort;
+    private final EnrollmentQueryPort enrollmentQueryPort;
     private final UserProgressLessonQueryPort userProgressLessonQueryPort;
     private final UserProgressLessonCommandPort userProgressLessonCommandPort;
     private final UserCourseProgressQueryPort userCourseProgressQueryPort;
@@ -46,7 +46,7 @@ public class CompleteLessonService implements CompleteLessonUseCase {
                                                 "Không tìm thấy course của lesson"));
 
         boolean enrolled =
-                enrollmentCommandPort.existsByUserIdAndCourseId(command.userId(), courseId);
+                enrollmentQueryPort.existsByUserIdAndCourseId(command.userId(), courseId);
         if (!enrolled) {
             throw new ForbiddenException("Bạn chưa đăng ký khóa học này");
         }

@@ -39,9 +39,13 @@ export async function logout() {
       });
     }
   } finally {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(REFRESH_KEY);
+    clearAuthTokens();
   }
+}
+
+export function clearAuthTokens() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(REFRESH_KEY);
 }
 
 export function isAuthenticated() {

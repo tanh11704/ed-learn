@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.lms.infrastructure.persistence.adapter;
 
 import com.vku.edtech.modules.lms.application.port.out.EnrollmentCommandPort;
+import com.vku.edtech.modules.lms.application.port.out.EnrollmentQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Enrollment;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.EnrollmentJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.EnrollmentMapper;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class EnrollmentPersistenceAdapter implements EnrollmentCommandPort {
+public class EnrollmentPersistenceAdapter implements EnrollmentCommandPort, EnrollmentQueryPort {
 
     private final JpaEnrollmentRepository enrollmentRepository;
     private final EnrollmentMapper enrollmentMapper;

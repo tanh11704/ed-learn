@@ -1,7 +1,7 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import com.vku.edtech.modules.lms.application.port.in.GetLessonDetailUseCase;
-import com.vku.edtech.modules.lms.application.port.out.EnrollmentCommandPort;
+import com.vku.edtech.modules.lms.application.port.out.EnrollmentQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.shared.infrastructure.security.JwtUserInfo;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class GetLessonDetailService implements GetLessonDetailUseCase {
 
     private final LessonQueryPort lessonQueryPort;
-    private final EnrollmentCommandPort enrollmentCommandPort;
+    private final EnrollmentQueryPort enrollmentQueryPort;
 
     @Override
     public Lesson getLessonDetail(GetLessonDetailQuery query) {
@@ -42,7 +42,7 @@ public class GetLessonDetailService implements GetLessonDetailUseCase {
                                             new ResourceNotFoundException(
                                                     "Không tìm thấy course của lesson"));
             boolean enrolled =
-                    enrollmentCommandPort.existsByUserIdAndCourseId(userInfo.getId(), courseId);
+                    enrollmentQueryPort.existsByUserIdAndCourseId(userInfo.getId(), courseId);
             if (!enrolled) {
                 throw new ForbiddenException("Bạn cần đăng ký khóa học để truy cập bài học này");
             }

@@ -1,6 +1,7 @@
 package com.vku.edtech.modules.identity.infrastructure.persistence.adapter;
 
-import com.vku.edtech.modules.identity.application.port.out.UserStreakPort;
+import com.vku.edtech.modules.identity.application.port.out.UserStreakCommandPort;
+import com.vku.edtech.modules.identity.application.port.out.UserStreakQueryPort;
 import com.vku.edtech.modules.identity.domain.model.UserStreak;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserJpaEntity;
 import com.vku.edtech.modules.identity.infrastructure.persistence.entity.UserStreakJpaEntity;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class UserStreakPersistenceAdapter implements UserStreakPort {
+public class UserStreakPersistenceAdapter implements UserStreakQueryPort, UserStreakCommandPort {
 
     private final JpaUserStreakRepository userStreakRepository;
     private final EntityManager entityManager;
