@@ -12,7 +12,7 @@ Thêm các secrets trong repository GitHub:
 | `VPS_USERNAME`           | Có       | User SSH deploy                                                          |
 | `VPS_SSH_KEY`            | Có       | Private key SSH                                                          |
 | `ADMIN_WEB_API_BASE_URL` | Không    | API URL build vào Vite, mặc định `https://api.phuocanh.me/api/v1`        |
-| `ADMIN_WEB_DEPLOY_PATH`  | Không    | Thư mục deploy trên VPS, mặc định `$HOME/edlearn/admin_web` của user SSH |
+| `ADMIN_WEB_DEPLOY_PATH`  | Không    | Thư mục deploy trên VPS, mặc định `/opt/edlearn/admin_web`               |
 
 ## VPS Setup
 
@@ -21,17 +21,20 @@ Trỏ DNS `A` record của `admin.phuocanh.me` về IP VPS, sau đó chạy trê
 ```bash
 sudo apt update
 sudo apt install -y nginx certbot python3-certbot-nginx
-mkdir -p ~/edlearn/admin_web
-sudo chown -R www-data:www-data ~/edlearn/admin_web
+sudo mkdir -p /opt/edlearn/admin_web
+sudo chown -R www-data:www-data /opt/edlearn/admin_web
 ```
 
-Workflow sẽ deploy file build vào `~/edlearn/admin_web` và tạo symlink `/var/www/admin.phuocanh.me` trỏ tới thư mục này. Cách này giữ source/deploy artifact tập trung trong `~/edlearn`, còn Nginx vẫn dùng path chuẩn dưới `/var/www`.
+Workflow sẽ deploy file build vào `/opt/edlearn/admin_web` và tạo symlink `/var/www/admin.phuocanh.me` trỏ tới thư mục này. Cách này giữ deploy artifact tập trung trong thư mục `edlearn`, nhưng tránh đặt static files dưới `/root`, nơi Nginx thường không có quyền truy cập.
 
 Copy `deploy/admin_web.nginx.conf` vào Nginx:
 
 ```bash
 sudo cp deploy/admin_web.nginx.conf /etc/nginx/sites-available/admin.phuocanh.me
-sudo ln -s /etc/nginx/sites-available/admin.phuocanh.me /etc/nginx/sites-enabled/admin.phuocanh.me
+if [ -d /etc/nginx/sites-enabled/admin.phuocanh.me ] && [ ! -L /etc/nginx/sites-enabled/admin.phuocanh.me ]; then
+  sudo rmdir /etc/nginx/sites-enabled/admin.phuocanh.me
+fi
+sudo ln -sfnT /etc/nginx/sites-available/admin.phuocanh.me /etc/nginx/sites-enabled/admin.phuocanh.me
 sudo nginx -t
 sudo systemctl reload nginx
 ```
