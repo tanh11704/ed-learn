@@ -1,0 +1,113 @@
+name: Admin Web CI/CD
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "admin_web/**"
+      - ".github/workflows/admin-web-ci-cd.yml"
+      - "deploy/admin_web.nginx.conf"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "admin_web/**"
+      - ".github/workflows/admin-web-ci-cd.yml"
+      - "deploy/admin_web.nginx.conf"
+  workflow_dispatch:
+
+concurrency:
+  group: admin-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Admin Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin_web
+    env:
+      VITE_API_BASE_URL: ${{ secrets.ADMIN_WEB_API_BASE_URL || 'https://api.phuocanh.me/api/v1' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: admin_web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Pack build artifact
+        if: github.event_name != 'pull_request'
+        run: tar -czf ../admin-web-dist.tar.gz -C dist .
+
+      - name: Upload build artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: admin-web-dist
+          path: admin-web-dist.tar.gz
+          retention-days: 3
+
+  deploy:
+    name: Deploy Admin Web
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      REMOTE_RELEASE_DIR: /tmp/edlearn-admin-web-${{ github.sha }}
+      DEPLOY_PATH: ${{ secrets.ADMIN_WEB_DEPLOY_PATH }}
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: admin-web-dist
+
+      - name: Copy artifact to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: admin-web-dist.tar.gz
+          target: ${{ env.REMOTE_RELEASE_DIR }}
+
+      - name: Publish on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: REMOTE_RELEASE_DIR,DEPLOY_PATH
+          script: |
+            set -e
+
+            DEPLOY_PATH="${DEPLOY_PATH:-$HOME/edlearn/admin_web}"
+            TMP_DIR="$(mktemp -d)"
+            tar -xzf "$REMOTE_RELEASE_DIR/admin-web-dist.tar.gz" -C "$TMP_DIR"
+
+            if [ "$(id -u)" -eq 0 ]; then
+              mkdir -p "$DEPLOY_PATH"
+              find "$DEPLOY_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+              cp -a "$TMP_DIR"/. "$DEPLOY_PATH"/
+              chown -R www-data:www-data "$DEPLOY_PATH" || true
+              mkdir -p /var/www
+              ln -sfn "$DEPLOY_PATH" /var/www/admin.phuocanh.me
+            else
+              sudo mkdir -p "$DEPLOY_PATH"
+              sudo find "$DEPLOY_PATH" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+              sudo cp -a "$TMP_DIR"/. "$DEPLOY_PATH"/
+              sudo chown -R www-data:www-data "$DEPLOY_PATH" || true
+              sudo mkdir -p /var/www
+              sudo ln -sfn "$DEPLOY_PATH" /var/www/admin.phuocanh.me
+            fi
+
+            rm -rf "$TMP_DIR" "$REMOTE_RELEASE_DIR"
