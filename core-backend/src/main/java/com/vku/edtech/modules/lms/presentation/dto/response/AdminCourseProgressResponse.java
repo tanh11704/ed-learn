@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record AdminCourseProgressResponse(
-        UUID id,
+        UUID enrollmentId,
         UUID studentId,
         String studentName,
         String email,

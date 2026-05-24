@@ -22,7 +22,7 @@ public interface UserLearningJpaRepository extends Repository<EnrollmentJpaEntit
                        WHEN COALESCE(total_lessons.total_count, 0) = 0 THEN 0
                        ELSE LEAST(
                            100,
-                           ROUND((COALESCE(completed_lessons.completed_count, 0) * 100.0) / total_lessons.total_count)
+                           FLOOR((COALESCE(completed_lessons.completed_count, 0) * 100.0) / total_lessons.total_count)
                        )
                    END AS integer) as progress_percent,
                    COALESCE(completed_lessons.completed_count, 0) as completed_lessons,
@@ -68,7 +68,7 @@ public interface UserLearningJpaRepository extends Repository<EnrollmentJpaEntit
                        WHEN COALESCE(total_lessons.total_count, 0) = 0 THEN 0
                        ELSE LEAST(
                            100,
-                           ROUND((COALESCE(completed_lessons.completed_count, 0) * 100.0) / total_lessons.total_count)
+                           FLOOR((COALESCE(completed_lessons.completed_count, 0) * 100.0) / total_lessons.total_count)
                        )
                    END AS integer) as progress_percent,
                    COALESCE(completed_lessons.completed_count, 0) as completed_lessons,
