@@ -62,9 +62,12 @@ public class MinioStorageAdapter implements FileStoragePort {
                 minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!exists) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
+            minioClient.setBucketPolicy(
+                    SetBucketPolicyArgs.builder()
+                            .bucket(bucket)
+                            .config(publicReadPolicy())
+                            .build());
         }
-        minioClient.setBucketPolicy(
-                SetBucketPolicyArgs.builder().bucket(bucket).config(publicReadPolicy()).build());
     }
 
     private String buildObjectName(MultipartFile file, String subDirectory) {
