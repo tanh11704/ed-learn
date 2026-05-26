@@ -8,6 +8,13 @@ export function updateLesson(id, body) {
   return apiRequest(`/management/lessons/${id}`, { method: 'PUT', body });
 }
 
+export function updateLessonVideoUrl(id, videoUrl) {
+  return apiRequest(`/management/lessons/${id}/video-url`, {
+    method: 'PUT',
+    body: { videoUrl },
+  });
+}
+
 export function deleteLesson(id) {
   return apiRequest(`/management/lessons/${id}`, { method: 'DELETE' });
 }

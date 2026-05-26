@@ -17,7 +17,18 @@ public class GetChaptersService implements GetChaptersUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Chapter> getChaptersByCourseId(UUID courseId) {
-        return chapterQueryPort.findAllByCourseIdWithLessons(courseId);
+    public List<Chapter> getChaptersByCourseId(UUID courseId, String status) {
+        return chapterQueryPort.findAllByCourseIdWithLessons(courseId, normalizeStatus(status));
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null || status.isBlank()) {
+            return "ACTIVE";
+        }
+        String normalized = status.trim().toUpperCase();
+        return switch (normalized) {
+            case "ALL", "DELETED" -> normalized;
+            default -> "ACTIVE";
+        };
     }
 }

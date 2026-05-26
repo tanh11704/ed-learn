@@ -18,6 +18,8 @@ export default function LearningContentPage() {
   });
   const [uploadLessonId, setUploadLessonId] = useState('');
   const [uploadFile, setUploadFile] = useState(null);
+  const [videoLessonId, setVideoLessonId] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [contentLoading, setContentLoading] = useState(false);
   const [error, setError] = useState('');
@@ -31,7 +33,11 @@ export default function LearningContentPage() {
     setLoading(true);
     setError('');
     try {
-      const data = await coursesApi.getCourses({ page: 0, size: 100 });
+      const data = await coursesApi.getCourses({
+        page: 0,
+        size: 100,
+        status: 'ACTIVE',
+      });
       const list = data.content || [];
       setCourses(list);
       if (!courseId && list.length > 0) setCourseId(list[0].id);
@@ -50,7 +56,9 @@ export default function LearningContentPage() {
     setContentLoading(true);
     setError('');
     try {
-      const chapterList = await chaptersApi.getChaptersByCourse(id);
+      const chapterList = await chaptersApi.getChaptersByCourse(id, {
+        status: 'ACTIVE',
+      });
       setChapters(Array.isArray(chapterList) ? chapterList : []);
     } catch (err) {
       setError(err.message);
@@ -129,11 +137,24 @@ export default function LearningContentPage() {
     if (!uploadLessonId || !uploadFile) return;
     setError('');
     try {
-      const type = uploadFile.type.includes('pdf') ? 'PDF' : 'VIDEO';
-      await lessonsApi.uploadLessonMedia(uploadLessonId, uploadFile, type);
+      await lessonsApi.uploadLessonMedia(uploadLessonId, uploadFile, 'PDF');
       setUploadLessonId('');
       setUploadFile(null);
       e.target.reset();
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleVideoUrlSubmit(e) {
+    e.preventDefault();
+    if (!videoLessonId || !videoUrl.trim()) return;
+    setError('');
+    try {
+      await lessonsApi.updateLessonVideoUrl(videoLessonId, videoUrl.trim());
+      setVideoLessonId('');
+      setVideoUrl('');
       await loadContent();
     } catch (err) {
       setError(err.message);
@@ -238,7 +259,36 @@ export default function LearningContentPage() {
       </section>
 
       <section className="panel">
-        <h2>Upload media bài học</h2>
+        <h2>Video bài học</h2>
+        <form className="form-grid" onSubmit={handleVideoUrlSubmit}>
+          <label>
+            Lesson ID
+            <input
+              value={videoLessonId}
+              onChange={(e) => setVideoLessonId(e.target.value)}
+              placeholder="UUID bài học"
+              required
+            />
+          </label>
+          <label>
+            Link YouTube
+            <input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              required
+            />
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              Lưu link video
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>Upload PDF bài học</h2>
         <form className="form-grid" onSubmit={handleUpload}>
           <label>
             Lesson ID
@@ -250,17 +300,17 @@ export default function LearningContentPage() {
             />
           </label>
           <label>
-            File
+            File PDF
             <input
               type="file"
-              accept="video/*,application/pdf"
+              accept="application/pdf"
               onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
               required
             />
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              <FileUp size={14} /> Upload
+              <FileUp size={14} /> Upload PDF
             </button>
           </div>
         </form>

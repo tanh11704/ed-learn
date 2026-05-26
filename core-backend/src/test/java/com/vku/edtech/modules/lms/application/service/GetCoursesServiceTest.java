@@ -1,8 +1,6 @@
 package com.vku.edtech.modules.lms.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.vku.edtech.modules.lms.application.port.in.GetCoursesUseCase;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
@@ -32,39 +30,39 @@ class GetCoursesServiceTest {
         CustomPage<Course> result =
                 service.getCourses(
                         new GetCoursesUseCase.GetCoursesQuery(
-                                "Math", PageRequest.of(0, 10)));
+                                "Math", "ALL", PageRequest.of(0, 10)));
 
-        assertFalse(courseQueryPort.includeDeleted);
+        assertEquals("ACTIVE", courseQueryPort.status);
         assertEquals("Math", courseQueryPort.subject);
         assertEquals(1, result.getTotalElements());
     }
 
     @Test
-    @DisplayName("Admin được query cả course đã xóa")
-    void getCourses_admin_includesDeletedCourses() {
+    @DisplayName("Admin được query course đã xóa khi truyền status")
+    void getCourses_admin_canRequestDeletedCourses() {
         FakeCourseQueryPort courseQueryPort = new FakeCourseQueryPort();
         CourseVisibilityPort visibilityPort = () -> true;
         GetCoursesService service = new GetCoursesService(courseQueryPort, visibilityPort);
 
         service.getCourses(
-                new GetCoursesUseCase.GetCoursesQuery(null, PageRequest.of(1, 20)));
+                new GetCoursesUseCase.GetCoursesQuery(null, "DELETED", PageRequest.of(1, 20)));
 
-        assertTrue(courseQueryPort.includeDeleted);
+        assertEquals("DELETED", courseQueryPort.status);
         assertEquals(1, courseQueryPort.pageable.getPageNumber());
         assertEquals(20, courseQueryPort.pageable.getPageSize());
     }
 
     private static class FakeCourseQueryPort implements CourseQueryPort {
         private String subject;
+        private String status;
         private Pageable pageable;
-        private boolean includeDeleted;
 
         @Override
         public Page<Course> findCourses(
-                String subject, Pageable pageable, boolean includeDeleted) {
+                String subject, String status, Pageable pageable) {
             this.subject = subject;
+            this.status = status;
             this.pageable = pageable;
-            this.includeDeleted = includeDeleted;
             Course course =
                     Course.builder()
                             .id(UUID.randomUUID())

@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Plus, Pencil, Trash2 } from 'lucide-react';
+import { BookOpen, ImagePlus, Plus, Pencil, Trash2 } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as coursesApi from '../api/courses.js';
 
-const emptyForm = { title: '', description: '', subject: '', thumbnailUrl: '' };
+const DEFAULT_COURSE_THUMBNAIL_URL =
+  'https://i.pinimg.com/736x/b6/de/f7/b6def776cbfebaa567515710933e1e93.jpg';
+
+const emptyForm = {
+  title: '',
+  description: '',
+  subject: '',
+  thumbnailUrl: '',
+  thumbnailFile: null,
+};
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState([]);
@@ -14,12 +23,18 @@ export default function CoursesPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ACTIVE');
 
   async function load() {
     setLoading(true);
     setError('');
     try {
-      const data = await coursesApi.getCourses({ page: 0, size: 50 });
+      const data = await coursesApi.getCourses({
+        page: 0,
+        size: 50,
+        status: statusFilter,
+      });
       setCourses(data.content || []);
     } catch (err) {
       setError(err.message);
@@ -30,11 +45,12 @@ export default function CoursesPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [statusFilter]);
 
   function openCreate() {
     setEditingId(null);
     setForm(emptyForm);
+    setThumbnailPreview('');
     setShowForm(true);
   }
 
@@ -45,8 +61,20 @@ export default function CoursesPage() {
       description: course.description || '',
       subject: course.subject || '',
       thumbnailUrl: course.thumbnailUrl || '',
+      thumbnailFile: null,
     });
+    setThumbnailPreview(course.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL);
     setShowForm(true);
+  }
+
+  function handleThumbnailChange(e) {
+    const file = e.target.files?.[0] || null;
+    setForm({ ...form, thumbnailFile: file });
+    setThumbnailPreview(
+      file
+        ? URL.createObjectURL(file)
+        : form.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL,
+    );
   }
 
   async function handleSubmit(e) {
@@ -56,8 +84,7 @@ export default function CoursesPage() {
       if (editingId) {
         await coursesApi.updateCourse(editingId, form);
       } else {
-        const { title, description, subject } = form;
-        await coursesApi.createCourse({ title, description, subject });
+        await coursesApi.createCourse(form);
       }
       setShowForm(false);
       await load();
@@ -88,6 +115,20 @@ export default function CoursesPage() {
         }
       />
       {error && <Alert>{error}</Alert>}
+
+      <section className="panel">
+        <label className="field-label">
+          Trạng thái
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ACTIVE">Đang hoạt động</option>
+            <option value="DELETED">Đã xóa</option>
+            <option value="ALL">Tất cả</option>
+          </select>
+        </label>
+      </section>
 
       {showForm && (
         <form className="panel form-panel" onSubmit={handleSubmit}>
@@ -121,14 +162,22 @@ export default function CoursesPage() {
               />
             </label>
             <label className="span-2">
-              Thumbnail URL
+              Ảnh đại diện
               <input
-                value={form.thumbnailUrl}
-                onChange={(e) =>
-                  setForm({ ...form, thumbnailUrl: e.target.value })
-                }
+                type="file"
+                accept="image/*"
+                onChange={handleThumbnailChange}
               />
             </label>
+            {thumbnailPreview && (
+              <div className="span-2 course-thumbnail-preview">
+                <img src={thumbnailPreview} alt={form.title || 'Ảnh khóa học'} />
+                <span>
+                  <ImagePlus size={14} />
+                  {form.thumbnailFile ? form.thumbnailFile.name : 'Ảnh hiện tại'}
+                </span>
+              </div>
+            )}
           </div>
           <div className="form-actions">
             <button type="submit" className="btn btn-primary">

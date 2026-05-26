@@ -9,6 +9,7 @@ import com.vku.edtech.modules.lms.application.port.in.UpdateCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
+import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import java.time.Instant;
 import java.util.Optional;
@@ -25,6 +26,7 @@ class UpdateCourseServiceTest {
 
     @Mock private CourseQueryPort courseQueryPort;
     @Mock private CourseCommandPort courseCommandPort;
+    @Mock private FileStoragePort fileStoragePort;
 
     @InjectMocks private UpdateCourseService updateCourseService;
 
@@ -40,7 +42,7 @@ class UpdateCourseServiceTest {
         Course updated =
                 updateCourseService.updateCourse(
                         new UpdateCourseUseCase.UpdateCourseCommand(
-                                courseId, "New", "New desc", "IT", null));
+                                courseId, "New", "New desc", "IT", null, null));
 
         assertEquals("New", updated.getTitle());
         assertEquals("New desc", updated.getDescription());
@@ -59,7 +61,7 @@ class UpdateCourseServiceTest {
                 () ->
                         updateCourseService.updateCourse(
                                 new UpdateCourseUseCase.UpdateCourseCommand(
-                                        courseId, "New", "New desc", "IT", null)));
+                                        courseId, "New", "New desc", "IT", null, null)));
     }
 
     private Course course(UUID id, String title, String description, String subject) {

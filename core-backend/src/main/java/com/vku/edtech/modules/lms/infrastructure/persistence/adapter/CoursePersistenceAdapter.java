@@ -21,9 +21,9 @@ public class CoursePersistenceAdapter implements CourseQueryPort, CourseCommandP
     private final CourseMapper courseMapper;
 
     @Override
-    public Page<Course> findCourses(String subject, Pageable pageable, boolean includeDeleted) {
+    public Page<Course> findCourses(String subject, String status, Pageable pageable) {
         return courseJpaRepository
-                .findBySubjectOrAll(subject, includeDeleted, pageable)
+                .findBySubjectOrAll(subject, status, pageable)
                 .map(courseMapper::toDomainSummary);
     }
 

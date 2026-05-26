@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface ChapterQueryPort {
     Optional<Chapter> findById(UUID id);
 
-    List<Chapter> findAllByCourseIdWithLessons(UUID courseId);
+    List<Chapter> findAllByCourseIdWithLessons(UUID courseId, String status);
 
     int findMaxOrderIdxByCourseId(UUID courseId);
 }

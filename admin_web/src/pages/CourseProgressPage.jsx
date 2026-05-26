@@ -51,7 +51,11 @@ export default function CourseProgressPage() {
       setLoadingCourses(true);
       setError('');
       try {
-        const data = await coursesApi.getCourses({ page: 0, size: 100 });
+        const data = await coursesApi.getCourses({
+          page: 0,
+          size: 100,
+          status: 'ACTIVE',
+        });
         setCourses(Array.isArray(data?.content) ? data.content : []);
       } catch (err) {
         setCourses([]);

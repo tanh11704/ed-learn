@@ -15,13 +15,15 @@ public interface CourseJpaRepository extends JpaRepository<CourseJpaEntity, UUID
 
     @Query(
             "SELECT c FROM CourseJpaEntity c "
-                    + "WHERE (:includeDeleted = true OR c.status != 'DELETED') "
+                    + "WHERE (:status = 'ALL' "
+                    + "OR (:status = 'DELETED' AND c.status = 'DELETED') "
+                    + "OR (:status = 'ACTIVE' AND c.status != 'DELETED')) "
                     + "AND (:subject IS NULL "
                     + "OR :subject = '' "
                     + "OR LOWER(c.subject) LIKE LOWER(CONCAT('%', :subject, '%')))")
     Page<CourseJpaEntity> findBySubjectOrAll(
             @Param("subject") String subject,
-            @Param("includeDeleted") boolean includeDeleted,
+            @Param("status") String status,
             Pageable pageable);
 
     @Query(

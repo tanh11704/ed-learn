@@ -6,10 +6,12 @@ import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.ChapterJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.ChapterMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.ChapterJpaRepository;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,6 +20,7 @@ public class ChapterPersistenceAdapter implements ChapterCommandPort, ChapterQue
 
     private final ChapterJpaRepository chapterJpaRepository;
     private final ChapterMapper chapterMapper;
+    private final EntityManager entityManager;
 
     @Override
     public Chapter save(Chapter chapter) {
@@ -45,10 +48,19 @@ public class ChapterPersistenceAdapter implements ChapterCommandPort, ChapterQue
     }
 
     @Override
-    public List<Chapter> findAllByCourseIdWithLessons(UUID courseId) {
-        return chapterJpaRepository.findAllByCourseIdWithLessons(courseId).stream()
-                .map(chapterMapper::toDomain)
-                .toList();
+    public List<Chapter> findAllByCourseIdWithLessons(UUID courseId, String status) {
+        Session session = entityManager.unwrap(Session.class);
+        if ("ACTIVE".equals(status) || "DELETED".equals(status)) {
+            session.enableFilter("lessonDeletedFilter")
+                    .setParameter("isDeleted", "DELETED".equals(status));
+        }
+        try {
+            return chapterJpaRepository.findAllByCourseIdWithLessons(courseId, status).stream()
+                    .map(chapterMapper::toDomain)
+                    .toList();
+        } finally {
+            session.disableFilter("lessonDeletedFilter");
+        }
     }
 
     @Override
