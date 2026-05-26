@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft,
-  BookOpen,
   FileText,
   GraduationCap,
   PlayCircle,
@@ -12,6 +11,9 @@ import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
+
+const DEFAULT_COURSE_THUMBNAIL_URL =
+  'https://i.pinimg.com/736x/b6/de/f7/b6def776cbfebaa567515710933e1e93.jpg';
 
 function normalizeChapters(course, chapterList) {
   if (Array.isArray(chapterList)) return chapterList;
@@ -39,7 +41,7 @@ export default function CoursePreviewPage() {
       try {
         const [detail, chapterList] = await Promise.all([
           coursesApi.getCourseDetail(id),
-          chaptersApi.getChaptersByCourse(id),
+          chaptersApi.getChaptersByCourse(id, { status: 'ACTIVE' }),
         ]);
         if (!mounted) return;
         setCourse(detail);
@@ -110,14 +112,10 @@ export default function CoursePreviewPage() {
           </div>
         </div>
         <div className="course-hero-media">
-          {course.thumbnailUrl ? (
-            <img src={course.thumbnailUrl} alt={course.title} />
-          ) : (
-            <div className="course-thumbnail-placeholder">
-              <BookOpen size={44} />
-              <span>{course.subject || 'EdLearn'}</span>
-            </div>
-          )}
+          <img
+            src={course.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL}
+            alt={course.title}
+          />
         </div>
       </section>
 

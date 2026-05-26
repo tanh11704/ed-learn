@@ -44,12 +44,20 @@ export default function CourseDetailPage() {
   const [uploadChapterId, setUploadChapterId] = useState('');
   const [uploadLessonId, setUploadLessonId] = useState('');
   const [uploadFile, setUploadFile] = useState(null);
+  const [videoChapterId, setVideoChapterId] = useState('');
+  const [videoLessonId, setVideoLessonId] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
 
   const uploadChapter = useMemo(
     () => chapters.find((chapter) => chapter.id === uploadChapterId),
     [chapters, uploadChapterId],
   );
   const uploadLessons = uploadChapter?.lessons || [];
+  const videoChapter = useMemo(
+    () => chapters.find((chapter) => chapter.id === videoChapterId),
+    [chapters, videoChapterId],
+  );
+  const videoLessons = videoChapter?.lessons || [];
 
   async function load() {
     setLoading(true);
@@ -57,7 +65,7 @@ export default function CourseDetailPage() {
     try {
       const [detail, chapterList] = await Promise.all([
         coursesApi.getCourseDetail(id),
-        chaptersApi.getChaptersByCourse(id),
+        chaptersApi.getChaptersByCourse(id, { status: 'ACTIVE' }),
       ]);
       setCourse(detail);
       const nextChapters = normalizeChapters(
@@ -67,6 +75,10 @@ export default function CourseDetailPage() {
       if (uploadChapterId && !nextChapters.some((chapter) => chapter.id === uploadChapterId)) {
         setUploadChapterId('');
         setUploadLessonId('');
+      }
+      if (videoChapterId && !nextChapters.some((chapter) => chapter.id === videoChapterId)) {
+        setVideoChapterId('');
+        setVideoLessonId('');
       }
     } catch (err) {
       setError(err.message);
@@ -134,14 +146,28 @@ export default function CourseDetailPage() {
     e.preventDefault();
     if (!uploadLessonId || !uploadFile) return;
     try {
-      const type = uploadFile.type.includes('pdf') ? 'PDF' : 'VIDEO';
-      await lessonsApi.uploadLessonMedia(uploadLessonId, uploadFile, type);
+      await lessonsApi.uploadLessonMedia(uploadLessonId, uploadFile, 'PDF');
       setUploadFile(null);
       setUploadChapterId('');
       setUploadLessonId('');
       e.target.reset();
       await load();
       alert('Upload thành công');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleVideoUrlSubmit(e) {
+    e.preventDefault();
+    if (!videoLessonId || !videoUrl.trim()) return;
+    try {
+      await lessonsApi.updateLessonVideoUrl(videoLessonId, videoUrl.trim());
+      setVideoChapterId('');
+      setVideoLessonId('');
+      setVideoUrl('');
+      await load();
+      alert('Cập nhật link video thành công');
     } catch (err) {
       setError(err.message);
     }
@@ -294,7 +320,65 @@ export default function CourseDetailPage() {
       </section>
 
       <section className="panel">
-        <h2>Upload media bài học</h2>
+        <h2>Video bài học</h2>
+        <form className="form-grid" onSubmit={handleVideoUrlSubmit}>
+          <label>
+            Chương
+            <select
+              value={videoChapterId}
+              onChange={(e) => {
+                setVideoChapterId(e.target.value);
+                setVideoLessonId('');
+              }}
+              required
+            >
+              <option value="">-- Chọn chương --</option>
+              {chapters.map((chapter) => (
+                <option key={chapter.id} value={chapter.id}>
+                  {chapter.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Bài học
+            <select
+              value={videoLessonId}
+              onChange={(e) => setVideoLessonId(e.target.value)}
+              required
+              disabled={!videoChapterId || videoLessons.length === 0}
+            >
+              <option value="">
+                {videoChapterId && videoLessons.length === 0
+                  ? '-- Chương chưa có bài học --'
+                  : '-- Chọn bài học --'}
+              </option>
+              {videoLessons.map((lesson) => (
+                <option key={lesson.id} value={lesson.id}>
+                  {lesson.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="span-2">
+            Link YouTube
+            <input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              required
+            />
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              Lưu link video
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="panel">
+        <h2>Upload PDF bài học</h2>
         <form className="form-grid" onSubmit={handleUpload}>
           <label>
             Chương
@@ -335,17 +419,17 @@ export default function CourseDetailPage() {
             </select>
           </label>
           <label>
-            File (VIDEO / PDF)
+            File PDF
             <input
               type="file"
-              accept="video/*,application/pdf"
+              accept="application/pdf"
               onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
               required
             />
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              <FileUp size={14} /> Upload
+              <FileUp size={14} /> Upload PDF
             </button>
           </div>
         </form>

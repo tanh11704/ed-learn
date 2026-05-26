@@ -1,7 +1,9 @@
 import { apiRequest } from './client.js';
 
-export function getChaptersByCourse(courseId) {
-  return apiRequest(`/management/chapters?courseId=${courseId}`);
+export function getChaptersByCourse(courseId, { status = 'ACTIVE' } = {}) {
+  const params = new URLSearchParams({ courseId });
+  if (status) params.set('status', status);
+  return apiRequest(`/management/chapters?${params}`);
 }
 
 export function createChapter(body) {

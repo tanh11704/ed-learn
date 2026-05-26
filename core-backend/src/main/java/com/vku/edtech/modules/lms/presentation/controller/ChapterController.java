@@ -33,9 +33,11 @@ public class ChapterController {
 
     @Operation(summary = "Lấy danh sách chapter theo course", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ResponseEntity<List<ChapterResponse>> getByCourseId(@RequestParam UUID courseId) {
+    public ResponseEntity<List<ChapterResponse>> getByCourseId(
+            @RequestParam UUID courseId,
+            @RequestParam(defaultValue = "ACTIVE") String status) {
         List<ChapterResponse> responses =
-                getChaptersUseCase.getChaptersByCourseId(courseId).stream()
+                getChaptersUseCase.getChaptersByCourseId(courseId, status).stream()
                         .map(chapterMapper::toResponse)
                         .toList();
         return ResponseEntity.ok(responses);

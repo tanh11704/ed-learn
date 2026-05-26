@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable;
 public interface GetCoursesUseCase {
     CustomPage<Course> getCourses(GetCoursesQuery query);
 
-    record GetCoursesQuery(String subject, Pageable pageable) {}
+    record GetCoursesQuery(String subject, String status, Pageable pageable) {}
 }

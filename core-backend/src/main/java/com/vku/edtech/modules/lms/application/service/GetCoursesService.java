@@ -21,12 +21,13 @@ public class GetCoursesService implements GetCoursesUseCase {
     @Cacheable(
             value = "coursePage",
             key =
-                    "(#query.subject() != null  ? #query.subject() : 'ALL') + '_' + #query.pageable().pageNumber + #query.pageable().pageSize + '_' + #root.target.canViewDeletedCourses()",
+                    "(#query.subject() != null  ? #query.subject() : 'ALL') + '_' + (#query.status() != null ? #query.status() : 'ACTIVE') + '_' + #query.pageable().pageNumber + #query.pageable().pageSize + '_' + #root.target.canViewDeletedCourses()",
             sync = true)
     public CustomPage<Course> getCourses(GetCoursesQuery query) {
         String safeSubject = (query.subject() != null) ? query.subject().trim() : null;
+        String status = normalizeStatus(query.status());
         Page<Course> springPage =
-                courseQueryPort.findCourses(safeSubject, query.pageable(), canViewDeletedCourses());
+                courseQueryPort.findCourses(safeSubject, status, query.pageable());
 
         return CustomPage.from(springPage);
     }
@@ -35,4 +36,17 @@ public class GetCoursesService implements GetCoursesUseCase {
         return courseVisibilityPort.canViewDeletedCourses();
     }
 
+    private String normalizeStatus(String status) {
+        if (!canViewDeletedCourses()) {
+            return "ACTIVE";
+        }
+        if (status == null || status.isBlank()) {
+            return "ACTIVE";
+        }
+        String normalized = status.trim().toUpperCase();
+        return switch (normalized) {
+            case "ALL", "DELETED" -> normalized;
+            default -> "ACTIVE";
+        };
+    }
 }

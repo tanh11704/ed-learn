@@ -11,12 +11,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChapterJpaRepository extends JpaRepository<ChapterJpaEntity, UUID> {
     @Query(
-            "SELECT c FROM ChapterJpaEntity c "
+            "SELECT DISTINCT c FROM ChapterJpaEntity c "
                     + "LEFT JOIN FETCH c.lessons l "
                     + "WHERE c.course.id = :courseId "
-                    + "AND c.isDeleted = false "
+                    + "AND (:status = 'ALL' "
+                    + "OR (:status = 'DELETED' AND c.isDeleted = true) "
+                    + "OR (:status = 'ACTIVE' AND c.isDeleted = false)) "
                     + "ORDER BY c.orderIndex ASC, l.orderIndex ASC")
-    List<ChapterJpaEntity> findAllByCourseIdWithLessons(@Param("courseId") UUID courseId);
+    List<ChapterJpaEntity> findAllByCourseIdWithLessons(
+            @Param("courseId") UUID courseId, @Param("status") String status);
 
     @Query(
             "SELECT MAX(c.orderIndex) FROM ChapterJpaEntity c WHERE c.course.id = :courseId AND c.isDeleted = false")

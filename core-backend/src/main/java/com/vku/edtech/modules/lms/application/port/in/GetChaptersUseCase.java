@@ -5,5 +5,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface GetChaptersUseCase {
-    List<Chapter> getChaptersByCourseId(UUID courseId);
+    List<Chapter> getChaptersByCourseId(UUID courseId, String status);
 }

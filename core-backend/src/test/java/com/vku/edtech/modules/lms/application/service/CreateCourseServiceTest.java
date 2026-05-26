@@ -8,12 +8,10 @@ import static org.mockito.Mockito.when;
 import com.vku.edtech.modules.lms.application.port.in.CreateCourseUseCase;
 import com.vku.edtech.modules.lms.application.port.out.CourseCommandPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
-import java.time.Instant;
-import java.util.UUID;
+import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -22,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CreateCourseServiceTest {
 
     @Mock private CourseCommandPort courseCommandPort;
+    @Mock private FileStoragePort fileStoragePort;
 
     @InjectMocks private CreateCourseService createCourseService;
 
@@ -30,7 +29,7 @@ class CreateCourseServiceTest {
     void createCourse_success() {
         CreateCourseUseCase.CreateCourseCommand command =
                 new CreateCourseUseCase.CreateCourseCommand(
-                        "Spring Boot", "Khóa học backend", "CNTT");
+                        "Spring Boot", "Khóa học backend", "CNTT", null, null);
 
         when(courseCommandPort.save(org.mockito.ArgumentMatchers.any(Course.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));

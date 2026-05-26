@@ -3,12 +3,14 @@ package com.vku.edtech.modules.lms.presentation.controller;
 import com.vku.edtech.modules.lms.application.port.in.CreateLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.in.DeleteLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UpdateLessonUseCase;
+import com.vku.edtech.modules.lms.application.port.in.UpdateLessonVideoUrlUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase.UploadLessonMediaCommand;
 import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.presentation.dto.mapper.LessonResponseMapper;
 import com.vku.edtech.modules.lms.presentation.dto.request.CreateLessonRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateLessonRequest;
+import com.vku.edtech.modules.lms.presentation.dto.request.UpdateLessonVideoUrlRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.LessonResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,6 +32,7 @@ public class LessonManagementController {
     private final UploadLessonMediaUseCase uploadLessonMediaUseCase;
     private final CreateLessonUseCase createLessonUseCase;
     private final UpdateLessonUseCase updateLessonUseCase;
+    private final UpdateLessonVideoUrlUseCase updateLessonVideoUrlUseCase;
     private final DeleteLessonUseCase deleteLessonUseCase;
     private final LessonResponseMapper lessonResponseMapper;
 
@@ -67,6 +70,20 @@ public class LessonManagementController {
                         request.isPreview());
 
         Lesson lesson = updateLessonUseCase.update(command);
+        return ResponseEntity.ok(lessonResponseMapper.toResponse(lesson));
+    }
+
+    @Operation(
+            summary = "Cập nhật link video YouTube",
+            description = "Chỉ ADMIN được phép gắn link YouTube cho lesson.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/{id}/video-url")
+    public ResponseEntity<LessonResponse> updateVideoUrl(
+            @PathVariable("id") UUID id, @Valid @RequestBody UpdateLessonVideoUrlRequest request) {
+        Lesson lesson =
+                updateLessonVideoUrlUseCase.updateVideoUrl(
+                        new UpdateLessonVideoUrlUseCase.UpdateLessonVideoUrlCommand(
+                                id, request.videoUrl()));
         return ResponseEntity.ok(lessonResponseMapper.toResponse(lesson));
     }
 
