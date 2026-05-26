@@ -1,4 +1,30 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+class IngestLessonSection(BaseModel):
+    section_id: str = Field(
+        ...,
+        min_length=1,
+        description="ID section duy nhat trong lesson, vi du definition/method/example-basic.",
+        examples=["definition"],
+    )
+    section_title: str = Field(
+        ...,
+        min_length=1,
+        description="Tieu de section de dua vao source/context.",
+        examples=["Dinh nghia"],
+    )
+    section_type: str = Field(
+        ...,
+        min_length=1,
+        description="Loai section: theory, method, example, mistake, faq, exercise...",
+        examples=["theory"],
+    )
+    text: str = Field(
+        ...,
+        min_length=20,
+        description="Noi dung section. Neu dai, service se chia tiep thanh nhieu chunk.",
+    )
 
 
 class IngestLessonRequest(BaseModel):
@@ -12,13 +38,20 @@ class IngestLessonRequest(BaseModel):
                 "subject": "Toan",
                 "grade_level": 12,
                 "source_url": "manual://toan-12/don-dieu-cua-ham-so",
-                "text": (
-                    "Ham so y = f(x) duoc goi la dong bien tren khoang K neu "
-                    "x1 < x2 thi f(x1) < f(x2). Neu f'(x) > 0 tren K thi "
-                    "ham so dong bien tren K. Neu f'(x) < 0 tren K thi ham "
-                    "so nghich bien tren K. De xet tinh don dieu, ta tim tap "
-                    "xac dinh, tinh dao ham, xet dau dao ham va ket luan."
-                ),
+                "sections": [
+                    {
+                        "section_id": "definition",
+                        "section_title": "Dinh nghia",
+                        "section_type": "theory",
+                        "text": "Ham so y = f(x) duoc goi la dong bien tren khoang K neu x1 < x2 thi f(x1) < f(x2). Ham so nghich bien neu x1 < x2 thi f(x1) > f(x2).",
+                    },
+                    {
+                        "section_id": "method",
+                        "section_title": "Quy trinh lam bai",
+                        "section_type": "method",
+                        "text": "De xet tinh don dieu, ta tim tap xac dinh, tinh dao ham, giai f'(x)=0, lap bang xet dau va ket luan khoang dong bien nghich bien.",
+                    },
+                ],
             }
         }
     )
@@ -62,11 +95,21 @@ class IngestLessonRequest(BaseModel):
         description="Duong dan file/tai lieu goc de trace, khong bat buoc.",
         examples=["uploads/lessons/don-dieu.pdf"],
     )
-    text: str = Field(
-        ...,
+    text: str | None = Field(
+        default=None,
         min_length=20,
-        description="Toan bo noi dung lesson da extract/nhap thu cong. Client khong can tu chia chunk.",
+        description="Noi dung lesson dang legacy. Dung khi client chua chia sections.",
     )
+    sections: list[IngestLessonSection] = Field(
+        default_factory=list,
+        description="Danh sach section cua lesson. Nen dung cho production de retrieval chinh xac hon.",
+    )
+
+    @model_validator(mode="after")
+    def require_text_or_sections(self) -> "IngestLessonRequest":
+        if not self.text and not self.sections:
+            raise ValueError("Either text or sections must be provided")
+        return self
 
 
 class IngestLessonResponse(BaseModel):

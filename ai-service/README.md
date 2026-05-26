@@ -5,6 +5,7 @@ FastAPI service cho chatbot RAG theo lesson/course.
 ## Chuc nang
 
 - `POST /api/v1/ingest/lesson`: nhan noi dung lesson, chia chunk, tao embedding va luu vao ChromaDB.
+- Ingest ho tro `sections[]` cho production va van ho tro `text` legacy cho MVP.
 - `POST /api/v1/chat`: nhan cau hoi hoc sinh, tim chunk lien quan theo `course_id`/`lesson_id`, dua ngu canh cho LLM va tra loi kem sources.
 - LLM/embedding di qua provider abstraction. Mac dinh cau hinh `AI_PROVIDER=gemini`, van giu provider `ollama` de co the chuyen doi sau nay.
 
@@ -65,7 +66,20 @@ Khi doi embedding provider/model, nen xoa collection cu hoac re-ingest toan bo l
   "lesson_title": "Khao sat ham so",
   "subject": "Toan",
   "grade_level": 12,
-  "text": "Noi dung bai hoc..."
+  "sections": [
+    {
+      "section_id": "definition",
+      "section_title": "Dinh nghia",
+      "section_type": "theory",
+      "text": "Noi dung phan dinh nghia..."
+    },
+    {
+      "section_id": "method",
+      "section_title": "Quy trinh lam bai",
+      "section_type": "method",
+      "text": "Noi dung phan phuong phap..."
+    }
+  ]
 }
 ```
 
@@ -146,7 +160,9 @@ Client can truyen:
 - `course_id`: ID khoa hoc lay tu Spring Boot.
 - `lesson_id`: ID bai hoc lay tu Spring Boot.
 - `lesson_title`: ten bai hoc.
-- `text`: noi dung bai hoc da extract/nhap thu cong.
+- `sections`: danh sach section cua bai hoc. Moi section can `section_id`, `section_title`, `section_type`, `text`.
+
+Van co the truyen `text` legacy neu client chua chia section, nhung production nen dung `sections`.
 
 Nen truyen them:
 
@@ -233,7 +249,32 @@ $ingestBody = @{
   subject = "Toan"
   grade_level = 12
   source_url = "manual://toan-12/don-dieu-cua-ham-so"
-  text = "Ham so y = f(x) duoc goi la dong bien tren khoang K neu x1 < x2 thi f(x1) < f(x2). Ham so y = f(x) duoc goi la nghich bien tren khoang K neu x1 < x2 thi f(x1) > f(x2). Neu f'(x) > 0 tren K thi ham so dong bien tren K. Neu f'(x) < 0 tren K thi ham so nghich bien tren K. De xet tinh don dieu cua ham so, ta tim tap xac dinh, tinh dao ham f'(x), giai f'(x)=0, lap bang xet dau va ket luan khoang dong bien nghich bien. Vi du y = x^3 - 3x + 1 co f'(x)=3x^2-3=3(x-1)(x+1), dong bien tren (-vo cuc,-1) va (1,+vo cuc), nghich bien tren (-1,1)."
+  sections = @(
+    @{
+      section_id = "definition"
+      section_title = "Dinh nghia"
+      section_type = "theory"
+      text = "Ham so y = f(x) duoc goi la dong bien tren khoang K neu x1 < x2 thi f(x1) < f(x2). Ham so y = f(x) duoc goi la nghich bien tren khoang K neu x1 < x2 thi f(x1) > f(x2)."
+    },
+    @{
+      section_id = "derivative-theorem"
+      section_title = "Dinh ly dao ham"
+      section_type = "theory"
+      text = "Neu f'(x) > 0 tren K thi ham so dong bien tren K. Neu f'(x) < 0 tren K thi ham so nghich bien tren K."
+    },
+    @{
+      section_id = "method"
+      section_title = "Quy trinh lam bai"
+      section_type = "method"
+      text = "De xet tinh don dieu cua ham so, ta tim tap xac dinh, tinh dao ham f'(x), giai f'(x)=0, lap bang xet dau va ket luan khoang dong bien nghich bien."
+    },
+    @{
+      section_id = "example-basic"
+      section_title = "Vi du mau"
+      section_type = "example"
+      text = "Vi du y = x^3 - 3x + 1 co f'(x)=3x^2-3=3(x-1)(x+1). Ham so dong bien tren (-vo cuc,-1) va (1,+vo cuc), nghich bien tren (-1,1)."
+    }
+  )
 } | ConvertTo-Json -Depth 8
 
 Invoke-RestMethod `

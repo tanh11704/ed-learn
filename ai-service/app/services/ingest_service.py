@@ -9,8 +9,10 @@ class IngestService:
         self.embedding_service = EmbeddingService()
 
     async def ingest_lesson(self, request: IngestLessonRequest) -> IngestLessonResponse:
-        chunks = split_text(request.text)
-        embeddings = [await self.embedding_service.embed(chunk) for chunk in chunks]
+        chunk_records = _build_chunk_records(request)
+        embeddings = [
+            await self.embedding_service.embed(record["text"]) for record in chunk_records
+        ]
         chunk_count = VectorStore().upsert_lesson_chunks(
             course_id=request.course_id,
             lesson_id=request.lesson_id,
@@ -19,7 +21,7 @@ class IngestService:
             subject=request.subject,
             grade_level=request.grade_level,
             source_url=request.source_url,
-            chunks=chunks,
+            chunk_records=chunk_records,
             embeddings=embeddings,
         )
         return IngestLessonResponse(
@@ -28,3 +30,37 @@ class IngestService:
             chunk_count=chunk_count,
         )
 
+
+def _build_chunk_records(request: IngestLessonRequest) -> list[dict[str, str | int | None]]:
+    records: list[dict[str, str | int | None]] = []
+
+    if request.sections:
+        global_index = 0
+        for section in request.sections:
+            section_chunks = split_text(section.text)
+            for section_chunk_index, chunk in enumerate(section_chunks):
+                records.append(
+                    {
+                        "text": chunk,
+                        "chunk_index": global_index,
+                        "section_chunk_index": section_chunk_index,
+                        "section_id": section.section_id,
+                        "section_title": section.section_title,
+                        "section_type": section.section_type,
+                    }
+                )
+                global_index += 1
+        return records
+
+    for index, chunk in enumerate(split_text(request.text or "")):
+        records.append(
+            {
+                "text": chunk,
+                "chunk_index": index,
+                "section_chunk_index": None,
+                "section_id": None,
+                "section_title": None,
+                "section_type": None,
+            }
+        )
+    return records

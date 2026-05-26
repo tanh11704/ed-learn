@@ -68,6 +68,9 @@ class SourceChunk(BaseModel):
     course_id: str = Field(..., description="Course cua chunk.")
     lesson_id: str = Field(..., description="Lesson cua chunk.")
     lesson_title: str | None = Field(default=None, description="Ten lesson cua chunk.")
+    section_id: str | None = Field(default=None, description="ID section neu chunk den tu section-based ingest.")
+    section_title: str | None = Field(default=None, description="Tieu de section neu co.")
+    section_type: str | None = Field(default=None, description="Loai section: theory, method, example...")
     score: float = Field(..., description="Do gan nghia voi cau hoi. Gan 1 la lien quan hon.")
     text: str = Field(..., description="Noi dung chunk duoc dung lam ngu canh.")
 
@@ -83,6 +86,9 @@ class ChatResponse(BaseModel):
                         "course_id": "toan-12",
                         "lesson_id": "don-dieu-cua-ham-so",
                         "lesson_title": "Tinh don dieu cua ham so",
+                        "section_id": "method",
+                        "section_title": "Quy trinh lam bai",
+                        "section_type": "method",
                         "score": 0.84,
                         "text": "Neu f'(x) > 0 tren K thi ham so dong bien tren K.",
                     }

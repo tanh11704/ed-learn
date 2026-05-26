@@ -25,10 +25,10 @@ class VectorStore:
         subject: str | None,
         grade_level: int | None,
         source_url: str | None,
-        chunks: list[str],
+        chunk_records: list[dict[str, str | int | None]],
         embeddings: list[list[float]],
     ) -> int:
-        if len(chunks) != len(embeddings):
+        if len(chunk_records) != len(embeddings):
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Chunk and embedding count mismatch",
@@ -38,15 +38,24 @@ class VectorStore:
             where={"$and": [{"course_id": course_id}, {"lesson_id": lesson_id}]}
         )
 
-        ids = [f"lesson:{lesson_id}:chunk:{index}" for index in range(len(chunks))]
+        ids = [f"lesson:{lesson_id}:chunk:{index}" for index in range(len(chunk_records))]
+        documents = [str(record["text"]) for record in chunk_records]
         metadatas: list[dict[str, str | int]] = []
-        for index in range(len(chunks)):
+        for index, record in enumerate(chunk_records):
             metadata: dict[str, str | int] = {
                 "course_id": course_id,
                 "lesson_id": lesson_id,
                 "lesson_title": lesson_title,
-                "chunk_index": index,
+                "chunk_index": int(record.get("chunk_index") or index),
             }
+            if record.get("section_chunk_index") is not None:
+                metadata["section_chunk_index"] = int(record["section_chunk_index"])
+            if record.get("section_id"):
+                metadata["section_id"] = str(record["section_id"])
+            if record.get("section_title"):
+                metadata["section_title"] = str(record["section_title"])
+            if record.get("section_type"):
+                metadata["section_type"] = str(record["section_type"])
             if course_title:
                 metadata["course_title"] = course_title
             if subject:
@@ -59,11 +68,11 @@ class VectorStore:
 
         self.collection.upsert(
             ids=ids,
-            documents=chunks,
+            documents=documents,
             embeddings=embeddings,
             metadatas=metadatas,
         )
-        return len(chunks)
+        return len(chunk_records)
 
     def query(
         self,
@@ -100,6 +109,9 @@ class VectorStore:
                     course_id=str(metadata.get("course_id", "")),
                     lesson_id=str(metadata.get("lesson_id", "")),
                     lesson_title=metadata.get("lesson_title"),
+                    section_id=metadata.get("section_id"),
+                    section_title=metadata.get("section_title"),
+                    section_type=metadata.get("section_type"),
                     score=score,
                     text=document,
                 )

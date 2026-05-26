@@ -21,7 +21,7 @@ def build_chat_messages(
     chat_history: list[ChatMessage],
 ) -> list[dict[str, str]]:
     context = "\n\n".join(
-        f"[Nguon {index + 1} - {source.lesson_title or source.lesson_id}]\n{source.text}"
+        _format_source(index, source)
         for index, source in enumerate(sources)
     )
     history_text = "\n".join(
@@ -44,3 +44,11 @@ Hay tra loi theo dung quy tac."""
         {"role": "user", "content": user_prompt},
     ]
 
+
+def _format_source(index: int, source: SourceChunk) -> str:
+    title_parts = [source.lesson_title or source.lesson_id]
+    if source.section_title:
+        title_parts.append(source.section_title)
+    if source.section_type:
+        title_parts.append(source.section_type)
+    return f"[Nguon {index + 1} - {' / '.join(title_parts)}]\n{source.text}"
