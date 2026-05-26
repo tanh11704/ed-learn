@@ -61,7 +61,7 @@ app:
   cache:
     enabled: ${APP_CACHE_ENABLED:true}
   storage:
-    type: ${APP_STORAGE_TYPE:minio}
+    type: ${APP_STORAGE_TYPE:local}
     local-dir: uploads/
     minio:
       endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
