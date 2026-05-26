@@ -34,6 +34,8 @@ Can chay them ChromaDB:
 docker compose up -d chromadb
 ```
 
+Project pin ChromaDB Docker image va Python client cung version `0.5.23`. Khong nen dung `chromadb/chroma:latest` voi client cu vi co the loi schema API.
+
 Neu dung Gemini, tao `.env` tu `.env.example` va dat:
 
 ```powershell

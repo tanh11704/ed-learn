@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
 
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.23
     container_name: edlearn-chroma
     ports:
       - "8000:8000"
