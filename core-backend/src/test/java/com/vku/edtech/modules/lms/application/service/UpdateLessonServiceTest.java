@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.vku.edtech.modules.lms.application.exception.LmsBadRequestException;
 import com.vku.edtech.modules.lms.application.port.in.UpdateLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.out.ChapterQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonCommandPort;
@@ -47,7 +48,7 @@ class UpdateLessonServiceTest {
         Lesson updated =
                 updateLessonService.update(
                         new UpdateLessonUseCase.UpdateLessonCommand(
-                                lessonId, chapterId, "New", 2, true));
+                                lessonId, chapterId, "New", null, true));
 
         assertEquals("New", updated.getTitle());
         assertEquals(2, updated.getOrderIndex());
@@ -55,24 +56,20 @@ class UpdateLessonServiceTest {
     }
 
     @Test
-    @DisplayName("Update lesson ignores requested orderIndex when staying in same chapter")
-    void updateLesson_sameChapterIgnoresRequestedOrderIndex() {
+    @DisplayName("Update lesson rejects direct orderIndex changes")
+    void updateLesson_rejectsDirectOrderIndexChange() {
         UUID lessonId = UUID.randomUUID();
         UUID chapterId = UUID.randomUUID();
         Lesson lesson = lesson(lessonId, chapterId, "Old", 3, false);
 
         when(lessonQueryPort.findByIdAndNotDeleted(lessonId)).thenReturn(Optional.of(lesson));
-        when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter(chapterId, false)));
-        when(lessonCommandPort.save(org.mockito.ArgumentMatchers.any(Lesson.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Lesson updated =
-                updateLessonService.update(
-                        new UpdateLessonUseCase.UpdateLessonCommand(
-                                lessonId, chapterId, "New", 1, true));
-
-        assertEquals("New", updated.getTitle());
-        assertEquals(3, updated.getOrderIndex());
+        assertThrows(
+                LmsBadRequestException.class,
+                () ->
+                        updateLessonService.update(
+                                new UpdateLessonUseCase.UpdateLessonCommand(
+                                        lessonId, chapterId, "New", 1, true)));
     }
 
     @Test
@@ -86,7 +83,7 @@ class UpdateLessonServiceTest {
                 () ->
                         updateLessonService.update(
                                 new UpdateLessonUseCase.UpdateLessonCommand(
-                                        lessonId, null, "New", 1, false)));
+                                        lessonId, null, "New", null, false)));
     }
 
     private Chapter chapter(UUID id, boolean deleted) {

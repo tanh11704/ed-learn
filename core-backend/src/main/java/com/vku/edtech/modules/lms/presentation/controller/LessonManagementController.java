@@ -50,7 +50,6 @@ public class LessonManagementController {
                 new CreateLessonUseCase.CreateLessonCommand(
                         UUID.fromString(request.chapterId()),
                         request.title(),
-                        request.orderIndex(),
                         request.isPreview());
 
         Lesson lesson = createLessonUseCase.create(command);

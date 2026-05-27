@@ -1,5 +1,6 @@
 package com.vku.edtech.modules.lms.application.service;
 
+import com.vku.edtech.modules.lms.application.exception.LmsBadRequestException;
 import com.vku.edtech.modules.lms.application.port.in.UpdateLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.out.ChapterQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonCommandPort;
@@ -28,6 +29,10 @@ public class UpdateLessonService implements UpdateLessonUseCase {
                 lessonQueryPort
                         .findByIdAndNotDeleted(command.lessonId())
                         .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson"));
+
+        if (command.orderIndex() != null && !command.orderIndex().equals(lesson.getOrderIndex())) {
+            throw new LmsBadRequestException("Vui lòng dùng API sắp xếp lại bài học để đổi thứ tự");
+        }
 
         Integer finalOrderIndex = null;
         if (command.chapterId() != null) {

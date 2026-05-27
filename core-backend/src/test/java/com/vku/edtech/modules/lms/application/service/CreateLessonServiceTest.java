@@ -41,23 +41,7 @@ class CreateLessonServiceTest {
 
         Lesson lesson =
                 createLessonService.create(
-                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", null, false));
-
-        assertEquals(3, lesson.getOrderIndex());
-    }
-
-    @Test
-    @DisplayName("Create lesson ignores requested orderIndex")
-    void createLesson_ignoresRequestedOrderIndex() {
-        UUID chapterId = UUID.randomUUID();
-        when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter(chapterId, false)));
-        when(lessonQueryPort.findMaxOrderIndexByChapterId(chapterId)).thenReturn(Optional.of(2));
-        when(lessonCommandPort.save(org.mockito.ArgumentMatchers.any(Lesson.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
-
-        Lesson lesson =
-                createLessonService.create(
-                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", 1, false));
+                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", false));
 
         assertEquals(3, lesson.getOrderIndex());
     }
@@ -73,7 +57,7 @@ class CreateLessonServiceTest {
                 () ->
                         createLessonService.create(
                                 new CreateLessonUseCase.CreateLessonCommand(
-                                        chapterId, "Lesson", 1, false)));
+                                        chapterId, "Lesson", false)));
     }
 
     private Chapter chapter(UUID id, boolean deleted) {
