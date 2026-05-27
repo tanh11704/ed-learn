@@ -10,25 +10,25 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
   }
 
   void _onLoadChatHistory(LoadChatHistory event, Emitter<AiChatState> emit) {
+    final answer = event.solution?.answer.trim();
+    final intro = answer == null || answer.isEmpty
+        ? 'Em chưa hiểu bước nào, hãy hỏi thêm ở đây nhé.'
+        : 'Mình đang xem lời giải vừa rồi. Em muốn hỏi rõ bước nào?';
+
     emit(
-      const AiChatLoaded(
+      AiChatLoaded(
         messages: [
           ChatMessage(
-            message: 'Em chưa hiểu bước nào, hãy muốn hỏi gì thêm?',
+            message: intro,
             isUser: false,
             timeLabel: '10:02 AM',
           ),
-          ChatMessage(
-            message: 'Làm sao từ Bước 1 sang Bước 2 được vậy ạ?',
-            isUser: true,
-            timeLabel: '10:05 AM',
-          ),
-          ChatMessage(
-            message:
-                'Để chuyển từ Bước 1 sang Bước 2, em cần áp dụng công thức đã nêu ở bước 1 và thay số vào.',
-            isUser: false,
-            timeLabel: '10:06 AM',
-          ),
+          if (answer != null && answer.isNotEmpty)
+            ChatMessage(
+              message: 'Đáp án hiện tại là: $answer',
+              isUser: false,
+              timeLabel: '10:03 AM',
+            ),
         ],
       ),
     );
@@ -49,7 +49,7 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
 
     emit(AiChatLoaded(messages: currentMessages));
 
-    add(const ReceiveChatMessage('Mình đã ghi nhận câu hỏi nhé!'));
+    add(ReceiveChatMessage(_buildTutorReply(event.message)));
   }
 
   void _onReceiveChatMessage(
@@ -77,5 +77,19 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
     final minute = now.minute.toString().padLeft(2, '0');
     final suffix = now.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minute $suffix';
+  }
+
+  String _buildTutorReply(String question) {
+    final lower = question.toLowerCase();
+    if (lower.contains('bước') || lower.contains('buoc')) {
+      return 'Em hãy nhìn lại bước được hỏi, xác định công thức đã dùng, rồi thay từng giá trị vào. Nếu em gửi tên bước cụ thể, mình sẽ giải thích chậm hơn theo từng dòng.';
+    }
+    if (lower.contains('đạo hàm') || lower.contains('dao ham')) {
+      return 'Với dạng đạo hàm, em cần tìm y\', xét nghiệm của y\' = 0, rồi lập bảng dấu để kết luận hàm đồng biến hoặc nghịch biến.';
+    }
+    if (lower.contains('đáp án') || lower.contains('dap an')) {
+      return 'Đáp án được chọn dựa trên kết quả so sánh cuối cùng. Nếu em chưa rõ vì sao loại các đáp án còn lại, hãy hỏi theo mẫu: "Vì sao không chọn A?".';
+    }
+    return 'Mình đã ghi nhận câu hỏi. Em có thể hỏi rõ hơn theo một bước, một công thức, hoặc một đáp án để mình giải thích chính xác hơn.';
   }
 }

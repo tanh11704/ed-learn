@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:go_router/go_router.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/services/learning_cache_service.dart';
 import '../../data/datasources/learning_remote_datasource.dart';
+import '../../data/datasources/rag_chat_remote_datasource.dart';
 import '../../data/models/course_models.dart';
 import '../../data/repositories/learning_repository_impl.dart';
 
@@ -12,6 +15,8 @@ class LessonPlayScreen extends StatefulWidget {
   final String lessonName;
   final String moduleName;
   final String? courseId;
+  final String? initialVideoUrl;
+  final String? initialPdfUrl;
 
   const LessonPlayScreen({
     Key? key,
@@ -19,6 +24,8 @@ class LessonPlayScreen extends StatefulWidget {
     this.lessonName = 'Advanced Calculus: Partial Derivatives & Chain Rule',
     this.moduleName = 'Mathematics',
     this.courseId,
+    this.initialVideoUrl,
+    this.initialPdfUrl,
   }) : super(key: key);
 
   @override
@@ -35,11 +42,33 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   LessonDetail? _lessonDetail;
   bool _isCompleting = false;
   bool _isCompleted = false;
+  YoutubePlayerController? _youtubeController;
+  String? _activeYoutubeVideoId;
 
   @override
   void initState() {
     super.initState();
+    _applyInitialLesson();
     _loadLesson();
+  }
+
+  void _applyInitialLesson() {
+    final hasInitialVideo =
+        widget.initialVideoUrl != null && widget.initialVideoUrl!.isNotEmpty;
+    final hasInitialPdf =
+        widget.initialPdfUrl != null && widget.initialPdfUrl!.isNotEmpty;
+    if (!hasInitialVideo && !hasInitialPdf) return;
+
+    _lessonDetail = LessonDetail(
+      id: widget.lessonId,
+      chapterId: '',
+      title: widget.lessonName,
+      videoUrl: widget.initialVideoUrl,
+      pdfUrl: widget.initialPdfUrl,
+      orderIndex: 0,
+      isPreview: false,
+    );
+    _syncYoutubeController(widget.initialVideoUrl);
   }
 
   Future<void> _loadLesson() async {
@@ -54,7 +83,23 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         _lessonDetail = lesson;
         _isLoading = false;
       });
+      _syncYoutubeController(lesson.videoUrl);
     } catch (e) {
+      if (_lessonDetail != null) {
+        setState(() {
+          _isLoading = false;
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Không tải được chi tiết bài học, đang dùng dữ liệu video có sẵn. ($e)',
+              ),
+            ),
+          );
+        }
+        return;
+      }
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -70,26 +115,14 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
     try {
       await _repository.completeLesson(widget.lessonId);
-      if (widget.courseId != null && widget.courseId!.isNotEmpty) {
-        await _cacheService.addCompletedLesson(
-          widget.courseId!,
-          widget.lessonId,
-        );
-      }
-      if (!mounted) return;
-      setState(() {
-        _isCompleted = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Đã hoàn thành bài học!'),
-          backgroundColor: Colors.green,
-        ),
+      await _markLessonCompleted(
+        'Đã hoàn thành bài học!',
+        backgroundColor: Colors.green,
       );
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể hoàn thành: $e')),
+      await _markLessonCompleted(
+        'Đã lưu hoàn thành trên máy. Backend chưa ghi nhận: ${e.toString().replaceFirst('Exception: ', '')}',
+        backgroundColor: Colors.orange,
       );
     } finally {
       if (mounted) {
@@ -98,6 +131,28 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         });
       }
     }
+  }
+
+  Future<void> _markLessonCompleted(
+    String message, {
+    required Color backgroundColor,
+  }) async {
+    if (widget.courseId != null && widget.courseId!.isNotEmpty) {
+      await _cacheService.addCompletedLesson(
+        widget.courseId!,
+        widget.lessonId,
+      );
+    }
+    if (!mounted) return;
+    setState(() {
+      _isCompleted = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: backgroundColor,
+      ),
+    );
   }
 
   String _formatDuration(int? minutes) {
@@ -112,6 +167,16 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _openAiTutor,
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.auto_awesome_rounded),
+        label: const Text(
+          'Hỏi AI',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ),
       appBar: AppBar(
         backgroundColor: AppColors.white,
         elevation: 0,
@@ -164,11 +229,93 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
     );
   }
 
+  void _syncYoutubeController(String? videoUrl) {
+    final videoId = _extractYoutubeVideoId(videoUrl);
+    if (videoId == null || videoId.isEmpty) {
+      _youtubeController?.close();
+      _youtubeController = null;
+      _activeYoutubeVideoId = null;
+      return;
+    }
+
+    if (_activeYoutubeVideoId == videoId && _youtubeController != null) return;
+
+    _youtubeController?.close();
+    _youtubeController = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      autoPlay: false,
+      params: const YoutubePlayerParams(
+        mute: false,
+        showControls: true,
+        showFullscreenButton: true,
+        enableCaption: true,
+        playsInline: true,
+        strictRelatedVideos: true,
+      ),
+    );
+    _activeYoutubeVideoId = videoId;
+  }
+
+  String? _extractYoutubeVideoId(String? url) {
+    final value = url?.trim();
+    if (value == null || value.isEmpty) return null;
+
+    final uri = Uri.tryParse(value);
+    if (uri == null) return null;
+
+    if (uri.host.contains('youtu.be')) {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+    }
+
+    if (uri.host.contains('youtube.com') || uri.host.contains('youtube-nocookie.com')) {
+      final watchId = uri.queryParameters['v'];
+      if (watchId != null && watchId.isNotEmpty) return watchId;
+
+      final segments = uri.pathSegments;
+      final embedIndex = segments.indexWhere((segment) => segment == 'embed' || segment == 'shorts');
+      if (embedIndex >= 0 && segments.length > embedIndex + 1) {
+        return segments[embedIndex + 1];
+      }
+    }
+
+    return null;
+  }
+
+  @override
+  void dispose() {
+    _youtubeController?.close();
+    super.dispose();
+  }
+
+  void _openAiTutor() {
+    if (widget.courseId == null || widget.courseId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không tìm thấy course_id cho bài học này.')),
+      );
+      return;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return _LessonAiTutorSheet(
+          courseId: widget.courseId!,
+          lessonId: widget.lessonId,
+          lessonTitle: _lessonDetail?.title ?? widget.lessonName,
+        );
+      },
+    );
+  }
+
   // ==================== VIDEO PLAYER ====================
   Widget _buildVideoPlayer() {
     final hasVideo = _lessonDetail?.videoUrl != null &&
         _lessonDetail!.videoUrl!.isNotEmpty;
     final durationLabel = _formatDuration(_lessonDetail?.durationMinutes);
+    final youtubeController = _youtubeController;
 
     return Container(
       height: 240,
@@ -187,41 +334,56 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Play button overlay
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFF1a1f3a),
+          ClipRRect(
               borderRadius: BorderRadius.circular(16),
-            ),
-            child: Center(
-              child: GestureDetector(
-                onTap: hasVideo
-                    ? () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Video: ${_lessonDetail!.videoUrl}'),
-                          ),
-                        );
-                      }
-                    : null,
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withOpacity(0.3),
-                    shape: BoxShape.circle,
+            child: youtubeController != null
+                ? YoutubePlayer(
+                    controller: youtubeController,
+                    aspectRatio: 16 / 9,
+                    autoFullScreen: true,
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1a1f3a),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          hasVideo
+                              ? Icons.play_arrow_rounded
+                              : Icons.videocam_off_outlined,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: Icon(
-                    hasVideo
-                        ? Icons.play_arrow_rounded
-                        : Icons.videocam_off_outlined,
-                    color: Colors.white,
-                    size: 48,
-                  ),
+          ),
+
+          if (hasVideo && youtubeController == null)
+            Positioned(
+              bottom: 14,
+              left: 14,
+              right: 14,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.68),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  'Link video không phải YouTube hoặc chưa hỗ trợ phát trực tiếp.',
+                  style: AppTextStyles.caption.copyWith(color: Colors.white),
                 ),
               ),
             ),
-          ),
 
           // Video URL badge (top left)
           if (hasVideo)
@@ -253,7 +415,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
             ),
 
           // Duration badge (bottom right)
-          if (durationLabel.isNotEmpty)
+          if (durationLabel.isNotEmpty && youtubeController == null)
             Positioned(
               bottom: 12,
               right: 12,
@@ -275,7 +437,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
             ),
 
           // Completed overlay
-          if (_isCompleted)
+          if (_isCompleted && youtubeController == null)
             Positioned(
               bottom: 12,
               left: 12,
@@ -885,6 +1047,582 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LessonAiTutorSheet extends StatefulWidget {
+  final String courseId;
+  final String lessonId;
+  final String lessonTitle;
+
+  const _LessonAiTutorSheet({
+    required this.courseId,
+    required this.lessonId,
+    required this.lessonTitle,
+  });
+
+  @override
+  State<_LessonAiTutorSheet> createState() => _LessonAiTutorSheetState();
+}
+
+class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
+  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final RagChatRemoteDataSource _dataSource = RagChatRemoteDataSource();
+  final List<RagChatMessage> _messages = [];
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send() async {
+    final question = _controller.text.trim();
+    if (question.isEmpty || _isLoading) return;
+
+    final history = _messages
+        .where((message) => message.role == 'user' || message.role == 'assistant')
+        .toList();
+
+    setState(() {
+      _messages.add(RagChatMessage(role: 'user', content: question));
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    _controller.clear();
+    _scrollToBottom();
+
+    try {
+      final response = await _dataSource.chat(
+        courseId: widget.courseId,
+        lessonId: widget.lessonId,
+        question: question,
+        chatHistory: history.length > 6 ? history.sublist(history.length - 6) : history,
+      );
+      if (!mounted) return;
+      setState(() {
+        _messages.add(
+          RagChatMessage(
+            role: 'assistant',
+            content: response.answer.isEmpty
+                ? 'AI chưa tìm thấy câu trả lời phù hợp trong bài học.'
+                : response.answer,
+            sources: response.sources,
+            confidence: response.confidence,
+            usedFallback: response.usedFallback,
+          ),
+        );
+      });
+      _scrollToBottom();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 220),
+        curve: Curves.easeOut,
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: DraggableScrollableSheet(
+        initialChildSize: 0.78,
+        minChildSize: 0.45,
+        maxChildSize: 0.94,
+        builder: (context, _) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              children: [
+                _buildHeader(context),
+                Expanded(
+                  child: _messages.isEmpty
+                      ? _buildEmptyState()
+                      : ListView.builder(
+                          controller: _scrollController,
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          itemCount: _messages.length + (_isLoading ? 1 : 0),
+                          itemBuilder: (context, index) {
+                            if (_isLoading && index == _messages.length) {
+                              return _buildLoadingBubble();
+                            }
+                            return _buildMessage(_messages[index]);
+                          },
+                        ),
+                ),
+                if (_errorMessage != null) _buildError(),
+                _buildInputBar(),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+      child: Column(
+        children: [
+          Container(
+            width: 42,
+            height: 4,
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Gia sư AI',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      widget.lessonTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: const Icon(Icons.close_rounded),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.psychology_alt_outlined,
+                color: AppColors.primary,
+                size: 34,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Hỏi dựa trên nội dung bài học',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'AI sẽ tìm trong nội dung đã được đồng bộ và hiển thị nguồn tham chiếu sau câu trả lời.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessage(RagChatMessage message) {
+    final isUser = message.role == 'user';
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        width: isUser ? null : double.infinity,
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.82,
+        ),
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isUser ? AppColors.primary : const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.only(
+            topLeft: const Radius.circular(16),
+            topRight: const Radius.circular(16),
+            bottomLeft: Radius.circular(isUser ? 16 : 4),
+            bottomRight: Radius.circular(isUser ? 4 : 16),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _LessonAiFormattedText(
+              text: message.content,
+              color: isUser ? Colors.white : AppColors.textPrimary,
+            ),
+            if (!isUser && (message.usedFallback || message.confidence != null)) ...[
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  if (message.confidence != null)
+                    _buildMetaChip('Độ tin cậy ${message.confidence!.toStringAsFixed(2)}'),
+                  if (message.usedFallback) _buildMetaChip('Fallback'),
+                ],
+              ),
+            ],
+            if (!isUser && message.sources.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _buildSources(message.sources),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMetaChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.caption.copyWith(
+          color: AppColors.textSecondary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSources(List<RagSource> sources) {
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: EdgeInsets.zero,
+        title: Text(
+          'Nguồn tham chiếu (${sources.length})',
+          style: AppTextStyles.caption.copyWith(
+            color: AppColors.primary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        children: sources.map(_buildSourceItem).toList(),
+      ),
+    );
+  }
+
+  Widget _buildSourceItem(RagSource source) {
+    final title = source.sectionTitle.isNotEmpty
+        ? source.sectionTitle
+        : source.lessonTitle;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title.isEmpty ? 'Đoạn bài học' : title,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.textPrimary,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '${source.sectionType.isEmpty ? 'section' : source.sectionType} · score ${source.score.toStringAsFixed(2)}',
+            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+          ),
+          if (source.text.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              source.text,
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+                height: 1.45,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingBubble() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F5F9),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.primary,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(
+              'AI đang tìm trong bài học...',
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError() {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFFECACA)),
+      ),
+      child: Text(
+        _errorMessage!,
+        style: AppTextStyles.caption.copyWith(color: const Color(0xFFB91C1C)),
+      ),
+    );
+  }
+
+  Widget _buildInputBar() {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 16,
+            offset: Offset(0, -4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: TextField(
+                controller: _controller,
+                minLines: 1,
+                maxLines: 4,
+                textInputAction: TextInputAction.send,
+                decoration: InputDecoration(
+                  hintText: 'Hỏi về bài học này...',
+                  border: InputBorder.none,
+                  hintStyle: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                onSubmitted: (_) => _send(),
+              ),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            height: 44,
+            width: 44,
+            decoration: BoxDecoration(
+              color: _isLoading ? Colors.grey[300] : AppColors.primary,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: _isLoading ? null : _send,
+              icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonAiFormattedText extends StatelessWidget {
+  final String text;
+  final Color color;
+
+  const _LessonAiFormattedText({
+    required this.text,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = text.split('\n');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(lines.length, (index) {
+        final line = lines[index];
+        final normalizedLine = _normalizeMarkdownLine(line);
+        if (normalizedLine.trim().isEmpty) {
+          return const SizedBox(height: 8);
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: index == lines.length - 1 ? 0 : 6),
+          child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 2,
+            runSpacing: 4,
+            children: _buildInlineParts(normalizedLine),
+          ),
+        );
+      }),
+    );
+  }
+
+  String _normalizeMarkdownLine(String line) {
+    return line
+        .replaceAll(RegExp(r'^\s*#{1,6}\s+'), '')
+        .replaceAll(RegExp(r'^\s*[-*]\s+'), '• ')
+        .replaceAll(RegExp(r'\*\*'), '');
+  }
+
+  List<Widget> _buildInlineParts(String line) {
+    final widgets = <Widget>[];
+    final regex = RegExp(r'\$([^$]+)\$');
+    var start = 0;
+
+    for (final match in regex.allMatches(line)) {
+      if (match.start > start) {
+        widgets.add(_plainText(line.substring(start, match.start)));
+      }
+
+      final expression = match.group(1)?.trim() ?? '';
+      if (expression.isNotEmpty) {
+        widgets.add(_mathText(expression));
+      }
+
+      start = match.end;
+    }
+
+    if (start < line.length) {
+      widgets.add(_plainText(line.substring(start)));
+    }
+
+    return widgets;
+  }
+
+  Widget _plainText(String value) {
+    if (value.isEmpty) return const SizedBox.shrink();
+    return Text(
+      value,
+      style: AppTextStyles.bodyMedium.copyWith(
+        color: color,
+        height: 1.45,
+      ),
+    );
+  }
+
+  Widget _mathText(String expression) {
+    return Math.tex(
+      expression,
+      textStyle: AppTextStyles.bodyMedium.copyWith(
+        color: color,
+        height: 1.45,
+      ),
+      mathStyle: MathStyle.text,
+      onErrorFallback: (error) => Text(
+        expression,
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: color,
+          height: 1.45,
+        ),
       ),
     );
   }

@@ -724,6 +724,158 @@ select {
   margin-top: 16px;
 }
 
+.rag-section-list {
+  display: grid;
+  gap: 12px;
+}
+
+.rag-section-editor {
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.rag-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.rag-section-head h3 {
+  margin: 0;
+}
+
+.rag-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rag-chat-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.rag-scope-toggle {
+  display: inline-flex;
+  padding: 3px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.rag-scope-toggle button {
+  min-width: 78px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rag-scope-toggle button.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+.rag-chat-window {
+  display: grid;
+  gap: 12px;
+  min-height: 280px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.rag-message {
+  display: grid;
+  gap: 8px;
+  max-width: min(820px, 100%);
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.rag-message.user {
+  margin-left: auto;
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.rag-message-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rag-message p {
+  margin: 0;
+  color: #1e293b;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.rag-sources {
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+.rag-sources summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.rag-sources ul {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rag-sources li {
+  display: grid;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.rag-sources span {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.rag-chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+}
+
+.rag-chat-form input {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+}
+
+.rag-chat-form .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .form-panel h2 {
   margin-top: 0;
 }

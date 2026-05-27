@@ -1,36 +1,65 @@
-import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/widgets/primary_button.dart';
-import '../bloc/scanner_bloc/scanner_bloc.dart';
-import '../bloc/scanner_bloc/scanner_state.dart';
+import '../../data/datasources/ai_solver_remote_datasource.dart';
 
 class AnalyzingScreen extends StatefulWidget {
-  const AnalyzingScreen({super.key});
+  final String imagePath;
+  final String subject;
+
+  const AnalyzingScreen({
+    super.key,
+    required this.imagePath,
+    this.subject = 'math',
+  });
 
   @override
   State<AnalyzingScreen> createState() => _AnalyzingScreenState();
 }
 
 class _AnalyzingScreenState extends State<AnalyzingScreen> {
-  Timer? _autoTimer;
+  final AiSolverRemoteDataSource _dataSource = AiSolverRemoteDataSource();
+  String? _errorMessage;
+  bool _isSolving = true;
 
   @override
   void initState() {
     super.initState();
-    _autoTimer = Timer(const Duration(seconds: 3), () {
-      if (!mounted) return;
-      context.go('/camera/solution-detail');
-    });
+    _solve();
   }
 
-  @override
-  void dispose() {
-    _autoTimer?.cancel();
-    super.dispose();
+  Future<void> _solve() async {
+    setState(() {
+      _isSolving = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final solution = await _dataSource.solveImage(
+        image: File(widget.imagePath),
+        subject: widget.subject,
+        gradeLevel: '12',
+        language: 'vi',
+      );
+      if (!mounted) return;
+      context.go(
+        '/camera/solution-detail',
+        extra: {
+          'solution': solution,
+          'imagePath': widget.imagePath,
+        },
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _errorMessage = e.toString().replaceFirst('Exception: ', '');
+        _isSolving = false;
+      });
+    }
   }
 
   @override
@@ -43,7 +72,13 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go(
+            '/camera/crop',
+            extra: {
+              'imagePath': widget.imagePath,
+              'subject': widget.subject,
+            },
+          ),
         ),
         title: Text(
           'AI Solver',
@@ -51,25 +86,22 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
         ),
       ),
       body: SafeArea(
-        child: BlocBuilder<ScannerBloc, ScannerState>(
-          builder: (context, state) {
-            if (state is ScannerBlurError) {
-              return _BlurErrorBody();
-            }
-
-            final progress = state is ScannerProcessing ? state.progress : 0.65;
-            return _AnalyzingBody(progress: progress);
-          },
-        ),
+        child: _errorMessage == null
+            ? _AnalyzingBody(isSolving: _isSolving)
+            : _ErrorBody(
+                message: _errorMessage!,
+                onRetry: _solve,
+                onRetake: () => context.go('/camera'),
+              ),
       ),
     );
   }
 }
 
 class _AnalyzingBody extends StatelessWidget {
-  final double progress;
+  final bool isSolving;
 
-  const _AnalyzingBody({required this.progress});
+  const _AnalyzingBody({required this.isSolving});
 
   @override
   Widget build(BuildContext context) {
@@ -116,34 +148,13 @@ class _AnalyzingBody extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'Vui lòng chờ giây lát...',
+                  'Ảnh đang được gửi lên ai-service. Vui lòng chờ giây lát.',
                   style: AppTextStyles.bodyMedium,
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    _Dot(isActive: true),
-                    _Dot(),
-                    _Dot(),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                Row(
-                  children: [
-                    Expanded(
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        color: AppColors.primary,
-                        backgroundColor: const Color(0xFFE5E7EB),
-                        minHeight: 8,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text('${(progress * 100).round()}%'),
-                  ],
-                ),
+                const SizedBox(height: 18),
+                if (isSolving)
+                  const CircularProgressIndicator(color: AppColors.primary),
               ],
             ),
           ),
@@ -159,7 +170,17 @@ class _AnalyzingBody extends StatelessWidget {
   }
 }
 
-class _BlurErrorBody extends StatelessWidget {
+class _ErrorBody extends StatelessWidget {
+  final String message;
+  final VoidCallback onRetry;
+  final VoidCallback onRetake;
+
+  const _ErrorBody({
+    required this.message,
+    required this.onRetry,
+    required this.onRetake,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -183,24 +204,24 @@ class _BlurErrorBody extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           Text(
-            'Ảnh hơi mờ, vui lòng quét lại!',
+            'Không thể giải ảnh này',
             style: AppTextStyles.heading2.copyWith(fontSize: 18),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
           Text(
-            'Để có kết quả tốt nhất, hãy dùng ảnh in rõ nét và cung cấp đủ ánh sáng.',
+            message,
             style: AppTextStyles.bodyMedium,
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
           PrimaryButton(
-            text: 'Quét lại',
-            onPressed: () => context.go('/camera'),
+            text: 'Thử lại',
+            onPressed: onRetry,
           ),
           const SizedBox(height: 12),
           OutlinedButton.icon(
-            onPressed: () => context.go('/camera/solution-detail'),
+            onPressed: onRetake,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.primary,
               side: const BorderSide(color: AppColors.primary),
@@ -209,9 +230,9 @@ class _BlurErrorBody extends StatelessWidget {
               ),
               minimumSize: const Size(double.infinity, 48),
             ),
-            icon: const Icon(Icons.edit_note),
+            icon: const Icon(Icons.camera_alt_outlined),
             label: Text(
-              'Gõ đề bài',
+              'Chụp lại',
               style: AppTextStyles.bodyLarge.copyWith(
                 color: AppColors.primary,
                 fontWeight: FontWeight.w600,
@@ -219,25 +240,6 @@ class _BlurErrorBody extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _Dot extends StatelessWidget {
-  final bool isActive;
-
-  const _Dot({this.isActive = false});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      height: 8,
-      width: 8,
-      decoration: BoxDecoration(
-        color: isActive ? AppColors.primary : const Color(0xFFCBD5F0),
-        shape: BoxShape.circle,
       ),
     );
   }

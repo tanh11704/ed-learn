@@ -21,14 +21,11 @@ import 'package:mobile_app/features/ai_solver/presentation/screens/analyzing_scr
 import 'package:mobile_app/features/ai_solver/presentation/screens/solution_detail_screen.dart';
 import 'package:mobile_app/features/ai_solver/presentation/screens/ai_tutor_chat_screen.dart';
 import 'package:mobile_app/features/ai_solver/presentation/screens/notebook_screen.dart';
-import 'package:mobile_app/features/ai_solver/presentation/bloc/scanner_bloc/scanner_bloc.dart';
-import 'package:mobile_app/features/ai_solver/presentation/bloc/scanner_bloc/scanner_event.dart';
-import 'package:mobile_app/features/ai_solver/presentation/bloc/solution_bloc/solution_bloc.dart';
-import 'package:mobile_app/features/ai_solver/presentation/bloc/solution_bloc/solution_event.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_chat_bloc.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/ai_chat_bloc/ai_chat_event.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_bloc.dart';
 import 'package:mobile_app/features/ai_solver/presentation/bloc/notebook_bloc/notebook_event.dart';
+import 'package:mobile_app/features/ai_solver/data/models/ai_solver_solution_model.dart';
 import 'package:mobile_app/features/mock_exam/presentation/screens/camera_check_screen.dart';
 import 'package:mobile_app/features/mock_exam/presentation/screens/exam_library_screen.dart';
 import 'package:mobile_app/features/mock_exam/presentation/screens/exam_taking_screen.dart';
@@ -150,6 +147,8 @@ final appRouter = GoRouter(
                       lessonName: extra?['lessonName'] ?? 'Intro to Dataframes',
                       moduleName: extra?['moduleName'] ?? 'Pandas Analysis',
                       courseId: extra?['courseId'],
+                      initialVideoUrl: extra?['videoUrl'],
+                      initialPdfUrl: extra?['pdfUrl'],
                     );
                   },
                 ),
@@ -354,28 +353,53 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/camera/crop',
-      builder: (context, state) => const ImageCropScreen(),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return ImageCropScreen(
+          imagePath: extra?['imagePath'] ?? '',
+          initialSubject: extra?['subject'] ?? 'math',
+        );
+      },
     ),
     GoRoute(
       path: '/camera/analyzing',
-      builder: (context, state) => BlocProvider(
-        create: (context) => ScannerBloc()..add(const StartScanning()),
-        child: const AnalyzingScreen(),
-      ),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        return AnalyzingScreen(
+          imagePath: extra?['imagePath'] ?? '',
+          subject: extra?['subject'] ?? 'math',
+        );
+      },
     ),
     GoRoute(
       path: '/camera/solution-detail',
-      builder: (context, state) => BlocProvider(
-        create: (context) => SolutionBloc()..add(const LoadSolution()),
-        child: const SolutionDetailScreen(),
-      ),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final solution = extra?['solution'];
+        if (solution is AiSolverSolution) {
+          return SolutionDetailScreen(
+            solution: solution,
+            imagePath: extra?['imagePath'],
+          );
+        }
+        return const AiSolverScreen();
+      },
     ),
     GoRoute(
       path: '/camera/ai-tutor-chat',
-      builder: (context, state) => BlocProvider(
-        create: (context) => AiChatBloc()..add(const LoadChatHistory()),
-        child: const AiTutorChatScreen(),
-      ),
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final solution = extra?['solution'];
+        return BlocProvider(
+          create: (context) => AiChatBloc()
+            ..add(
+              LoadChatHistory(
+                solution: solution is AiSolverSolution ? solution : null,
+              ),
+            ),
+          child: const AiTutorChatScreen(),
+        );
+      },
     ),
     GoRoute(
       path: '/camera/notebook',

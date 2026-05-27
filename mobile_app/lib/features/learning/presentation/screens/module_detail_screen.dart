@@ -32,9 +32,6 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
   String? _errorMessage;
   ChapterDetail? _chapter;
 
-  static const _generatedFlashcardSuffix = '-generated-flashcard';
-  static const _generatedExerciseSuffix = '-generated-exercise';
-
   @override
   void initState() {
     super.initState();
@@ -94,47 +91,12 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                 duration: '0 phút',
                 status: status,
                 type: _inferLessonType(lesson.title),
-                videoUrl: lesson.videoUrl,
                 description: lesson.description,
+                videoUrl: lesson.videoUrl,
               );
             },
           )
           .toList();
-
-      final hasFlashcard =
-          mappedLessons.any((lesson) => lesson.type == LessonType.flashcard);
-      final hasExercise =
-          mappedLessons.any((lesson) => lesson.type == LessonType.exercise);
-      final fallbackStatus =
-          canAccessAll || chapter.lessons.any((lesson) => lesson.isPreview)
-              ? LessonStatus.available
-              : LessonStatus.locked;
-
-      if (!hasFlashcard) {
-        mappedLessons.add(
-          Lesson(
-            id: '${chapter.id}$_generatedFlashcardSuffix',
-            name: 'Flashcard ${chapter.title}',
-            title: 'Flashcard ${chapter.title}',
-            duration: 'Ôn tập nhanh',
-            status: fallbackStatus,
-            type: LessonType.flashcard,
-          ),
-        );
-      }
-
-      if (!hasExercise) {
-        mappedLessons.add(
-          Lesson(
-            id: '${chapter.id}$_generatedExerciseSuffix',
-            name: 'Bài tập ${chapter.title}',
-            title: 'Bài tập ${chapter.title}',
-            duration: 'Luyện tập',
-            status: fallbackStatus,
-            type: LessonType.exercise,
-          ),
-        );
-      }
 
       setState(() {
         _chapter = chapter;
@@ -190,21 +152,12 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
     return 'VIDEO';
   }
 
-  bool _isGeneratedLesson(Lesson lesson) {
-    return lesson.id.endsWith(_generatedFlashcardSuffix) ||
-        lesson.id.endsWith(_generatedExerciseSuffix);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final progressLessons =
-        lessons.where((lesson) => !_isGeneratedLesson(lesson)).toList();
-    int completedCount = progressLessons
-        .where((lesson) => lesson.status == LessonStatus.completed)
-        .length;
-    double progress = progressLessons.isEmpty
-        ? 0
-        : (completedCount / progressLessons.length) * 100;
+    int completedCount =
+        lessons.where((lesson) => lesson.status == LessonStatus.completed).length;
+    double progress =
+        lessons.isEmpty ? 0 : (completedCount / lessons.length) * 100;
     final activeIndex = lessons.indexWhere((lesson) => lesson.isAvailable);
 
     return Scaffold(
@@ -302,7 +255,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              '$completedCount/${progressLessons.length} bài học hoàn thành',
+                              '$completedCount/${lessons.length} bài học hoàn thành',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],
@@ -370,6 +323,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                   'lessonName': lesson.name,
                                                   'moduleName': _chapter?.title ?? widget.moduleName,
                                                   'courseId': widget.courseId,
+                                                  'videoUrl': lesson.videoUrl,
                                                 },
                                               );
                                             }

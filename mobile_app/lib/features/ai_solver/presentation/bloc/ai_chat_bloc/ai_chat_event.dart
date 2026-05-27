@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../data/models/ai_solver_solution_model.dart';
 
 abstract class AiChatEvent extends Equatable {
   const AiChatEvent();
@@ -8,7 +9,12 @@ abstract class AiChatEvent extends Equatable {
 }
 
 class LoadChatHistory extends AiChatEvent {
-  const LoadChatHistory();
+  final AiSolverSolution? solution;
+
+  const LoadChatHistory({this.solution});
+
+  @override
+  List<Object?> get props => [solution];
 }
 
 class SendChatMessage extends AiChatEvent {
