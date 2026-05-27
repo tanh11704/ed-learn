@@ -40,7 +40,6 @@ public class ExamAttemptAnswer {
 
         Instant now = Instant.now();
         return ExamAttemptAnswer.builder()
-                .id(UUID.randomUUID())
                 .attemptId(attemptId)
                 .questionId(questionId)
                 .selectedOptionId(selectedOptionId)
