@@ -32,6 +32,9 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
   String? _errorMessage;
   ChapterDetail? _chapter;
 
+  static const _generatedFlashcardSuffix = '-generated-flashcard';
+  static const _generatedExerciseSuffix = '-generated-exercise';
+
   @override
   void initState() {
     super.initState();
@@ -110,7 +113,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
       if (!hasFlashcard) {
         mappedLessons.add(
           Lesson(
-            id: '${chapter.id}-flashcard',
+            id: '${chapter.id}$_generatedFlashcardSuffix',
             name: 'Flashcard ${chapter.title}',
             title: 'Flashcard ${chapter.title}',
             duration: 'Ôn tập nhanh',
@@ -123,7 +126,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
       if (!hasExercise) {
         mappedLessons.add(
           Lesson(
-            id: '${chapter.id}-exercise',
+            id: '${chapter.id}$_generatedExerciseSuffix',
             name: 'Bài tập ${chapter.title}',
             title: 'Bài tập ${chapter.title}',
             duration: 'Luyện tập',
@@ -187,10 +190,21 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
     return 'VIDEO';
   }
 
+  bool _isGeneratedLesson(Lesson lesson) {
+    return lesson.id.endsWith(_generatedFlashcardSuffix) ||
+        lesson.id.endsWith(_generatedExerciseSuffix);
+  }
+
   @override
   Widget build(BuildContext context) {
-    int completedCount = lessons.where((l) => l.status == LessonStatus.completed).length;
-    double progress = lessons.isEmpty ? 0 : (completedCount / lessons.length) * 100;
+    final progressLessons =
+        lessons.where((lesson) => !_isGeneratedLesson(lesson)).toList();
+    int completedCount = progressLessons
+        .where((lesson) => lesson.status == LessonStatus.completed)
+        .length;
+    double progress = progressLessons.isEmpty
+        ? 0
+        : (completedCount / progressLessons.length) * 100;
     final activeIndex = lessons.indexWhere((lesson) => lesson.isAvailable);
 
     return Scaffold(
@@ -288,7 +302,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                             ),
                             const SizedBox(height: 12),
                             Text(
-                              '$completedCount/${lessons.length} bài học hoàn thành',
+                              '$completedCount/${progressLessons.length} bài học hoàn thành',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey[600],

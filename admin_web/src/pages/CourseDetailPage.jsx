@@ -401,7 +401,6 @@ export default function CourseDetailPage() {
         explanation: flashcardForm.explanation.trim(),
       },
     ];
-    // TODO: Replace this local draft save with the flashcard API call.
     setFlashcards(nextFlashcards);
     writeLessonDrafts(id, 'flashcards', nextFlashcards);
     setFlashcardForm({ front: '', back: '', explanation: '' });
@@ -438,7 +437,6 @@ export default function CourseDetailPage() {
         explanation: exerciseForm.explanation.trim(),
       },
     ];
-    // TODO: Replace this local draft save with the exercise API call.
     setExercises(nextExercises);
     writeLessonDrafts(id, 'exercises', nextExercises);
     setExerciseForm({
@@ -724,7 +722,10 @@ export default function CourseDetailPage() {
       </section>
 
       <section className="panel">
-        <h2>Flashcard bài học</h2>
+        <h2>Flashcard bài học (bản nháp)</h2>
+        <p className="muted">
+          Dữ liệu dưới đây chỉ là bản nháp trong trình duyệt để chuẩn bị UI. Nội dung chưa được gửi lên backend và chưa hiển thị cho học viên.
+        </p>
         <form className="form-grid" onSubmit={handleFlashcardSubmit}>
           <label>
             Chương
@@ -799,7 +800,7 @@ export default function CourseDetailPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Lưu flashcard
+              Lưu nháp flashcard
             </button>
           </div>
         </form>
@@ -816,7 +817,10 @@ export default function CourseDetailPage() {
       </section>
 
       <section className="panel">
-        <h2>Exercise bài học</h2>
+        <h2>Exercise bài học (bản nháp)</h2>
+        <p className="muted">
+          Dữ liệu dưới đây chỉ là bản nháp trong trình duyệt để chuẩn bị UI. Nội dung chưa được gửi lên backend và chưa hiển thị cho học viên.
+        </p>
         <form className="form-grid" onSubmit={handleExerciseSubmit}>
           <label>
             Chương
@@ -939,7 +943,7 @@ export default function CourseDetailPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Lưu bài tập
+              Lưu nháp bài tập
             </button>
           </div>
         </form>
