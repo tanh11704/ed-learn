@@ -4,11 +4,14 @@ import com.vku.edtech.modules.exams.application.port.in.CreateExamUseCase;
 import com.vku.edtech.modules.exams.application.port.in.DeleteExamUseCase;
 import com.vku.edtech.modules.exams.application.port.in.GetAllExamsUseCase;
 import com.vku.edtech.modules.exams.application.port.in.GetExamUseCase;
+import com.vku.edtech.modules.exams.application.port.in.GetQuestionsUseCase;
 import com.vku.edtech.modules.exams.application.port.in.UpdateExamUseCase;
 import com.vku.edtech.modules.exams.domain.model.Exam;
 import com.vku.edtech.modules.exams.presentation.dto.mapper.ExamResponseMapper;
+import com.vku.edtech.modules.exams.presentation.dto.mapper.ExamQuestionResponseMapper;
 import com.vku.edtech.modules.exams.presentation.dto.request.CreateExamRequest;
 import com.vku.edtech.modules.exams.presentation.dto.request.UpdateExamRequest;
+import com.vku.edtech.modules.exams.presentation.dto.response.ExamQuestionResponse;
 import com.vku.edtech.modules.exams.presentation.dto.response.ExamResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -39,7 +42,9 @@ public class ExamAdminController {
     private final DeleteExamUseCase deleteExamUseCase;
     private final GetAllExamsUseCase getAllExamsUseCase;
     private final GetExamUseCase getExamUseCase;
+    private final GetQuestionsUseCase getQuestionsUseCase;
     private final ExamResponseMapper examResponseMapper;
+    private final ExamQuestionResponseMapper examQuestionResponseMapper;
 
     @Operation(summary = "Lấy danh sách đề thi", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
@@ -57,6 +62,16 @@ public class ExamAdminController {
     public ResponseEntity<ExamResponse> getById(@PathVariable UUID id) {
         Exam exam = getExamUseCase.getExam(new GetExamUseCase.GetExamQuery(id));
         return ResponseEntity.ok(examResponseMapper.toResponse(exam));
+    }
+
+    @Operation(summary = "Lấy danh sách câu hỏi của đề thi", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{id}/questions")
+    public ResponseEntity<List<ExamQuestionResponse>> getQuestions(@PathVariable UUID id) {
+        List<ExamQuestionResponse> responses =
+                getQuestionsUseCase.getQuestionsByExamId(id).stream()
+                        .map(examQuestionResponseMapper::toResponse)
+                        .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @Operation(summary = "Tạo đề thi", security = @SecurityRequirement(name = "bearerAuth"))
