@@ -5,11 +5,8 @@ import com.vku.edtech.modules.lms.application.port.in.CompleteLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.out.EnrollmentQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.LessonQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.UserCourseProgressCommandPort;
-import com.vku.edtech.modules.lms.application.port.out.UserCourseProgressQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.UserProgressLessonCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.UserProgressLessonQueryPort;
-import com.vku.edtech.modules.lms.domain.model.UserCourseProgress;
-import com.vku.edtech.modules.lms.domain.model.UserProgressLesson;
 import com.vku.edtech.shared.presentation.exception.ForbiddenException;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,6 @@ public class CompleteLessonService implements CompleteLessonUseCase {
     private final EnrollmentQueryPort enrollmentQueryPort;
     private final UserProgressLessonQueryPort userProgressLessonQueryPort;
     private final UserProgressLessonCommandPort userProgressLessonCommandPort;
-    private final UserCourseProgressQueryPort userCourseProgressQueryPort;
     private final UserCourseProgressCommandPort userCourseProgressCommandPort;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -51,21 +47,11 @@ public class CompleteLessonService implements CompleteLessonUseCase {
             throw new ForbiddenException("Bạn chưa đăng ký khóa học này");
         }
 
-        var existingProgress =
-                userProgressLessonQueryPort.findByUserIdAndLessonId(
-                        command.userId(), command.lessonId());
-
-        if (existingProgress.isPresent() && existingProgress.get().isCompleted()) {
+        boolean newlyCompleted =
+                userProgressLessonCommandPort.markCompleted(command.userId(), command.lessonId());
+        if (!newlyCompleted) {
             return;
         }
-
-        UserProgressLesson progressLesson =
-                existingProgress.orElseGet(
-                        () ->
-                                UserProgressLesson.createInProgress(
-                                        command.userId(), command.lessonId()));
-        progressLesson.markCompleted();
-        userProgressLessonCommandPort.save(progressLesson);
 
         long totalLessons = lessonQueryPort.countLessonsByCourseId(courseId);
         long completedLessons =
@@ -79,13 +65,8 @@ public class CompleteLessonService implements CompleteLessonUseCase {
                                 Math.min(
                                         100, Math.round((completedLessons * 100.0) / totalLessons));
 
-        UserCourseProgress userCourseProgress =
-                userCourseProgressQueryPort
-                        .findByUserIdAndCourseId(command.userId(), courseId)
-                        .orElseGet(() -> UserCourseProgress.create(command.userId(), courseId));
-
-        userCourseProgress.updateProgress(percent, lesson.getId());
-        userCourseProgressCommandPort.save(userCourseProgress);
+        userCourseProgressCommandPort.upsertProgress(
+                command.userId(), courseId, percent, lesson.getId());
 
         eventPublisher.publishEvent(
                 new LessonCompletedEvent(

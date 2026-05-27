@@ -31,18 +31,15 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
 
   @override
   Future<List<ExamApiModel>> getAvailableExams() async {
-    for (final path in ['/exams']) {
-      try {
-        final response = await _client.get(path);
-        if (response.statusCode == 200) {
-          return _parseExamList(response.body);
-        }
-      } catch (_) {
-        continue;
-      }
+    final response = await _client.get('/exams');
+    if (response.statusCode == 200) {
+      return _parseExamList(response.body);
     }
 
-    throw const ApiException('Không thể tải danh sách đề thi', statusCode: 403);
+    throw ApiException(
+      'Không thể tải danh sách đề thi',
+      statusCode: response.statusCode,
+    );
   }
 
   @override
@@ -50,36 +47,33 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
     required String examId,
     required int durationMinutes,
   }) async {
-    final attempts = [
-      () => _client.post('/exams/$examId/sessions'),
-      () => _client.get('/exams/$examId'),
-    ];
+    if (!_isUuid(examId)) {
+      throw Exception('Offline exam does not have a backend UUID');
+    }
 
-    for (final attempt in attempts) {
-      try {
-        final response = await attempt();
-        if (response.statusCode == 200 || response.statusCode == 201) {
-          final json = jsonDecode(response.body) as Map<String, dynamic>;
-          final session = ExamSessionModel.fromJson(
-            json,
-            examId: examId,
-            fallbackDurationMinutes: durationMinutes,
-          );
-          if (session.questions.isNotEmpty) {
-            return _ensureSessionId(session, examId);
-          }
-        }
-      } catch (_) {
-        continue;
+    final response = await _client.post(
+      '/exams/$examId/attempts',
+      body: const {'gradeLevel': 12},
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      final session = ExamSessionModel.fromJson(
+        json,
+        examId: examId,
+        fallbackDurationMinutes: durationMinutes,
+      );
+      if (session.questions.isNotEmpty) {
+        return _ensureSessionId(session, examId);
       }
     }
 
-    throw Exception('Không thể bắt đầu phiên thi');
+    throw Exception('Không thể bắt đầu phiên thi: ${response.statusCode}');
   }
 
   @override
   Future<ExamSessionModel> getSession(String sessionId) async {
-    final response = await _client.get('/exam-sessions/$sessionId');
+    final response = await _client.get('/exams/attempts/$sessionId');
     if (response.statusCode == 200) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;
       return ExamSessionModel.fromJson(json, examId: json['examId']?.toString() ?? '');
@@ -93,19 +87,7 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
     required String questionId,
     required String optionId,
   }) async {
-    final response = await _client.put(
-      '/exam-sessions/$sessionId/answers/$questionId',
-      body: {'optionId': optionId, 'selectedOptionId': optionId},
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 204) {
-      return;
-    }
-
-    // Không chặn UX nếu API nháp chưa có
-    if (response.statusCode == 404) return;
-
-    throw Exception('Save answer failed: ${response.statusCode}');
+    return;
   }
 
   @override
@@ -118,14 +100,14 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
           .map(
             (a) => {
               'questionId': a.questionId,
-              'optionId': a.optionId,
+              'selectedOptionId': a.optionId,
             },
           )
           .toList(),
     };
 
     final response = await _client.post(
-      '/exam-sessions/$sessionId/submit',
+      '/exams/attempts/$sessionId/submit',
       body: body,
     );
 
@@ -162,5 +144,11 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
       durationMinutes: session.durationMinutes,
       questions: session.questions,
     );
+  }
+
+  bool _isUuid(String value) {
+    return RegExp(
+      r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+    ).hasMatch(value);
   }
 }

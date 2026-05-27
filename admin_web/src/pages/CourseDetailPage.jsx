@@ -17,21 +17,134 @@ import { API_BASE_URL } from '../api/config.js';
 import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
 import * as lessonsApi from '../api/lessons.js';
+import * as lessonContentItemsApi from '../api/lessonContentItems.js';
 
-function byOrderIndex(left, right) {
-  const leftOrder = Number(left.orderIndex ?? Number.MAX_SAFE_INTEGER);
-  const rightOrder = Number(right.orderIndex ?? Number.MAX_SAFE_INTEGER);
-  if (leftOrder !== rightOrder) return leftOrder - rightOrder;
-  return String(left.id || left.title || '').localeCompare(String(right.id || right.title || ''));
+const LESSON_TYPES = {
+  VIDEO: {
+    label: 'Video',
+    prefix: '',
+    titleLabel: 'Tiêu đề video',
+    placeholder: 'Ví dụ: Khái niệm và ý nghĩa đạo hàm',
+    submitLabel: 'Tạo video bài học',
+  },
+  FLASHCARD: {
+    label: 'Flashcard',
+    prefix: 'Flashcard',
+    titleLabel: 'Tên bộ flashcard',
+    placeholder: 'Ví dụ: Đạo hàm của hàm hợp',
+    submitLabel: 'Tạo flashcard',
+  },
+  EXERCISE: {
+    label: 'Exercise',
+    prefix: 'Bài tập',
+    titleLabel: 'Tên bài tập',
+    placeholder: 'Ví dụ: Bài tập rèn luyện quy tắc tính',
+    submitLabel: 'Tạo bài tập',
+  },
+};
+
+function getItemNumber(title = '') {
+  const match = title.match(/(?:chuong|chương|chapter|bai|bài|lesson)\s*(\d+)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function byDisplayOrder(left, right) {
+  const leftNumber = getItemNumber(left.title);
+  const rightNumber = getItemNumber(right.title);
+  if (leftNumber !== null && rightNumber !== null && leftNumber !== rightNumber) {
+    return leftNumber - rightNumber;
+  }
+
+  const byOrderIndex =
+    (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+    (right.orderIndex ?? Number.MAX_SAFE_INTEGER);
+  if (byOrderIndex !== 0) return byOrderIndex;
+
+  return (left.createdAt || '').localeCompare(right.createdAt || '');
 }
 
 function normalizeChapters(chapters) {
   return [...chapters]
-    .sort(byOrderIndex)
+    .sort(byDisplayOrder)
     .map((chapter) => ({
       ...chapter,
-      lessons: [...(chapter.lessons || [])].sort(byOrderIndex),
+      lessons: [...(chapter.lessons || [])].sort(byDisplayOrder),
     }));
+}
+
+function getNextOrderIndex(items) {
+  const maxOrderIndex = items.reduce(
+    (max, item) => Math.max(max, Number(item.orderIndex) || 0),
+    0,
+  );
+  return maxOrderIndex + 1;
+}
+
+function getLessonType(title = '') {
+  const normalized = title.toLowerCase();
+  if (normalized.includes('flashcard') || normalized.includes('flash card') || normalized.includes('thẻ')) {
+    return 'FLASHCARD';
+  }
+  if (
+    normalized.includes('exercise') ||
+    normalized.includes('bài tập') ||
+    normalized.includes('luyện tập') ||
+    normalized.includes('quiz') ||
+    normalized.includes('kiểm tra')
+  ) {
+    return 'EXERCISE';
+  }
+  return 'VIDEO';
+}
+
+function getTypedLessonTitle(type, title) {
+  const trimmedTitle = title.trim();
+  const config = LESSON_TYPES[type] || LESSON_TYPES.VIDEO;
+  if (!config.prefix || trimmedTitle.toLowerCase().startsWith(config.prefix.toLowerCase())) {
+    return trimmedTitle;
+  }
+  return `${config.prefix}: ${trimmedTitle}`;
+}
+
+function getLessonTypeLabel(type) {
+  return LESSON_TYPES[type]?.label || 'Video';
+}
+
+function LessonTypePreview({ type }) {
+  if (type === 'EXERCISE') {
+    return (
+      <div className="lesson-type-preview exercise">
+        <strong>Giao diện thêm bài tập</strong>
+        <p>Bài học tạo ra sẽ hiển thị là EXERCISE trên mobile và mở màn luyện tập.</p>
+        <ul>
+          <li>Nhập tên bài tập ở ô tiêu đề.</li>
+          <li>Không cần upload video/PDF cho bài tập.</li>
+          <li>Câu hỏi hiện đang dùng bộ quiz trong app mobile.</li>
+        </ul>
+      </div>
+    );
+  }
+
+  if (type === 'FLASHCARD') {
+    return (
+      <div className="lesson-type-preview flashcard">
+        <strong>Giao diện thêm flashcard</strong>
+        <p>Bài học tạo ra sẽ hiển thị là FLASHCARD trên mobile và mở màn ôn thẻ.</p>
+        <ul>
+          <li>Nhập tên bộ flashcard ở ô tiêu đề.</li>
+          <li>Không cần upload video/PDF cho flashcard.</li>
+          <li>Nội dung thẻ hiện đang dùng bộ flashcard trong app mobile.</li>
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <div className="lesson-type-preview video">
+      <strong>Giao diện thêm video</strong>
+      <p>Tạo bài học video, sau đó dùng khối Video bài học và Upload PDF bên dưới nếu cần.</p>
+    </div>
+  );
 }
 
 function getFileUrl(path) {
@@ -59,6 +172,7 @@ export default function CourseDetailPage() {
   const [chapterTitle, setChapterTitle] = useState('');
   const [lessonForm, setLessonForm] = useState({
     chapterId: '',
+    type: 'VIDEO',
     title: '',
     isPreview: false,
   });
@@ -68,17 +182,64 @@ export default function CourseDetailPage() {
   const [videoChapterId, setVideoChapterId] = useState('');
   const [videoLessonId, setVideoLessonId] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [flashcardChapterId, setFlashcardChapterId] = useState('');
+  const [flashcardLessonId, setFlashcardLessonId] = useState('');
+  const [flashcardForm, setFlashcardForm] = useState({
+    front: '',
+    back: '',
+    explanation: '',
+  });
+  const [flashcards, setFlashcards] = useState([]);
+  const [editingFlashcardId, setEditingFlashcardId] = useState(null);
+  const [exerciseChapterId, setExerciseChapterId] = useState('');
+  const [exerciseLessonId, setExerciseLessonId] = useState('');
+  const [exerciseForm, setExerciseForm] = useState({
+    question: '',
+    optionA: '',
+    optionB: '',
+    optionC: '',
+    optionD: '',
+    correctOption: 'A',
+    explanation: '',
+  });
+  const [exercises, setExercises] = useState([]);
+  const [editingExerciseId, setEditingExerciseId] = useState(null);
 
   const uploadChapter = useMemo(
     () => chapters.find((chapter) => chapter.id === uploadChapterId),
     [chapters, uploadChapterId],
   );
-  const uploadLessons = uploadChapter?.lessons || [];
+  const uploadLessons = (uploadChapter?.lessons || []).filter(
+    (lesson) => getLessonType(lesson.title) === 'VIDEO',
+  );
   const videoChapter = useMemo(
     () => chapters.find((chapter) => chapter.id === videoChapterId),
     [chapters, videoChapterId],
   );
-  const videoLessons = videoChapter?.lessons || [];
+  const videoLessons = (videoChapter?.lessons || []).filter(
+    (lesson) => getLessonType(lesson.title) === 'VIDEO',
+  );
+  const flashcardChapter = useMemo(
+    () => chapters.find((chapter) => chapter.id === flashcardChapterId),
+    [chapters, flashcardChapterId],
+  );
+  const flashcardLessons = (flashcardChapter?.lessons || []).filter(
+    (lesson) => getLessonType(lesson.title) === 'FLASHCARD',
+  );
+  const visibleFlashcards = flashcardLessonId
+    ? flashcards.filter((item) => item.lessonId === flashcardLessonId)
+    : [];
+  const exerciseChapter = useMemo(
+    () => chapters.find((chapter) => chapter.id === exerciseChapterId),
+    [chapters, exerciseChapterId],
+  );
+  const exerciseLessons = (exerciseChapter?.lessons || []).filter(
+    (lesson) => getLessonType(lesson.title) === 'EXERCISE',
+  );
+  const visibleExercises = exerciseLessonId
+    ? exercises.filter((item) => item.lessonId === exerciseLessonId)
+    : [];
+  const selectedLessonType = LESSON_TYPES[lessonForm.type] || LESSON_TYPES.VIDEO;
 
   async function load() {
     setLoading(true);
@@ -93,6 +254,7 @@ export default function CourseDetailPage() {
         Array.isArray(chapterList) ? chapterList : detail.chapters || [],
       );
       setChapters(nextChapters);
+      await loadLessonContentItems(nextChapters);
       if (uploadChapterId && !nextChapters.some((chapter) => chapter.id === uploadChapterId)) {
         setUploadChapterId('');
         setUploadLessonId('');
@@ -100,6 +262,16 @@ export default function CourseDetailPage() {
       if (videoChapterId && !nextChapters.some((chapter) => chapter.id === videoChapterId)) {
         setVideoChapterId('');
         setVideoLessonId('');
+      }
+      if (flashcardChapterId && !nextChapters.some((chapter) => chapter.id === flashcardChapterId)) {
+        setFlashcardChapterId('');
+        setFlashcardLessonId('');
+        setEditingFlashcardId(null);
+      }
+      if (exerciseChapterId && !nextChapters.some((chapter) => chapter.id === exerciseChapterId)) {
+        setExerciseChapterId('');
+        setExerciseLessonId('');
+        setEditingExerciseId(null);
       }
     } catch (err) {
       setError(err.message);
@@ -112,12 +284,56 @@ export default function CourseDetailPage() {
     load();
   }, [id]);
 
+  async function loadLessonContentItems(nextChapters) {
+    const allLessons = nextChapters.flatMap((chapter) => chapter.lessons || []);
+    const flashcardLessonIds = allLessons
+      .filter((lesson) => getLessonType(lesson.title) === 'FLASHCARD')
+      .map((lesson) => lesson.id);
+    const exerciseLessonIds = allLessons
+      .filter((lesson) => getLessonType(lesson.title) === 'EXERCISE')
+      .map((lesson) => lesson.id);
+
+    const [flashcardGroups, exerciseGroups] = await Promise.all([
+      Promise.all(
+        flashcardLessonIds.map((lessonId) =>
+          lessonContentItemsApi.getLessonContentItems(lessonId, { type: 'FLASHCARD' }),
+        ),
+      ),
+      Promise.all(
+        exerciseLessonIds.map((lessonId) =>
+          lessonContentItemsApi.getLessonContentItems(lessonId, { type: 'EXERCISE' }),
+        ),
+      ),
+    ]);
+
+    setFlashcards(
+      flashcardGroups.flatMap((group) =>
+        (Array.isArray(group) ? group : []).map((item) => ({
+          ...item,
+          front: item.prompt,
+          back: item.answer,
+          lessonTitle: allLessons.find((lesson) => lesson.id === item.lessonId)?.title || '',
+        })),
+      ),
+    );
+    setExercises(
+      exerciseGroups.flatMap((group) =>
+        (Array.isArray(group) ? group : []).map((item) => ({
+          ...item,
+          question: item.prompt,
+          lessonTitle: allLessons.find((lesson) => lesson.id === item.lessonId)?.title || '',
+        })),
+      ),
+    );
+  }
+
   async function addChapter(e) {
     e.preventDefault();
     try {
       await chaptersApi.createChapter({
         courseId: id,
         title: chapterTitle,
+        orderIndex: getNextOrderIndex(chapters),
       });
       setChapterTitle('');
       await load();
@@ -165,10 +381,10 @@ export default function CourseDetailPage() {
     try {
       await lessonsApi.createLesson({
         chapterId: lessonForm.chapterId,
-        title: lessonForm.title,
+        title: getTypedLessonTitle(lessonForm.type, lessonForm.title),
         isPreview: lessonForm.isPreview,
       });
-      setLessonForm({ chapterId: '', title: '', isPreview: false });
+      setLessonForm({ chapterId: '', type: 'VIDEO', title: '', isPreview: false });
       await load();
     } catch (err) {
       setError(err.message);
@@ -211,6 +427,145 @@ export default function CourseDetailPage() {
       setVideoUrl('');
       await load();
       alert('Cập nhật link video thành công');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleFlashcardSubmit(e) {
+    e.preventDefault();
+    if (!flashcardLessonId || !flashcardForm.front.trim() || !flashcardForm.back.trim()) return;
+
+    try {
+      const body = {
+        type: 'FLASHCARD',
+        prompt: flashcardForm.front.trim(),
+        answer: flashcardForm.back.trim(),
+        explanation: flashcardForm.explanation.trim(),
+      };
+      if (editingFlashcardId) {
+        await lessonContentItemsApi.updateLessonContentItem(editingFlashcardId, body);
+      } else {
+        await lessonContentItemsApi.createLessonContentItem(flashcardLessonId, body);
+      }
+      setFlashcardForm({ front: '', back: '', explanation: '' });
+      setEditingFlashcardId(null);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function editFlashcard(item) {
+    setFlashcardLessonId(item.lessonId);
+    setFlashcardForm({
+      front: item.front || item.prompt || '',
+      back: item.back || item.answer || '',
+      explanation: item.explanation || '',
+    });
+    setEditingFlashcardId(item.id);
+  }
+
+  function cancelFlashcardEdit() {
+    setFlashcardForm({ front: '', back: '', explanation: '' });
+    setEditingFlashcardId(null);
+  }
+
+  async function deleteFlashcard(itemId) {
+    if (!confirm('Xóa thẻ flashcard này vĩnh viễn? Bài học flashcard vẫn được giữ lại.')) return;
+    try {
+      await lessonContentItemsApi.deleteLessonContentItem(itemId);
+      if (editingFlashcardId === itemId) cancelFlashcardEdit();
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleExerciseSubmit(e) {
+    e.preventDefault();
+    if (
+      !exerciseLessonId ||
+      !exerciseForm.question.trim() ||
+      !exerciseForm.optionA.trim() ||
+      !exerciseForm.optionB.trim() ||
+      !exerciseForm.optionC.trim() ||
+      !exerciseForm.optionD.trim()
+    ) {
+      return;
+    }
+
+    try {
+      const options = [
+        exerciseForm.optionA.trim(),
+        exerciseForm.optionB.trim(),
+        exerciseForm.optionC.trim(),
+        exerciseForm.optionD.trim(),
+      ];
+      const correctIndex = ['A', 'B', 'C', 'D'].indexOf(exerciseForm.correctOption);
+      const body = {
+        type: 'EXERCISE',
+        prompt: exerciseForm.question.trim(),
+        answer: options[correctIndex],
+        options,
+        correctOption: exerciseForm.correctOption,
+        explanation: exerciseForm.explanation.trim(),
+      };
+      if (editingExerciseId) {
+        await lessonContentItemsApi.updateLessonContentItem(editingExerciseId, body);
+      } else {
+        await lessonContentItemsApi.createLessonContentItem(exerciseLessonId, body);
+      }
+      setExerciseForm({
+        question: '',
+        optionA: '',
+        optionB: '',
+        optionC: '',
+        optionD: '',
+        correctOption: 'A',
+        explanation: '',
+      });
+      setEditingExerciseId(null);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function editExercise(item) {
+    const options = item.options || [];
+    setExerciseLessonId(item.lessonId);
+    setExerciseForm({
+      question: item.question || item.prompt || '',
+      optionA: options[0] || '',
+      optionB: options[1] || '',
+      optionC: options[2] || '',
+      optionD: options[3] || '',
+      correctOption: item.correctOption || 'A',
+      explanation: item.explanation || '',
+    });
+    setEditingExerciseId(item.id);
+  }
+
+  function cancelExerciseEdit() {
+    setExerciseForm({
+      question: '',
+      optionA: '',
+      optionB: '',
+      optionC: '',
+      optionD: '',
+      correctOption: 'A',
+      explanation: '',
+    });
+    setEditingExerciseId(null);
+  }
+
+  async function deleteExercise(itemId) {
+    if (!confirm('Xóa câu bài tập này vĩnh viễn? Bài học exercise vẫn được giữ lại.')) return;
+    try {
+      await lessonContentItemsApi.deleteLessonContentItem(itemId);
+      if (editingExerciseId === itemId) cancelExerciseEdit();
+      await load();
     } catch (err) {
       setError(err.message);
     }
@@ -289,6 +644,9 @@ export default function CourseDetailPage() {
             {(ch.lessons || []).map((ls, lessonIndex) => (
               <li key={ls.id}>
                 <span>{ls.title}</span>
+                <span className="status-pill neutral">
+                  {getLessonTypeLabel(getLessonType(ls.title))}
+                </span>
                 <span className={`status-pill ${ls.isPreview ? 'success' : 'warning'}`}>
                   {ls.isPreview ? 'Cho phép học thử' : 'Không học thử'}
                 </span>
@@ -296,7 +654,9 @@ export default function CourseDetailPage() {
                   {ls.isDeleted ? 'Đã xóa' : 'Đang hoạt động'}
                 </span>
                 <div className="lesson-media-links">
-                  {ls.videoUrl ? (
+                  {getLessonType(ls.title) !== 'VIDEO' ? (
+                    <span className="status-pill neutral">Không cần video</span>
+                  ) : ls.videoUrl ? (
                     <a
                       href={getFileUrl(ls.videoUrl)}
                       target="_blank"
@@ -308,7 +668,9 @@ export default function CourseDetailPage() {
                   ) : (
                     <span className="status-pill warning">Thiếu video</span>
                   )}
-                  {ls.pdfUrl ? (
+                  {getLessonType(ls.title) !== 'VIDEO' ? (
+                    <span className="status-pill neutral">Không cần PDF</span>
+                  ) : ls.pdfUrl ? (
                     <a
                       href={getFileUrl(ls.pdfUrl)}
                       target="_blank"
@@ -375,15 +737,35 @@ export default function CourseDetailPage() {
             </select>
           </label>
           <label>
-            Tiêu đề bài
+            {selectedLessonType.titleLabel}
             <input
               value={lessonForm.title}
               onChange={(e) =>
                 setLessonForm({ ...lessonForm, title: e.target.value })
               }
+              placeholder={selectedLessonType.placeholder}
               required
             />
           </label>
+          <label>
+            Loại bài học
+            <select
+              value={lessonForm.type}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, type: e.target.value })
+              }
+              required
+            >
+              {Object.entries(LESSON_TYPES).map(([value, config]) => (
+                <option key={value} value={value}>
+                  {config.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="span-2">
+            <LessonTypePreview type={lessonForm.type} />
+          </div>
           <label className="checkbox-label">
             <input
               type="checkbox"
@@ -396,7 +778,7 @@ export default function CourseDetailPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Tạo bài học
+              {selectedLessonType.submitLabel}
             </button>
           </div>
         </form>
@@ -458,6 +840,286 @@ export default function CourseDetailPage() {
             </button>
           </div>
         </form>
+      </section>
+
+      <section className="panel">
+        <h2>Flashcard bài học</h2>
+        <p className="muted">
+          Nội dung được lưu vào backend và learner review theo lịch spaced repetition SM-2.
+        </p>
+        <form className="form-grid" onSubmit={handleFlashcardSubmit}>
+          <label>
+            Chương
+            <select
+              value={flashcardChapterId}
+              onChange={(e) => {
+                setFlashcardChapterId(e.target.value);
+                setFlashcardLessonId('');
+                cancelFlashcardEdit();
+              }}
+              required
+            >
+              <option value="">-- Chọn chương --</option>
+              {chapters.map((chapter) => (
+                <option key={chapter.id} value={chapter.id}>
+                  {chapter.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Bài học flashcard
+            <select
+              value={flashcardLessonId}
+              onChange={(e) => {
+                setFlashcardLessonId(e.target.value);
+                cancelFlashcardEdit();
+              }}
+              required
+              disabled={!flashcardChapterId || flashcardLessons.length === 0}
+            >
+              <option value="">
+                {flashcardChapterId && flashcardLessons.length === 0
+                  ? '-- Chương chưa có bài flashcard --'
+                  : '-- Chọn bài flashcard --'}
+              </option>
+              {flashcardLessons.map((lesson) => (
+                <option key={lesson.id} value={lesson.id}>
+                  {lesson.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Mặt trước
+            <input
+              value={flashcardForm.front}
+              onChange={(e) =>
+                setFlashcardForm({ ...flashcardForm, front: e.target.value })
+              }
+              placeholder="Ví dụ: Đạo hàm là gì?"
+              required
+            />
+          </label>
+          <label>
+            Mặt sau
+            <input
+              value={flashcardForm.back}
+              onChange={(e) =>
+                setFlashcardForm({ ...flashcardForm, back: e.target.value })
+              }
+              placeholder="Ví dụ: Tốc độ biến thiên tức thời của hàm số"
+              required
+            />
+          </label>
+          <label className="span-2">
+            Giải thích thêm
+            <textarea
+              value={flashcardForm.explanation}
+              onChange={(e) =>
+                setFlashcardForm({ ...flashcardForm, explanation: e.target.value })
+              }
+              placeholder="Ghi chú hoặc ví dụ minh họa"
+              rows={3}
+            />
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              {editingFlashcardId ? 'Cập nhật flashcard' : 'Lưu flashcard'}
+            </button>
+            {editingFlashcardId && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={cancelFlashcardEdit}>
+                Hủy sửa
+              </button>
+            )}
+          </div>
+        </form>
+        {!flashcardLessonId ? (
+          <p className="muted">Chọn một bài học flashcard để xem, sửa hoặc xóa nội dung đã lưu.</p>
+        ) : visibleFlashcards.length > 0 ? (
+          <ul className="admin-data-list">
+            {visibleFlashcards.map((item) => (
+              <li key={item.id}>
+                <strong>{item.lessonTitle}</strong>
+                <span>{item.front} → {item.back}</span>
+                <div className="row-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => editFlashcard(item)}>
+                    Sửa
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm danger" onClick={() => deleteFlashcard(item.id)}>
+                    Xóa
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">Bài học này chưa có flashcard nào.</p>
+        )}
+      </section>
+
+      <section className="panel">
+        <h2>Exercise bài học</h2>
+        <p className="muted">
+          Nội dung được lưu vào backend và learner review theo lịch spaced repetition SM-2.
+        </p>
+        <form className="form-grid" onSubmit={handleExerciseSubmit}>
+          <label>
+            Chương
+            <select
+              value={exerciseChapterId}
+              onChange={(e) => {
+                setExerciseChapterId(e.target.value);
+                setExerciseLessonId('');
+                cancelExerciseEdit();
+              }}
+              required
+            >
+              <option value="">-- Chọn chương --</option>
+              {chapters.map((chapter) => (
+                <option key={chapter.id} value={chapter.id}>
+                  {chapter.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Bài học exercise
+            <select
+              value={exerciseLessonId}
+              onChange={(e) => {
+                setExerciseLessonId(e.target.value);
+                cancelExerciseEdit();
+              }}
+              required
+              disabled={!exerciseChapterId || exerciseLessons.length === 0}
+            >
+              <option value="">
+                {exerciseChapterId && exerciseLessons.length === 0
+                  ? '-- Chương chưa có bài exercise --'
+                  : '-- Chọn bài exercise --'}
+              </option>
+              {exerciseLessons.map((lesson) => (
+                <option key={lesson.id} value={lesson.id}>
+                  {lesson.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="span-2">
+            Câu hỏi
+            <textarea
+              value={exerciseForm.question}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, question: e.target.value })
+              }
+              placeholder="Nhập nội dung câu hỏi bài tập"
+              rows={3}
+              required
+            />
+          </label>
+          <label>
+            Lựa chọn A
+            <input
+              value={exerciseForm.optionA}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, optionA: e.target.value })
+              }
+              placeholder="Nhập lựa chọn A"
+              required
+            />
+          </label>
+          <label>
+            Lựa chọn B
+            <input
+              value={exerciseForm.optionB}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, optionB: e.target.value })
+              }
+              placeholder="Nhập lựa chọn B"
+              required
+            />
+          </label>
+          <label>
+            Lựa chọn C
+            <input
+              value={exerciseForm.optionC}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, optionC: e.target.value })
+              }
+              placeholder="Nhập lựa chọn C"
+              required
+            />
+          </label>
+          <label>
+            Lựa chọn D
+            <input
+              value={exerciseForm.optionD}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, optionD: e.target.value })
+              }
+              placeholder="Nhập lựa chọn D"
+              required
+            />
+          </label>
+          <label>
+            Đáp án đúng
+            <select
+              value={exerciseForm.correctOption}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, correctOption: e.target.value })
+              }
+              required
+            >
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </label>
+          <label>
+            Giải thích
+            <input
+              value={exerciseForm.explanation}
+              onChange={(e) =>
+                setExerciseForm({ ...exerciseForm, explanation: e.target.value })
+              }
+              placeholder="Lời giải ngắn"
+            />
+          </label>
+          <div className="form-actions span-2">
+            <button type="submit" className="btn btn-primary btn-sm">
+              {editingExerciseId ? 'Cập nhật bài tập' : 'Lưu bài tập'}
+            </button>
+            {editingExerciseId && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={cancelExerciseEdit}>
+                Hủy sửa
+              </button>
+            )}
+          </div>
+        </form>
+        {!exerciseLessonId ? (
+          <p className="muted">Chọn một bài học exercise để xem, sửa hoặc xóa nội dung đã lưu.</p>
+        ) : visibleExercises.length > 0 ? (
+          <ul className="admin-data-list">
+            {visibleExercises.map((item) => (
+              <li key={item.id}>
+                <strong>{item.lessonTitle}</strong>
+                <span>{item.question} → Đáp án {item.correctOption}</span>
+                <div className="row-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => editExercise(item)}>
+                    Sửa
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm danger" onClick={() => deleteExercise(item.id)}>
+                    Xóa
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">Bài học này chưa có bài tập nào.</p>
+        )}
       </section>
 
       <section className="panel">

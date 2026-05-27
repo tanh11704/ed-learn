@@ -26,6 +26,11 @@ public class UserProgressLessonPersistenceAdapter
     }
 
     @Override
+    public boolean markCompleted(UUID userId, UUID lessonId) {
+        return repository.markCompleted(userId, lessonId) > 0;
+    }
+
+    @Override
     public Optional<UserProgressLesson> findByUserIdAndLessonId(UUID userId, UUID lessonId) {
         return repository.findByUserIdAndLessonId(userId, lessonId).map(mapper::toDomain);
     }

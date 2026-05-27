@@ -14,6 +14,7 @@ import com.vku.edtech.modules.exams.domain.model.ExamQuestionScoringRule;
 import com.vku.edtech.modules.exams.domain.model.ExamQuestionType;
 import com.vku.edtech.modules.exams.domain.model.ExamStructure;
 import com.vku.edtech.modules.exams.domain.model.Thpt2026ExamProfile;
+import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ public class CreateQuestionService implements CreateQuestionUseCase {
     private final ExamQuestionCommandPort questionCommandPort;
     private final ExamQuestionQueryPort questionQueryPort;
     private final ExamOptionCommandPort optionCommandPort;
+    private final FileStoragePort fileStoragePort;
 
     @Override
     @Transactional
@@ -53,12 +55,15 @@ public class CreateQuestionService implements CreateQuestionUseCase {
     }
 
     private ExamQuestion buildQuestion(CreateQuestionCommand command) {
+        String imageUrl = resolveImageUrl(command);
+
         if (command.questionType() == ExamQuestionType.SHORT_ANSWER) {
             ensureNoOptions(command.options());
             return ExamQuestion.createShortAnswer(
                     command.examId(),
                     command.paperPart(),
                     command.content(),
+                    imageUrl,
                     command.orderIndex(),
                     command.score(),
                     command.correctAnswer());
@@ -76,9 +81,21 @@ public class CreateQuestionService implements CreateQuestionUseCase {
                 command.questionType(),
                 command.paperPart(),
                 command.content(),
+                imageUrl,
                 command.orderIndex(),
                 command.score(),
                 null);
+    }
+
+    private String resolveImageUrl(CreateQuestionCommand command) {
+        if (command.imageFile() == null || command.imageFile().isEmpty()) {
+            return command.imageUrl();
+        }
+        String contentType = command.imageFile().getContentType();
+        if (contentType == null || !contentType.toLowerCase().startsWith("image/")) {
+            throw new ExamBadRequestException("File minh họa câu hỏi phải là hình ảnh");
+        }
+        return fileStoragePort.uploadFile(command.imageFile(), "exam-questions");
     }
 
     private List<ExamQuestionOption> saveOptions(ExamQuestion question, List<CreateOptionCommand> options) {

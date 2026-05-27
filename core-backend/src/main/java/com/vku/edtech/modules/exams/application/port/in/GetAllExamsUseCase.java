@@ -4,5 +4,5 @@ import com.vku.edtech.modules.exams.domain.model.Exam;
 import java.util.List;
 
 public interface GetAllExamsUseCase {
-    List<Exam> getAllExams();
+    List<Exam> getAllExams(String status);
 }
