@@ -84,7 +84,6 @@ export default function LearningContentPage() {
       await chaptersApi.createChapter({
         courseId,
         title: chapterTitle,
-        orderIndex: chapters.length + 1,
       });
       setChapterTitle('');
       await loadContent();

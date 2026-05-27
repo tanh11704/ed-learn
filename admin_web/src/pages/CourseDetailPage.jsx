@@ -97,7 +97,6 @@ export default function CourseDetailPage() {
       await chaptersApi.createChapter({
         courseId: id,
         title: chapterTitle,
-        orderIndex: chapters.length,
       });
       setChapterTitle('');
       await load();
