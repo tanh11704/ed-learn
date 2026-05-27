@@ -5,13 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.vku.edtech.modules.lms.application.exception.LmsNotFoundException;
 import com.vku.edtech.modules.lms.application.port.in.UpdateChapterUseCase;
 import com.vku.edtech.modules.lms.application.port.out.ChapterCommandPort;
 import com.vku.edtech.modules.lms.application.port.out.ChapterQueryPort;
 import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.domain.model.Course;
-import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,11 +32,11 @@ class UpdateChapterServiceTest {
     @InjectMocks private UpdateChapterService updateChapterService;
 
     @Test
-    @DisplayName("Update chapter thành công")
-    void updateChapter_success() {
+    @DisplayName("Update chapter keeps orderIndex when staying in same course")
+    void updateChapter_sameCourseKeepsOrderIndex() {
         UUID chapterId = UUID.randomUUID();
         UUID courseId = UUID.randomUUID();
-        Chapter chapter = chapter(chapterId, courseId, "Old", 1);
+        Chapter chapter = chapter(chapterId, courseId, "Old", 3);
 
         when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter));
         when(courseQueryPort.findByIdWithChapters(courseId))
@@ -47,25 +47,49 @@ class UpdateChapterServiceTest {
         Chapter updated =
                 updateChapterService.updateChapter(
                         new UpdateChapterUseCase.UpdateChapterCommand(
-                                chapterId, courseId, "New", 2));
+                                chapterId, courseId, "New"));
 
         assertEquals("New", updated.getTitle());
-        assertEquals(2, updated.getOrderIndex());
+        assertEquals(3, updated.getOrderIndex());
         verify(chapterCommandPort).save(org.mockito.ArgumentMatchers.any(Chapter.class));
     }
 
     @Test
-    @DisplayName("Update chapter không tồn tại phải ném ngoại lệ")
+    @DisplayName("Update chapter appends to target course when moving course")
+    void updateChapter_moveCourseAppendsToTargetCourse() {
+        UUID chapterId = UUID.randomUUID();
+        UUID oldCourseId = UUID.randomUUID();
+        UUID newCourseId = UUID.randomUUID();
+        Chapter chapter = chapter(chapterId, oldCourseId, "Old", 3);
+
+        when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter));
+        when(courseQueryPort.findByIdWithChapters(newCourseId))
+                .thenReturn(Optional.of(course(newCourseId)));
+        when(chapterQueryPort.findMaxOrderIdxByCourseId(newCourseId)).thenReturn(4);
+        when(chapterCommandPort.save(org.mockito.ArgumentMatchers.any(Chapter.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Chapter updated =
+                updateChapterService.updateChapter(
+                        new UpdateChapterUseCase.UpdateChapterCommand(
+                                chapterId, newCourseId, "New"));
+
+        assertEquals(newCourseId, updated.getCourseId());
+        assertEquals(5, updated.getOrderIndex());
+    }
+
+    @Test
+    @DisplayName("Update chapter not found throws")
     void updateChapter_notFound() {
         UUID chapterId = UUID.randomUUID();
         when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.empty());
 
         assertThrows(
-                ResourceNotFoundException.class,
+                LmsNotFoundException.class,
                 () ->
                         updateChapterService.updateChapter(
                                 new UpdateChapterUseCase.UpdateChapterCommand(
-                                        chapterId, null, "New", 1)));
+                                        chapterId, null, "New")));
     }
 
     private Chapter chapter(UUID id, UUID courseId, String title, int orderIndex) {
@@ -83,6 +107,13 @@ class UpdateChapterServiceTest {
 
     private Course course(UUID id) {
         Instant now = Instant.now();
-        return Course.builder().id(id).title("t").description("d").subject("s").createdAt(now).updatedAt(now).build();
+        return Course.builder()
+                .id(id)
+                .title("t")
+                .description("d")
+                .subject("s")
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 }

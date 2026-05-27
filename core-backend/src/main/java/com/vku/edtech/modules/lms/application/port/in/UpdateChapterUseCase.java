@@ -6,5 +6,5 @@ import java.util.UUID;
 public interface UpdateChapterUseCase {
     Chapter updateChapter(UpdateChapterCommand command);
 
-    record UpdateChapterCommand(UUID chapterId, UUID courseId, String title, Integer orderIndex) {}
+    record UpdateChapterCommand(UUID chapterId, UUID courseId, String title) {}
 }

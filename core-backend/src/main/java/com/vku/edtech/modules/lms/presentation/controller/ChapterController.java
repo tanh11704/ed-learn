@@ -63,7 +63,7 @@ public class ChapterController {
             @PathVariable("id") UUID id, @RequestBody @Valid UpdateChapterRequest request) {
         UpdateChapterUseCase.UpdateChapterCommand command =
                 new UpdateChapterUseCase.UpdateChapterCommand(
-                        id, request.courseId(), request.title(), request.orderIndex());
+                        id, request.courseId(), request.title());
         Chapter chapter = updateChapterUseCase.updateChapter(command);
         return ResponseEntity.ok(chapterMapper.toResponse(chapter));
     }
