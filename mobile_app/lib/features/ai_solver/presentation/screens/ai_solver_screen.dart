@@ -1,10 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
-class AiSolverScreen extends StatelessWidget {
+class AiSolverScreen extends StatefulWidget {
   const AiSolverScreen({super.key});
+
+  @override
+  State<AiSolverScreen> createState() => _AiSolverScreenState();
+}
+
+class _AiSolverScreenState extends State<AiSolverScreen> {
+  final ImagePicker _picker = ImagePicker();
+  bool _isPicking = false;
+
+  Future<void> _pickImage(ImageSource source) async {
+    if (_isPicking) return;
+    setState(() {
+      _isPicking = true;
+    });
+    try {
+      final image = await _picker.pickImage(
+        source: source,
+        maxWidth: 2048,
+        maxHeight: 2048,
+        imageQuality: 88,
+      );
+      if (!mounted || image == null) return;
+      context.go('/camera/crop', extra: {'imagePath': image.path});
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không thể chọn ảnh: $e')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPicking = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +52,13 @@ class AiSolverScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.white),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/home');
+            }
+          },
         ),
         title: Text(
           'Quét câu hỏi',
@@ -103,9 +146,10 @@ class AiSolverScreen extends StatelessWidget {
                       _BottomIcon(
                         icon: Icons.photo_library_outlined,
                         label: 'Thư viện',
+                        onTap: () => _pickImage(ImageSource.gallery),
                       ),
                       InkWell(
-                        onTap: () => context.go('/camera/crop'),
+                        onTap: () => _pickImage(ImageSource.camera),
                         borderRadius: BorderRadius.circular(48),
                         child: Container(
                           height: 76,
@@ -121,12 +165,25 @@ class AiSolverScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Icon(Icons.camera_alt, color: AppColors.white, size: 32),
+                          child: _isPicking
+                              ? const Padding(
+                                  padding: EdgeInsets.all(22),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.camera_alt,
+                                  color: AppColors.white,
+                                  size: 32,
+                                ),
                         ),
                       ),
                       _BottomIcon(
                         icon: Icons.bolt_outlined,
                         label: 'Tự động',
+                        onTap: () => _pickImage(ImageSource.camera),
                       ),
                     ],
                   ),
@@ -167,25 +224,34 @@ class _RoundIconButton extends StatelessWidget {
 class _BottomIcon extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
-  const _BottomIcon({required this.icon, required this.label});
+  const _BottomIcon({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 44,
-          width: 44,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(14),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Column(
+        children: [
+          Container(
+            height: 44,
+            width: 44,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: AppColors.textPrimary),
           ),
-          child: Icon(icon, color: AppColors.textPrimary),
-        ),
-        const SizedBox(height: 6),
-        Text(label, style: AppTextStyles.caption),
-      ],
+          const SizedBox(height: 6),
+          Text(label, style: AppTextStyles.caption),
+        ],
+      ),
     );
   }
 }

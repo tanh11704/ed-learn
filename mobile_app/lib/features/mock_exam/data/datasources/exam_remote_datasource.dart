@@ -31,14 +31,11 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
 
   @override
   Future<List<ExamApiModel>> getAvailableExams() async {
-    for (final path in ['/exams/available', '/exams', '/admin/exams']) {
+    for (final path in ['/exams/available', '/exams']) {
       try {
         final response = await _client.get(path);
         if (response.statusCode == 200) {
           return _parseExamList(response.body);
-        }
-        if (response.statusCode == 403 && path.contains('admin')) {
-          continue;
         }
       } catch (_) {
         continue;
@@ -56,7 +53,6 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
     final attempts = [
       () => _client.post('/exams/$examId/sessions'),
       () => _client.get('/exams/$examId'),
-      () => _client.get('/admin/exams/$examId'),
     ];
 
     for (final attempt in attempts) {

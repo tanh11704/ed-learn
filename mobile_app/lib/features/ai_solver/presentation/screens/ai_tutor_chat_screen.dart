@@ -20,7 +20,13 @@ class AiTutorChatScreen extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
-          onPressed: () => context.go('/camera/solution-detail'),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/camera');
+            }
+          },
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,6 +68,7 @@ class AiTutorChatScreen extends StatelessWidget {
           ],
         ),
       ),
+      bottomNavigationBar: const _TutorBottomNav(),
     );
   }
 }
@@ -119,7 +126,7 @@ class _ChatInputBarState extends State<_ChatInputBar> {
               child: TextField(
                 controller: _controller,
                 decoration: InputDecoration(
-                  hintText: 'Ask your tutor anything...',
+                  hintText: 'Hỏi gia sư AI bất cứ điều gì...',
                   border: InputBorder.none,
                   hintStyle: AppTextStyles.bodyMedium,
                 ),
@@ -141,6 +148,98 @@ class _ChatInputBarState extends State<_ChatInputBar> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _TutorBottomNav extends StatelessWidget {
+  const _TutorBottomNav();
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      color: AppColors.white,
+      elevation: 8,
+      child: SizedBox(
+        height: 64,
+        child: Row(
+          children: [
+            _BottomNavItem(
+              icon: Icons.home_outlined,
+              activeIcon: Icons.home,
+              label: 'Trang chủ',
+              active: true,
+              onTap: () => context.go('/home'),
+            ),
+            _BottomNavItem(
+              icon: Icons.menu_book_outlined,
+              activeIcon: Icons.menu_book,
+              label: 'Học tập',
+              onTap: () => context.go('/learning'),
+            ),
+            _BottomNavItem(
+              icon: Icons.edit_document,
+              activeIcon: Icons.edit_square,
+              label: 'Thi thử',
+              onTap: () => context.go('/exam'),
+            ),
+            _BottomNavItem(
+              icon: Icons.bar_chart_outlined,
+              activeIcon: Icons.bar_chart,
+              label: 'Thống kê',
+              onTap: () => context.go('/statistical'),
+            ),
+            _BottomNavItem(
+              icon: Icons.person_outline,
+              activeIcon: Icons.person,
+              label: 'Cá nhân',
+              onTap: () => context.go('/profile'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _BottomNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.onTap,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active ? AppColors.primary : AppColors.textSecondary;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(active ? activeIcon : icon, color: color, size: 23),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                color: color,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

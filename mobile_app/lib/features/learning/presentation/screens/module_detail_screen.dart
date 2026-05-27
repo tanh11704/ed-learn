@@ -91,6 +91,8 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                 duration: '0 phút',
                 status: status,
                 type: LessonType.video,
+                description: lesson.description,
+                videoUrl: lesson.videoUrl,
               );
             },
           )
@@ -276,6 +278,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                   'lessonName': lesson.name,
                                                   'moduleName': _chapter?.title ?? widget.moduleName,
                                                   'courseId': widget.courseId,
+                                                  'videoUrl': lesson.videoUrl,
                                                 },
                                               );
                                             }
