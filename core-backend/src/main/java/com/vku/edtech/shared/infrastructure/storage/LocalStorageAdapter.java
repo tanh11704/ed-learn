@@ -47,4 +47,21 @@ public class LocalStorageAdapter implements FileStoragePort {
             throw new FileStorageException("Lỗi hệ thống: Không thể lưu file giáo trình!", e);
         }
     }
+
+    @Override
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank() || fileUrl.startsWith("http")) {
+            return;
+        }
+
+        try {
+            Path basePath = Paths.get(baseDir).toAbsolutePath().normalize();
+            Path filePath = basePath.resolve(fileUrl).normalize();
+            if (filePath.startsWith(basePath)) {
+                Files.deleteIfExists(filePath);
+            }
+        } catch (IOException e) {
+            throw new FileStorageException("Lỗi hệ thống: Không thể xóa file!", e);
+        }
+    }
 }

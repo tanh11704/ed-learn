@@ -9,4 +9,9 @@ public interface FileStoragePort {
      * @return Đường dẫn file đã lưu để cất vào Database
      */
     String uploadFile(MultipartFile file, String subDirectory);
+
+    /**
+     * @param fileUrl Đường dẫn file đã lưu trước đó
+     */
+    void deleteFile(String fileUrl);
 }

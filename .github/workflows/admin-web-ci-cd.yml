@@ -28,6 +28,7 @@ jobs:
         working-directory: admin_web
     env:
       VITE_API_BASE_URL: ${{ secrets.ADMIN_WEB_API_BASE_URL || 'https://api.phuocanh.me/api/v1' }}
+      VITE_MINIO_PUBLIC_URL: ${{ secrets.ADMIN_WEB_MINIO_PUBLIC_URL || 'https://minio.phuocanh.me' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

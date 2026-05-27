@@ -9,6 +9,7 @@ import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.ChapterMappe
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.ChapterJpaRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -59,6 +60,7 @@ public class ChapterPersistenceAdapter implements ChapterCommandPort, ChapterQue
         try {
             return chapterJpaRepository.findAllByCourseIdWithLessons(courseId, status).stream()
                     .map(chapterMapper::toDomain)
+                    .sorted(Comparator.comparing(Chapter::getOrderIndex).thenComparing(Chapter::getId))
                     .toList();
         } finally {
             session.disableFilter("lessonDeletedFilter");

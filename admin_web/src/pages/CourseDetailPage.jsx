@@ -19,7 +19,10 @@ import * as chaptersApi from '../api/chapters.js';
 import * as lessonsApi from '../api/lessons.js';
 
 function byOrderIndex(left, right) {
-  return (left.orderIndex ?? Number.MAX_SAFE_INTEGER) - (right.orderIndex ?? Number.MAX_SAFE_INTEGER);
+  const leftOrder = Number(left.orderIndex ?? Number.MAX_SAFE_INTEGER);
+  const rightOrder = Number(right.orderIndex ?? Number.MAX_SAFE_INTEGER);
+  if (leftOrder !== rightOrder) return leftOrder - rightOrder;
+  return String(left.id || left.title || '').localeCompare(String(right.id || right.title || ''));
 }
 
 function normalizeChapters(chapters) {
