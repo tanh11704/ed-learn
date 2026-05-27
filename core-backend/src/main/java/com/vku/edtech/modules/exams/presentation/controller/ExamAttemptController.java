@@ -1,12 +1,16 @@
 package com.vku.edtech.modules.exams.presentation.controller;
 
 import com.vku.edtech.modules.exams.application.port.in.GetMyExamAttemptsUseCase;
-import com.vku.edtech.modules.exams.application.port.in.StartExamAttemptUseCase;
 import com.vku.edtech.modules.exams.application.port.in.SubmitExamAttemptUseCase;
+import com.vku.edtech.modules.exams.application.service.LearnerExamService;
 import com.vku.edtech.modules.exams.presentation.dto.mapper.ExamAttemptResponseMapper;
+import com.vku.edtech.modules.exams.presentation.dto.mapper.LearnerExamResponseMapper;
 import com.vku.edtech.modules.exams.presentation.dto.request.StartExamAttemptRequest;
 import com.vku.edtech.modules.exams.presentation.dto.request.SubmitExamAttemptRequest;
 import com.vku.edtech.modules.exams.presentation.dto.response.ExamAttemptResponse;
+import com.vku.edtech.modules.exams.presentation.dto.response.LearnerExamAttemptResponse;
+import com.vku.edtech.modules.exams.presentation.dto.response.LearnerExamAttemptReviewResponse;
+import com.vku.edtech.modules.exams.presentation.dto.response.LearnerExamSummaryResponse;
 import com.vku.edtech.shared.infrastructure.security.JwtUserInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -31,24 +35,41 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ExamAttemptController {
 
-    private final StartExamAttemptUseCase startExamAttemptUseCase;
+    private final LearnerExamService learnerExamService;
     private final SubmitExamAttemptUseCase submitExamAttemptUseCase;
     private final GetMyExamAttemptsUseCase getMyExamAttemptsUseCase;
     private final ExamAttemptResponseMapper attemptResponseMapper;
+    private final LearnerExamResponseMapper learnerExamResponseMapper;
+
+    @Operation(summary = "Danh sach de thi da xuat ban", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping
+    public ResponseEntity<List<LearnerExamSummaryResponse>> getPublishedExams() {
+        return ResponseEntity.ok(
+                learnerExamService.getPublishedExams().stream()
+                        .map(learnerExamResponseMapper::toSummary)
+                        .toList());
+    }
+
+    @Operation(summary = "Chi tiet de thi da xuat ban", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{examId}")
+    public ResponseEntity<LearnerExamSummaryResponse> getPublishedExam(@PathVariable UUID examId) {
+        return ResponseEntity.ok(
+                learnerExamResponseMapper.toSummary(learnerExamService.getPublishedExam(examId)));
+    }
 
     @Operation(summary = "Bat dau lam de", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/{examId}/attempts")
-    public ResponseEntity<ExamAttemptResponse> start(
+    public ResponseEntity<LearnerExamAttemptResponse> start(
             @PathVariable UUID examId,
             @Valid @RequestBody StartExamAttemptRequest request,
             Principal principal) {
         JwtUserInfo userInfo =
                 (JwtUserInfo) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
         var attempt =
-                startExamAttemptUseCase.start(
-                        new StartExamAttemptUseCase.StartExamAttemptCommand(
-                                examId, userInfo.getId(), request.gradeLevel(), request.className()));
-        return ResponseEntity.ok(attemptResponseMapper.toResponse(attempt));
+                learnerExamService.startAttempt(
+                        examId, userInfo.getId(), request.gradeLevel(), request.className());
+        var exam = learnerExamService.getExamForAttempt(attempt);
+        return ResponseEntity.ok(learnerExamResponseMapper.toAttemptResponse(attempt, exam));
     }
 
     @Operation(summary = "Nop bai lam de", security = @SecurityRequirement(name = "bearerAuth"))
@@ -84,5 +105,28 @@ public class ExamAttemptController {
                 getMyExamAttemptsUseCase.getMyAttempts(userInfo.getId()).stream()
                         .map(attemptResponseMapper::toResponse)
                         .toList());
+    }
+
+    @Operation(summary = "Chi tiet luot lam de cua toi", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/attempts/{attemptId}")
+    public ResponseEntity<LearnerExamAttemptResponse> getAttempt(
+            @PathVariable UUID attemptId, Principal principal) {
+        JwtUserInfo userInfo =
+                (JwtUserInfo) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        var attempt = learnerExamService.getOwnedAttempt(attemptId, userInfo.getId());
+        var exam = learnerExamService.getExamForAttempt(attempt);
+        return ResponseEntity.ok(learnerExamResponseMapper.toAttemptResponse(attempt, exam));
+    }
+
+    @Operation(summary = "Xem lai bai da nop", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/attempts/{attemptId}/review")
+    public ResponseEntity<LearnerExamAttemptReviewResponse> reviewAttempt(
+            @PathVariable UUID attemptId, Principal principal) {
+        JwtUserInfo userInfo =
+                (JwtUserInfo) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+        var attempt = learnerExamService.getOwnedAttempt(attemptId, userInfo.getId());
+        var exam = learnerExamService.getExamForAttempt(attempt);
+        var answers = learnerExamService.getReviewAnswers(attemptId, userInfo.getId());
+        return ResponseEntity.ok(learnerExamResponseMapper.toReviewResponse(attempt, exam, answers));
     }
 }
