@@ -1,6 +1,6 @@
 import { apiRequest } from './client.js';
 
-export function getExams({ status = 'ACTIVE' } = {}) {
+export function getExams({ status } = {}) {
   const params = new URLSearchParams();
   if (status) params.set('status', status);
   const query = params.toString();
