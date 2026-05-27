@@ -6,6 +6,130 @@ import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
 import * as lessonsApi from '../api/lessons.js';
 
+const LESSON_TYPES = {
+  VIDEO: {
+    label: 'Video',
+    prefix: '',
+    titleLabel: 'Tiêu đề video',
+    placeholder: 'Ví dụ: Khái niệm và ý nghĩa đạo hàm',
+    submitLabel: 'Tạo video bài học',
+  },
+  FLASHCARD: {
+    label: 'Flashcard',
+    prefix: 'Flashcard',
+    titleLabel: 'Tên bộ flashcard',
+    placeholder: 'Ví dụ: Đạo hàm của hàm hợp',
+    submitLabel: 'Tạo flashcard',
+  },
+  EXERCISE: {
+    label: 'Exercise',
+    prefix: 'Bài tập',
+    titleLabel: 'Tên bài tập',
+    placeholder: 'Ví dụ: Bài tập rèn luyện quy tắc tính',
+    submitLabel: 'Tạo bài tập',
+  },
+};
+
+function getLessonType(title = '') {
+  const normalized = title.toLowerCase();
+  if (normalized.includes('flashcard') || normalized.includes('flash card') || normalized.includes('thẻ')) {
+    return 'FLASHCARD';
+  }
+  if (
+    normalized.includes('exercise') ||
+    normalized.includes('bài tập') ||
+    normalized.includes('luyện tập') ||
+    normalized.includes('quiz') ||
+    normalized.includes('kiểm tra')
+  ) {
+    return 'EXERCISE';
+  }
+  return 'VIDEO';
+}
+
+function getTypedLessonTitle(type, title) {
+  const trimmedTitle = title.trim();
+  const config = LESSON_TYPES[type] || LESSON_TYPES.VIDEO;
+  if (!config.prefix || trimmedTitle.toLowerCase().startsWith(config.prefix.toLowerCase())) {
+    return trimmedTitle;
+  }
+  return `${config.prefix}: ${trimmedTitle}`;
+}
+
+function getItemNumber(title = '') {
+  const match = title.match(/(?:chuong|chương|chapter|bai|bài|lesson)\s*(\d+)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function byDisplayOrder(left, right) {
+  const leftNumber = getItemNumber(left.title);
+  const rightNumber = getItemNumber(right.title);
+  if (leftNumber !== null && rightNumber !== null && leftNumber !== rightNumber) {
+    return leftNumber - rightNumber;
+  }
+
+  const byOrderIndex =
+    (left.orderIndex ?? Number.MAX_SAFE_INTEGER) -
+    (right.orderIndex ?? Number.MAX_SAFE_INTEGER);
+  if (byOrderIndex !== 0) return byOrderIndex;
+
+  return (left.createdAt || '').localeCompare(right.createdAt || '');
+}
+
+function normalizeChapters(chapters) {
+  return [...chapters]
+    .sort(byDisplayOrder)
+    .map((chapter) => ({
+      ...chapter,
+      lessons: [...(chapter.lessons || [])].sort(byDisplayOrder),
+    }));
+}
+
+function getNextOrderIndex(items) {
+  const maxOrderIndex = items.reduce(
+    (max, item) => Math.max(max, Number(item.orderIndex) || 0),
+    0,
+  );
+  return maxOrderIndex + 1;
+}
+
+function LessonTypePreview({ type }) {
+  if (type === 'EXERCISE') {
+    return (
+      <div className="lesson-type-preview exercise">
+        <strong>Giao diện thêm bài tập</strong>
+        <p>Bài học tạo ra sẽ hiển thị là EXERCISE trên mobile và mở màn luyện tập.</p>
+        <ul>
+          <li>Nhập tên bài tập ở ô tiêu đề.</li>
+          <li>Không cần upload video/PDF cho bài tập.</li>
+          <li>Câu hỏi hiện đang dùng bộ quiz trong app mobile.</li>
+        </ul>
+      </div>
+    );
+  }
+
+  if (type === 'FLASHCARD') {
+    return (
+      <div className="lesson-type-preview flashcard">
+        <strong>Giao diện thêm flashcard</strong>
+        <p>Bài học tạo ra sẽ hiển thị là FLASHCARD trên mobile và mở màn ôn thẻ.</p>
+        <ul>
+          <li>Nhập tên bộ flashcard ở ô tiêu đề.</li>
+          <li>Không cần upload video/PDF cho flashcard.</li>
+          <li>Nội dung thẻ hiện đang dùng bộ flashcard trong app mobile.</li>
+        </ul>
+      </div>
+    );
+  }
+
+  return (
+    <div className="lesson-type-preview video">
+      <strong>Giao diện thêm video</strong>
+      <p>Tạo bài học video, sau đó dùng khối Video bài học và Upload PDF bên dưới nếu cần.</p>
+    </div>
+  );
+}
+
 export default function LearningContentPage() {
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState('');
@@ -13,6 +137,7 @@ export default function LearningContentPage() {
   const [chapterTitle, setChapterTitle] = useState('');
   const [lessonForm, setLessonForm] = useState({
     chapterId: '',
+    type: 'VIDEO',
     title: '',
     isPreview: false,
   });
@@ -28,6 +153,7 @@ export default function LearningContentPage() {
     () => courses.find((course) => course.id === courseId),
     [courses, courseId],
   );
+  const selectedLessonType = LESSON_TYPES[lessonForm.type] || LESSON_TYPES.VIDEO;
 
   async function loadCourses() {
     setLoading(true);
@@ -59,7 +185,7 @@ export default function LearningContentPage() {
       const chapterList = await chaptersApi.getChaptersByCourse(id, {
         status: 'ACTIVE',
       });
-      setChapters(Array.isArray(chapterList) ? chapterList : []);
+      setChapters(normalizeChapters(Array.isArray(chapterList) ? chapterList : []));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -73,7 +199,7 @@ export default function LearningContentPage() {
 
   useEffect(() => {
     loadContent(courseId);
-    setLessonForm({ chapterId: '', title: '', isPreview: false });
+    setLessonForm({ chapterId: '', type: 'VIDEO', title: '', isPreview: false });
   }, [courseId]);
 
   async function addChapter(e) {
@@ -84,7 +210,7 @@ export default function LearningContentPage() {
       await chaptersApi.createChapter({
         courseId,
         title: chapterTitle,
-        orderIndex: chapters.length + 1,
+        orderIndex: getNextOrderIndex(chapters),
       });
       setChapterTitle('');
       await loadContent();
@@ -111,10 +237,10 @@ export default function LearningContentPage() {
     try {
       await lessonsApi.createLesson({
         chapterId: lessonForm.chapterId,
-        title: lessonForm.title,
+        title: getTypedLessonTitle(lessonForm.type, lessonForm.title),
         isPreview: lessonForm.isPreview,
       });
-      setLessonForm({ chapterId: '', title: '', isPreview: false });
+      setLessonForm({ chapterId: '', type: 'VIDEO', title: '', isPreview: false });
       await loadContent();
     } catch (err) {
       setError(err.message);
@@ -231,15 +357,35 @@ export default function LearningContentPage() {
             </select>
           </label>
           <label>
-            Tiêu đề bài
+            {selectedLessonType.titleLabel}
             <input
               value={lessonForm.title}
               onChange={(e) =>
                 setLessonForm({ ...lessonForm, title: e.target.value })
               }
+              placeholder={selectedLessonType.placeholder}
               required
             />
           </label>
+          <label>
+            Loại bài học
+            <select
+              value={lessonForm.type}
+              onChange={(e) =>
+                setLessonForm({ ...lessonForm, type: e.target.value })
+              }
+              required
+            >
+              {Object.entries(LESSON_TYPES).map(([value, config]) => (
+                <option key={value} value={value}>
+                  {config.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="span-2">
+            <LessonTypePreview type={lessonForm.type} />
+          </div>
           <label className="checkbox-label">
             <input
               type="checkbox"
@@ -252,7 +398,7 @@ export default function LearningContentPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Tạo bài học
+              {selectedLessonType.submitLabel}
             </button>
           </div>
         </form>
@@ -346,6 +492,9 @@ export default function LearningContentPage() {
                   {chapter.lessons.map((lesson) => (
                     <li key={lesson.id}>
                       <span>{lesson.title}</span>
+                      <span className="status-pill neutral">
+                        {LESSON_TYPES[getLessonType(lesson.title)].label}
+                      </span>
                       <span className="muted">
                         {lesson.id}
                         {lesson.isPreview ? ' - Preview' : ''}

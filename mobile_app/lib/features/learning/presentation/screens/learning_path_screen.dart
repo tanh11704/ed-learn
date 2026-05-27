@@ -95,7 +95,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       final completedLessonIds =
           await _cacheService.getCompletedLessonIds(courseId);
       final chapters = detail.chapters.toList()
-        ..sort((a, b) => a.orderIndex.compareTo(b.orderIndex));
+        ..sort(_compareChaptersForPath);
 
       final updatedLessons = <_LessonItem>[];
       int totalLessons = 0;
@@ -174,6 +174,29 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       });
       await _loadCourseDetail(selected.id);
     }
+  }
+
+  int _compareChaptersForPath(ChapterDetail left, ChapterDetail right) {
+    final leftChapterNumber = _chapterNumberFromTitle(left.title);
+    final rightChapterNumber = _chapterNumberFromTitle(right.title);
+
+    if (leftChapterNumber != null && rightChapterNumber != null) {
+      final byChapterNumber = leftChapterNumber.compareTo(rightChapterNumber);
+      if (byChapterNumber != 0) return byChapterNumber;
+    }
+
+    final byOrderIndex = left.orderIndex.compareTo(right.orderIndex);
+    if (byOrderIndex != 0) return byOrderIndex;
+
+    return left.title.compareTo(right.title);
+  }
+
+  int? _chapterNumberFromTitle(String title) {
+    final match = RegExp(
+      r'(?:chuong|chương|chapter)\s*(\d+)',
+      caseSensitive: false,
+    ).firstMatch(title);
+    return match == null ? null : int.tryParse(match.group(1)!);
   }
 
   @override

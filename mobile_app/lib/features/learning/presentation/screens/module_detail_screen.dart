@@ -90,11 +90,48 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                 title: lesson.title,
                 duration: '0 phút',
                 status: status,
-                type: LessonType.video,
+                type: _inferLessonType(lesson.title),
+                videoUrl: lesson.videoUrl,
+                description: lesson.description,
               );
             },
           )
           .toList();
+
+      final hasFlashcard =
+          mappedLessons.any((lesson) => lesson.type == LessonType.flashcard);
+      final hasExercise =
+          mappedLessons.any((lesson) => lesson.type == LessonType.exercise);
+      final fallbackStatus =
+          canAccessAll || chapter.lessons.any((lesson) => lesson.isPreview)
+              ? LessonStatus.available
+              : LessonStatus.locked;
+
+      if (!hasFlashcard) {
+        mappedLessons.add(
+          Lesson(
+            id: '${chapter.id}-flashcard',
+            name: 'Flashcard ${chapter.title}',
+            title: 'Flashcard ${chapter.title}',
+            duration: 'Ôn tập nhanh',
+            status: fallbackStatus,
+            type: LessonType.flashcard,
+          ),
+        );
+      }
+
+      if (!hasExercise) {
+        mappedLessons.add(
+          Lesson(
+            id: '${chapter.id}-exercise',
+            name: 'Bài tập ${chapter.title}',
+            title: 'Bài tập ${chapter.title}',
+            duration: 'Luyện tập',
+            status: fallbackStatus,
+            type: LessonType.exercise,
+          ),
+        );
+      }
 
       setState(() {
         _chapter = chapter;
@@ -109,10 +146,52 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
     }
   }
 
+  LessonType _inferLessonType(String title) {
+    final normalized = title.toLowerCase();
+    if (normalized.contains('flashcard') ||
+        normalized.contains('flash card') ||
+        normalized.contains('thẻ')) {
+      return LessonType.flashcard;
+    }
+    if (normalized.contains('exercise') ||
+        normalized.contains('bài tập') ||
+        normalized.contains('luyện tập') ||
+        normalized.contains('quiz') ||
+        normalized.contains('kiểm tra')) {
+      return LessonType.exercise;
+    }
+    return LessonType.video;
+  }
+
+  Color _lessonAccentColor(Lesson lesson) {
+    if (lesson.isExercise) return Colors.orange;
+    if (lesson.isFlashcard) return Colors.purple;
+    return const Color(0xFF2563EB);
+  }
+
+  Color _lessonBackgroundColor(Lesson lesson) {
+    if (lesson.isExercise) return Colors.orange.shade50;
+    if (lesson.isFlashcard) return Colors.purple.shade50;
+    return Colors.blue.shade50;
+  }
+
+  IconData _lessonIcon(Lesson lesson) {
+    if (lesson.isExercise) return Icons.assignment_outlined;
+    if (lesson.isFlashcard) return Icons.style_outlined;
+    return Icons.play_circle_outline;
+  }
+
+  String _lessonTypeLabel(Lesson lesson) {
+    if (lesson.isExercise) return 'EXERCISE';
+    if (lesson.isFlashcard) return 'FLASHCARD';
+    return 'VIDEO';
+  }
+
   @override
   Widget build(BuildContext context) {
     int completedCount = lessons.where((l) => l.status == LessonStatus.completed).length;
     double progress = lessons.isEmpty ? 0 : (completedCount / lessons.length) * 100;
+    final activeIndex = lessons.indexWhere((lesson) => lesson.isAvailable);
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -244,7 +323,8 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                 final lesson = lessons[index];
                                 final isCompleted = lesson.isCompleted;
                                 final isLocked = lesson.isLocked;
-                                final isActive = index == 0;
+                                final isActive = index == activeIndex;
+                                final accentColor = _lessonAccentColor(lesson);
 
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -302,7 +382,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                   ? Colors.green[50]
                                                   : isLocked
                                                       ? Colors.grey[200]
-                                                      : Colors.blue[50],
+                                                      : _lessonBackgroundColor(lesson),
                                               borderRadius: BorderRadius.circular(8),
                                             ),
                                             child: Center(
@@ -311,12 +391,12 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                     ? Icons.check_circle
                                                     : isLocked
                                                         ? Icons.lock
-                                                        : Icons.play_circle_outline,
+                                                        : _lessonIcon(lesson),
                                                 color: isCompleted
                                                     ? Colors.green
                                                     : isLocked
                                                         ? Colors.grey
-                                                        : const Color(0xFF2563EB),
+                                                        : accentColor,
                                                 size: 24,
                                               ),
                                             ),
@@ -328,14 +408,18 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text(
-                                                      '${index + 1}. ${lesson.name}',
-                                                      style: TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: isLocked
-                                                            ? Colors.grey[400]
-                                                            : Colors.black,
+                                                    Expanded(
+                                                      child: Text(
+                                                        '${index + 1}. ${lesson.name}',
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          fontWeight: FontWeight.w600,
+                                                          color: isLocked
+                                                              ? Colors.grey[400]
+                                                              : Colors.black,
+                                                        ),
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
                                                       ),
                                                     ),
                                                   ],
@@ -389,11 +473,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                               borderRadius: BorderRadius.circular(4),
                                             ),
                                             child: Text(
-                                              lesson.isExercise
-                                                  ? 'EXERCISE'
-                                                  : lesson.isFlashcard
-                                                      ? 'FLASHCARD'
-                                                      : 'VIDEO',
+                                              _lessonTypeLabel(lesson),
                                               style: TextStyle(
                                                 fontSize: 10,
                                                 fontWeight: FontWeight.w700,
@@ -401,7 +481,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                     ? Colors.orange
                                                     : lesson.isFlashcard
                                                         ? Colors.purple
-                                                        : const Color(0xFF2563EB),
+                                                        : accentColor,
                                               ),
                                             ),
                                           ),
