@@ -16,3 +16,6 @@ async def verify_internal_api_key(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid AI service key",
         )
+
+
+require_ai_service_key = verify_internal_api_key
