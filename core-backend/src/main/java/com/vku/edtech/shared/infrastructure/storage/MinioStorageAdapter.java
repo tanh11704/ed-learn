@@ -8,7 +8,6 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
 import io.minio.SetBucketPolicyArgs;
-import jakarta.annotation.PostConstruct;
 import java.net.URI;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,15 +39,6 @@ public class MinioStorageAdapter implements FileStoragePort {
         this.endpoint = stripTrailingSlash(endpoint);
         this.publicUrl = stripTrailingSlash(publicUrl);
         this.bucket = bucket;
-    }
-
-    @PostConstruct
-    void initializeBucket() {
-        try {
-            ensureBucketExists();
-        } catch (Exception e) {
-            throw new FileStorageException("Lỗi hệ thống: Không thể khởi tạo bucket MinIO!", e);
-        }
     }
 
     @Override
