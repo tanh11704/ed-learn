@@ -1,0 +1,2 @@
+ALTER TABLE exam_questions
+    ADD COLUMN IF NOT EXISTS image_url VARCHAR(1000);

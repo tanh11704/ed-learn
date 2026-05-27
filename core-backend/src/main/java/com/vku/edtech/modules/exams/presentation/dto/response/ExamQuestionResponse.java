@@ -8,6 +8,7 @@ public record ExamQuestionResponse(
         UUID id,
         UUID examId,
         String content,
+        String imageUrl,
         Integer orderIndex,
         List<ExamQuestionOptionResponse> options,
         Instant createdAt,

@@ -45,6 +45,9 @@ public class ExamQuestionJpaEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "image_url", length = 1000)
+    private String imageUrl;
+
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
