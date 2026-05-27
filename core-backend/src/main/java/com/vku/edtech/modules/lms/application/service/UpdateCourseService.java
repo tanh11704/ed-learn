@@ -6,6 +6,7 @@ import com.vku.edtech.modules.lms.application.port.out.CourseQueryPort;
 import com.vku.edtech.modules.lms.domain.model.Course;
 import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -61,7 +62,25 @@ public class UpdateCourseService implements UpdateCourseUseCase {
     private boolean shouldDeleteOldThumbnail(String oldThumbnailUrl, String newThumbnailUrl) {
         return oldThumbnailUrl != null
                 && !oldThumbnailUrl.isBlank()
-                && !oldThumbnailUrl.equals(newThumbnailUrl);
+                && !oldThumbnailUrl.equals(newThumbnailUrl)
+                && isManagedCourseThumbnail(oldThumbnailUrl);
+    }
+
+    private boolean isManagedCourseThumbnail(String thumbnailUrl) {
+        String path = thumbnailUrl.trim();
+        boolean absoluteUrl = false;
+        try {
+            URI uri = URI.create(path);
+            if (uri.getScheme() != null && uri.getHost() != null) {
+                absoluteUrl = true;
+                path = uri.getPath();
+            }
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
+
+        path = path.replaceAll("^/+", "");
+        return path.startsWith("courses/") || (absoluteUrl && path.contains("/courses/"));
     }
 
     private void deleteOldThumbnailAfterCommit(String oldThumbnailUrl) {
