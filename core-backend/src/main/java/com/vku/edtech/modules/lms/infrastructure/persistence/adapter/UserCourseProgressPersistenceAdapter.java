@@ -26,6 +26,12 @@ public class UserCourseProgressPersistenceAdapter
     }
 
     @Override
+    public void upsertProgress(
+            UUID userId, UUID courseId, int progressPercent, UUID lastAccessedLessonId) {
+        repository.upsertProgress(userId, courseId, progressPercent, lastAccessedLessonId);
+    }
+
+    @Override
     public Optional<UserCourseProgress> findByUserIdAndCourseId(UUID userId, UUID courseId) {
         return repository.findByUserIdAndCourseId(userId, courseId).map(mapper::toDomain);
     }
