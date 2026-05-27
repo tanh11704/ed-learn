@@ -17,7 +17,7 @@ public interface ChapterJpaRepository extends JpaRepository<ChapterJpaEntity, UU
                     + "AND (:status = 'ALL' "
                     + "OR (:status = 'DELETED' AND c.isDeleted = true) "
                     + "OR (:status = 'ACTIVE' AND c.isDeleted = false)) "
-                    + "ORDER BY c.orderIndex ASC, l.orderIndex ASC")
+                    + "ORDER BY c.orderIndex ASC, c.id ASC, l.orderIndex ASC, l.id ASC")
     List<ChapterJpaEntity> findAllByCourseIdWithLessons(
             @Param("courseId") UUID courseId, @Param("status") String status);
 

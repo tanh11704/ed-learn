@@ -7,6 +7,7 @@ import com.vku.edtech.modules.lms.domain.model.Course;
 import com.vku.edtech.shared.application.ports.out.FileStoragePort;
 import com.vku.edtech.shared.presentation.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UpdateCourseService implements UpdateCourseUseCase {
 
     private final CourseQueryPort courseQueryPort;
@@ -64,7 +66,7 @@ public class UpdateCourseService implements UpdateCourseUseCase {
 
     private void deleteOldThumbnailAfterCommit(String oldThumbnailUrl) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {
-            fileStoragePort.deleteFile(oldThumbnailUrl);
+            deleteOldThumbnailBestEffort(oldThumbnailUrl);
             return;
         }
 
@@ -72,8 +74,16 @@ public class UpdateCourseService implements UpdateCourseUseCase {
                 new TransactionSynchronization() {
                     @Override
                     public void afterCommit() {
-                        fileStoragePort.deleteFile(oldThumbnailUrl);
+                        deleteOldThumbnailBestEffort(oldThumbnailUrl);
                     }
                 });
+    }
+
+    private void deleteOldThumbnailBestEffort(String oldThumbnailUrl) {
+        try {
+            fileStoragePort.deleteFile(oldThumbnailUrl);
+        } catch (RuntimeException e) {
+            log.warn("Không thể xóa thumbnail cũ của khóa học: {}", oldThumbnailUrl, e);
+        }
     }
 }

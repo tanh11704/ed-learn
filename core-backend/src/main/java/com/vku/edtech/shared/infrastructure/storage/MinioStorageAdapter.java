@@ -24,6 +24,7 @@ public class MinioStorageAdapter implements FileStoragePort {
     private final MinioClient minioClient;
     private final String bucket;
     private final String publicUrl;
+    private final String endpoint;
 
     public MinioStorageAdapter(
             @Value("${app.storage.minio.endpoint}") String endpoint,
@@ -36,6 +37,7 @@ public class MinioStorageAdapter implements FileStoragePort {
                         .endpoint(endpoint)
                         .credentials(accessKey, secretKey)
                         .build();
+        this.endpoint = stripTrailingSlash(endpoint);
         this.publicUrl = stripTrailingSlash(publicUrl);
         this.bucket = bucket;
     }
@@ -147,6 +149,9 @@ public class MinioStorageAdapter implements FileStoragePort {
         try {
             URI uri = URI.create(value);
             if (uri.getScheme() != null && uri.getHost() != null) {
+                if (!isManagedStorageUrl(uri)) {
+                    return "";
+                }
                 value = uri.getPath();
                 value = trimSlashes(value);
                 String bucketPrefix = bucket + "/";
@@ -162,5 +167,28 @@ public class MinioStorageAdapter implements FileStoragePort {
             return value.substring(bucketPrefix.length());
         }
         return value;
+    }
+
+    private boolean isManagedStorageUrl(URI uri) {
+        return matchesConfiguredBase(uri, endpoint) || matchesConfiguredBase(uri, publicUrl);
+    }
+
+    private boolean matchesConfiguredBase(URI uri, String configuredBaseUrl) {
+        if (configuredBaseUrl == null || configuredBaseUrl.isBlank()) {
+            return false;
+        }
+
+        try {
+            URI configuredUri = URI.create(configuredBaseUrl);
+            int configuredPort = configuredUri.getPort();
+            int uriPort = uri.getPort();
+            return configuredUri.getScheme() != null
+                    && configuredUri.getHost() != null
+                    && configuredUri.getScheme().equalsIgnoreCase(uri.getScheme())
+                    && configuredUri.getHost().equalsIgnoreCase(uri.getHost())
+                    && configuredPort == uriPort;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 }
