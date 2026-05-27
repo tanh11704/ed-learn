@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ExternalLink, FileText, FileUp, PlayCircle, Plus, Trash2 } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowLeft,
+  ArrowUp,
+  ExternalLink,
+  FileText,
+  FileUp,
+  PlayCircle,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import { API_BASE_URL } from '../api/config.js';
@@ -26,6 +36,14 @@ function getFileUrl(path) {
   if (path.startsWith('http')) return path;
   const apiRoot = API_BASE_URL.replace(/\/api\/v1\/?$/, '');
   return `${apiRoot}/uploads/${path.replace(/^\/+/, '')}`;
+}
+
+function moveItem(items, index, direction) {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const nextItems = [...items];
+  [nextItems[index], nextItems[nextIndex]] = [nextItems[nextIndex], nextItems[index]];
+  return nextItems;
 }
 
 export default function CourseDetailPage() {
@@ -109,6 +127,29 @@ export default function CourseDetailPage() {
     if (!confirm('Xóa chương này?')) return;
     try {
       await chaptersApi.deleteChapter(chapterId);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function moveChapter(chapterIndex, direction) {
+    const nextChapters = moveItem(chapters, chapterIndex, direction);
+    if (nextChapters === chapters) return;
+    try {
+      await chaptersApi.reorderChapters(id, nextChapters.map((chapter) => chapter.id));
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function moveLesson(chapter, lessonIndex, direction) {
+    const lessons = chapter.lessons || [];
+    const nextLessons = moveItem(lessons, lessonIndex, direction);
+    if (nextLessons === lessons) return;
+    try {
+      await lessonsApi.reorderLessons(chapter.id, nextLessons.map((lesson) => lesson.id));
       await load();
     } catch (err) {
       setError(err.message);
@@ -206,23 +247,43 @@ export default function CourseDetailPage() {
         </form>
       </section>
 
-      {chapters.map((ch) => (
+      {chapters.map((ch, chapterIndex) => (
         <section key={ch.id} className="panel">
           <div className="panel-head">
             <div>
               <h2>{ch.title}</h2>
               {ch.isDeleted && <span className="status-pill danger">Chương đã xóa</span>}
             </div>
-            <button
-              type="button"
-              className="btn-icon danger"
-              onClick={() => deleteChapter(ch.id)}
-            >
-              <Trash2 size={16} />
-            </button>
+            <div className="row-actions">
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={() => moveChapter(chapterIndex, -1)}
+                disabled={chapterIndex === 0}
+                title="Chuyển chương lên"
+              >
+                <ArrowUp size={16} />
+              </button>
+              <button
+                type="button"
+                className="btn-icon"
+                onClick={() => moveChapter(chapterIndex, 1)}
+                disabled={chapterIndex === chapters.length - 1}
+                title="Chuyển chương xuống"
+              >
+                <ArrowDown size={16} />
+              </button>
+              <button
+                type="button"
+                className="btn-icon danger"
+                onClick={() => deleteChapter(ch.id)}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           </div>
           <ul className="lesson-list">
-            {(ch.lessons || []).map((ls) => (
+            {(ch.lessons || []).map((ls, lessonIndex) => (
               <li key={ls.id}>
                 <span>{ls.title}</span>
                 <span className={`status-pill ${ls.isPreview ? 'success' : 'warning'}`}>
@@ -257,13 +318,33 @@ export default function CourseDetailPage() {
                     <span className="status-pill warning">Thiếu PDF</span>
                   )}
                 </div>
-                <button
-                  type="button"
-                  className="btn-icon danger"
-                  onClick={() => deleteLesson(ls.id)}
-                >
-                  <Trash2 size={14} />
-                </button>
+                <div className="row-actions">
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    onClick={() => moveLesson(ch, lessonIndex, -1)}
+                    disabled={lessonIndex === 0}
+                    title="Chuyển bài học lên"
+                  >
+                    <ArrowUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    onClick={() => moveLesson(ch, lessonIndex, 1)}
+                    disabled={lessonIndex === (ch.lessons || []).length - 1}
+                    title="Chuyển bài học xuống"
+                  >
+                    <ArrowDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-icon danger"
+                    onClick={() => deleteLesson(ls.id)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>

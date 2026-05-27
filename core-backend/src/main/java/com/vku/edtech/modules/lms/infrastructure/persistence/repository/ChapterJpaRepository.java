@@ -3,6 +3,7 @@ package com.vku.edtech.modules.lms.infrastructure.persistence.repository;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.ChapterJpaEntity;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,4 +25,14 @@ public interface ChapterJpaRepository extends JpaRepository<ChapterJpaEntity, UU
     @Query(
             "SELECT MAX(c.orderIndex) FROM ChapterJpaEntity c WHERE c.course.id = :courseId AND c.isDeleted = false")
     Integer findMaxOrderIdxByCourseId(@Param("courseId") UUID courseId);
+
+    @Query(
+            "SELECT c.id FROM ChapterJpaEntity c "
+                    + "WHERE c.course.id = :courseId AND c.isDeleted = false "
+                    + "ORDER BY c.orderIndex ASC, c.createdAt ASC, c.id ASC")
+    List<UUID> findActiveChapterIdsByCourseId(@Param("courseId") UUID courseId);
+
+    @Modifying
+    @Query("UPDATE ChapterJpaEntity c SET c.orderIndex = :orderIndex WHERE c.id = :chapterId")
+    void updateOrderIndex(@Param("chapterId") UUID chapterId, @Param("orderIndex") int orderIndex);
 }
