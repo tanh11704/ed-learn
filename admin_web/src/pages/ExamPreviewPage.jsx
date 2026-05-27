@@ -50,14 +50,6 @@ export default function ExamPreviewPage() {
       setError('');
 
       try {
-        const exams = extractList(await examsApi.getExams());
-        if (!mounted) return;
-        setExam(exams.find((item) => item.id === examId) || null);
-      } catch (err) {
-        if (mounted) setError(err.message);
-      }
-
-      try {
         const detail = await examsApi.getExam(examId);
         if (!mounted) return;
         setExam((current) => detail || current);

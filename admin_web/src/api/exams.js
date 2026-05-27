@@ -1,7 +1,10 @@
 import { apiRequest } from './client.js';
 
-export function getExams() {
-  return apiRequest('/admin/exams');
+export function getExams({ status } = {}) {
+  const params = new URLSearchParams();
+  if (status) params.set('status', status);
+  const query = params.toString();
+  return apiRequest(`/admin/exams${query ? `?${query}` : ''}`);
 }
 
 export function createExam(body) {

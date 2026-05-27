@@ -52,4 +52,18 @@ public class ExamPersistenceAdapter implements ExamCommandPort, ExamQueryPort {
                 .map(examPersistenceMapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Exam> findAllActive() {
+        return examJpaRepository.findAllByStatusNotOrderByCreatedAtDesc("ARCHIVED").stream()
+                .map(examPersistenceMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Exam> findAllByStatus(String status) {
+        return examJpaRepository.findAllByStatusOrderByCreatedAtDesc(status).stream()
+                .map(examPersistenceMapper::toDomain)
+                .toList();
+    }
 }
