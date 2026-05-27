@@ -16,13 +16,22 @@ class ExamSessionModel {
     required String examId,
     int fallbackDurationMinutes = 45,
   }) {
+    final attemptJson = json['attempt'] is Map
+        ? json['attempt'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+    final examJson = json['exam'] is Map
+        ? json['exam'] as Map<String, dynamic>
+        : const <String, dynamic>{};
+
     final sessionId = (json['sessionId'] ??
             json['id'] ??
             json['examSessionId'] ??
+            attemptJson['id'] ??
             '')
         .toString();
 
     final duration = (json['durationMinutes'] as num?)?.toInt() ??
+        (examJson['durationMinutes'] as num?)?.toInt() ??
         (json['remainingMinutes'] as num?)?.toInt() ??
         fallbackDurationMinutes;
 
@@ -32,7 +41,9 @@ class ExamSessionModel {
 
     return ExamSessionModel(
       sessionId: sessionId,
-      examId: (json['examId'] ?? examId).toString(),
+      examId:
+          (json['examId'] ?? attemptJson['examId'] ?? examJson['id'] ?? examId)
+              .toString(),
       durationMinutes: duration,
       questions: questionsJson
           .map((q) => ExamQuestionDto.fromJson(q as Map<String, dynamic>))
