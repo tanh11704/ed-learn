@@ -41,7 +41,7 @@ class CreateLessonServiceTest {
 
         Lesson lesson =
                 createLessonService.create(
-                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", null, false));
+                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", false));
 
         assertEquals(3, lesson.getOrderIndex());
     }
@@ -57,11 +57,19 @@ class CreateLessonServiceTest {
                 () ->
                         createLessonService.create(
                                 new CreateLessonUseCase.CreateLessonCommand(
-                                        chapterId, "Lesson", 1, false)));
+                                        chapterId, "Lesson", false)));
     }
 
     private Chapter chapter(UUID id, boolean deleted) {
         Instant now = Instant.now();
-        return Chapter.builder().id(id).title("t").orderIndex(1).isDeleted(deleted).createdAt(now).updatedAt(now).build();
+        return Chapter.builder()
+                .id(id)
+                .courseId(UUID.randomUUID())
+                .title("t")
+                .orderIndex(1)
+                .isDeleted(deleted)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 }

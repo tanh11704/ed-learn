@@ -11,4 +11,6 @@ public interface ChapterQueryPort {
     List<Chapter> findAllByCourseIdWithLessons(UUID courseId, String status);
 
     int findMaxOrderIdxByCourseId(UUID courseId);
+
+    void lockCourseForOrdering(UUID courseId);
 }

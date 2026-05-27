@@ -6,6 +6,7 @@ import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.infrastructure.persistence.entity.LessonJpaEntity;
 import com.vku.edtech.modules.lms.infrastructure.persistence.mapper.LessonMapper;
 import com.vku.edtech.modules.lms.infrastructure.persistence.repository.LessonJpaRepository;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -48,5 +49,20 @@ public class LessonPersistenceAdapter implements LessonCommandPort, LessonQueryP
         LessonJpaEntity entity = lessonMapper.toEntity(lesson);
         LessonJpaEntity savedEntity = lessonJpaRepository.save(entity);
         return lessonMapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public List<UUID> findActiveLessonIdsByChapterId(UUID chapterId) {
+        return lessonJpaRepository.findActiveLessonIdsByChapterId(chapterId);
+    }
+
+    @Override
+    public void updateOrderIndex(UUID lessonId, int orderIndex) {
+        lessonJpaRepository.updateOrderIndex(lessonId, orderIndex);
+    }
+
+    @Override
+    public void flush() {
+        lessonJpaRepository.flush();
     }
 }

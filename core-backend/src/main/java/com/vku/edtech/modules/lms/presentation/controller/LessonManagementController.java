@@ -2,6 +2,7 @@ package com.vku.edtech.modules.lms.presentation.controller;
 
 import com.vku.edtech.modules.lms.application.port.in.CreateLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.in.DeleteLessonUseCase;
+import com.vku.edtech.modules.lms.application.port.in.ReorderLessonsUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UpdateLessonUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UpdateLessonVideoUrlUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase;
@@ -9,6 +10,7 @@ import com.vku.edtech.modules.lms.application.port.in.UploadLessonMediaUseCase.U
 import com.vku.edtech.modules.lms.domain.model.Lesson;
 import com.vku.edtech.modules.lms.presentation.dto.mapper.LessonResponseMapper;
 import com.vku.edtech.modules.lms.presentation.dto.request.CreateLessonRequest;
+import com.vku.edtech.modules.lms.presentation.dto.request.ReorderLessonsRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateLessonRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateLessonVideoUrlRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.LessonResponse;
@@ -33,6 +35,7 @@ public class LessonManagementController {
     private final CreateLessonUseCase createLessonUseCase;
     private final UpdateLessonUseCase updateLessonUseCase;
     private final UpdateLessonVideoUrlUseCase updateLessonVideoUrlUseCase;
+    private final ReorderLessonsUseCase reorderLessonsUseCase;
     private final DeleteLessonUseCase deleteLessonUseCase;
     private final LessonResponseMapper lessonResponseMapper;
 
@@ -47,7 +50,6 @@ public class LessonManagementController {
                 new CreateLessonUseCase.CreateLessonCommand(
                         UUID.fromString(request.chapterId()),
                         request.title(),
-                        request.orderIndex(),
                         request.isPreview());
 
         Lesson lesson = createLessonUseCase.create(command);
@@ -71,6 +73,19 @@ public class LessonManagementController {
 
         Lesson lesson = updateLessonUseCase.update(command);
         return ResponseEntity.ok(lessonResponseMapper.toResponse(lesson));
+    }
+
+    @Operation(
+            summary = "Sắp xếp lại lesson trong chapter",
+            description = "Chỉ ADMIN được phép sắp xếp lại lesson.",
+            security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/chapter/{chapterId}/reorder")
+    public ResponseEntity<Void> reorderLessons(
+            @PathVariable("chapterId") UUID chapterId,
+            @Valid @RequestBody ReorderLessonsRequest request) {
+        reorderLessonsUseCase.reorder(
+                new ReorderLessonsUseCase.ReorderLessonsCommand(chapterId, request.lessonIds()));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

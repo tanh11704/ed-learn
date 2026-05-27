@@ -25,11 +25,8 @@ public class CreateChapterService implements CreateChapterUseCase {
                 @CacheEvict(value = "coursePage", allEntries = true)
             })
     public Chapter createChapter(CreateChapterCommand command) {
-        int finalOrderIdx = command.orderIdx();
-
-        if (finalOrderIdx <= 0) {
-            finalOrderIdx = chapterQueryPort.findMaxOrderIdxByCourseId(command.courseId()) + 1;
-        }
+        chapterQueryPort.lockCourseForOrdering(command.courseId());
+        int finalOrderIdx = chapterQueryPort.findMaxOrderIdxByCourseId(command.courseId()) + 1;
 
         Chapter chapter = Chapter.createNew(command.courseId(), command.title(), finalOrderIdx);
 
