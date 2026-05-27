@@ -17,6 +17,7 @@ import { API_BASE_URL } from '../api/config.js';
 import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
 import * as lessonsApi from '../api/lessons.js';
+import * as lessonContentItemsApi from '../api/lessonContentItems.js';
 
 const LESSON_TYPES = {
   VIDEO: {
@@ -105,6 +106,10 @@ function getTypedLessonTitle(type, title) {
   return `${config.prefix}: ${trimmedTitle}`;
 }
 
+function getLessonTypeLabel(type) {
+  return LESSON_TYPES[type]?.label || 'Video';
+}
+
 function LessonTypePreview({ type }) {
   if (type === 'EXERCISE') {
     return (
@@ -149,18 +154,6 @@ function getFileUrl(path) {
   return `${apiRoot}/uploads/${path.replace(/^\/+/, '')}`;
 }
 
-function readLessonDrafts(courseId, type) {
-  try {
-    return JSON.parse(localStorage.getItem(`lesson-draft-${type}-${courseId}`) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-function writeLessonDrafts(courseId, type, items) {
-  localStorage.setItem(`lesson-draft-${type}-${courseId}`, JSON.stringify(items));
-}
-
 function moveItem(items, index, direction) {
   const nextIndex = index + direction;
   if (nextIndex < 0 || nextIndex >= items.length) return items;
@@ -196,7 +189,8 @@ export default function CourseDetailPage() {
     back: '',
     explanation: '',
   });
-  const [flashcards, setFlashcards] = useState(() => readLessonDrafts(id, 'flashcards'));
+  const [flashcards, setFlashcards] = useState([]);
+  const [editingFlashcardId, setEditingFlashcardId] = useState(null);
   const [exerciseChapterId, setExerciseChapterId] = useState('');
   const [exerciseLessonId, setExerciseLessonId] = useState('');
   const [exerciseForm, setExerciseForm] = useState({
@@ -208,7 +202,8 @@ export default function CourseDetailPage() {
     correctOption: 'A',
     explanation: '',
   });
-  const [exercises, setExercises] = useState(() => readLessonDrafts(id, 'exercises'));
+  const [exercises, setExercises] = useState([]);
+  const [editingExerciseId, setEditingExerciseId] = useState(null);
 
   const uploadChapter = useMemo(
     () => chapters.find((chapter) => chapter.id === uploadChapterId),
@@ -231,6 +226,9 @@ export default function CourseDetailPage() {
   const flashcardLessons = (flashcardChapter?.lessons || []).filter(
     (lesson) => getLessonType(lesson.title) === 'FLASHCARD',
   );
+  const visibleFlashcards = flashcardLessonId
+    ? flashcards.filter((item) => item.lessonId === flashcardLessonId)
+    : [];
   const exerciseChapter = useMemo(
     () => chapters.find((chapter) => chapter.id === exerciseChapterId),
     [chapters, exerciseChapterId],
@@ -238,6 +236,9 @@ export default function CourseDetailPage() {
   const exerciseLessons = (exerciseChapter?.lessons || []).filter(
     (lesson) => getLessonType(lesson.title) === 'EXERCISE',
   );
+  const visibleExercises = exerciseLessonId
+    ? exercises.filter((item) => item.lessonId === exerciseLessonId)
+    : [];
   const selectedLessonType = LESSON_TYPES[lessonForm.type] || LESSON_TYPES.VIDEO;
 
   async function load() {
@@ -253,6 +254,7 @@ export default function CourseDetailPage() {
         Array.isArray(chapterList) ? chapterList : detail.chapters || [],
       );
       setChapters(nextChapters);
+      await loadLessonContentItems(nextChapters);
       if (uploadChapterId && !nextChapters.some((chapter) => chapter.id === uploadChapterId)) {
         setUploadChapterId('');
         setUploadLessonId('');
@@ -264,10 +266,12 @@ export default function CourseDetailPage() {
       if (flashcardChapterId && !nextChapters.some((chapter) => chapter.id === flashcardChapterId)) {
         setFlashcardChapterId('');
         setFlashcardLessonId('');
+        setEditingFlashcardId(null);
       }
       if (exerciseChapterId && !nextChapters.some((chapter) => chapter.id === exerciseChapterId)) {
         setExerciseChapterId('');
         setExerciseLessonId('');
+        setEditingExerciseId(null);
       }
     } catch (err) {
       setError(err.message);
@@ -279,6 +283,49 @@ export default function CourseDetailPage() {
   useEffect(() => {
     load();
   }, [id]);
+
+  async function loadLessonContentItems(nextChapters) {
+    const allLessons = nextChapters.flatMap((chapter) => chapter.lessons || []);
+    const flashcardLessonIds = allLessons
+      .filter((lesson) => getLessonType(lesson.title) === 'FLASHCARD')
+      .map((lesson) => lesson.id);
+    const exerciseLessonIds = allLessons
+      .filter((lesson) => getLessonType(lesson.title) === 'EXERCISE')
+      .map((lesson) => lesson.id);
+
+    const [flashcardGroups, exerciseGroups] = await Promise.all([
+      Promise.all(
+        flashcardLessonIds.map((lessonId) =>
+          lessonContentItemsApi.getLessonContentItems(lessonId, { type: 'FLASHCARD' }),
+        ),
+      ),
+      Promise.all(
+        exerciseLessonIds.map((lessonId) =>
+          lessonContentItemsApi.getLessonContentItems(lessonId, { type: 'EXERCISE' }),
+        ),
+      ),
+    ]);
+
+    setFlashcards(
+      flashcardGroups.flatMap((group) =>
+        (Array.isArray(group) ? group : []).map((item) => ({
+          ...item,
+          front: item.prompt,
+          back: item.answer,
+          lessonTitle: allLessons.find((lesson) => lesson.id === item.lessonId)?.title || '',
+        })),
+      ),
+    );
+    setExercises(
+      exerciseGroups.flatMap((group) =>
+        (Array.isArray(group) ? group : []).map((item) => ({
+          ...item,
+          question: item.prompt,
+          lessonTitle: allLessons.find((lesson) => lesson.id === item.lessonId)?.title || '',
+        })),
+      ),
+    );
+  }
 
   async function addChapter(e) {
     e.preventDefault();
@@ -385,28 +432,57 @@ export default function CourseDetailPage() {
     }
   }
 
-  function handleFlashcardSubmit(e) {
+  async function handleFlashcardSubmit(e) {
     e.preventDefault();
     if (!flashcardLessonId || !flashcardForm.front.trim() || !flashcardForm.back.trim()) return;
 
-    const lesson = flashcardLessons.find((item) => item.id === flashcardLessonId);
-    const nextFlashcards = [
-      ...flashcards,
-      {
-        id: crypto.randomUUID(),
-        lessonId: flashcardLessonId,
-        lessonTitle: lesson?.title || '',
-        front: flashcardForm.front.trim(),
-        back: flashcardForm.back.trim(),
+    try {
+      const body = {
+        type: 'FLASHCARD',
+        prompt: flashcardForm.front.trim(),
+        answer: flashcardForm.back.trim(),
         explanation: flashcardForm.explanation.trim(),
-      },
-    ];
-    setFlashcards(nextFlashcards);
-    writeLessonDrafts(id, 'flashcards', nextFlashcards);
-    setFlashcardForm({ front: '', back: '', explanation: '' });
+      };
+      if (editingFlashcardId) {
+        await lessonContentItemsApi.updateLessonContentItem(editingFlashcardId, body);
+      } else {
+        await lessonContentItemsApi.createLessonContentItem(flashcardLessonId, body);
+      }
+      setFlashcardForm({ front: '', back: '', explanation: '' });
+      setEditingFlashcardId(null);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
-  function handleExerciseSubmit(e) {
+  function editFlashcard(item) {
+    setFlashcardLessonId(item.lessonId);
+    setFlashcardForm({
+      front: item.front || item.prompt || '',
+      back: item.back || item.answer || '',
+      explanation: item.explanation || '',
+    });
+    setEditingFlashcardId(item.id);
+  }
+
+  function cancelFlashcardEdit() {
+    setFlashcardForm({ front: '', back: '', explanation: '' });
+    setEditingFlashcardId(null);
+  }
+
+  async function deleteFlashcard(itemId) {
+    if (!confirm('Xóa thẻ flashcard này vĩnh viễn? Bài học flashcard vẫn được giữ lại.')) return;
+    try {
+      await lessonContentItemsApi.deleteLessonContentItem(itemId);
+      if (editingFlashcardId === itemId) cancelFlashcardEdit();
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleExerciseSubmit(e) {
     e.preventDefault();
     if (
       !exerciseLessonId ||
@@ -419,26 +495,59 @@ export default function CourseDetailPage() {
       return;
     }
 
-    const lesson = exerciseLessons.find((item) => item.id === exerciseLessonId);
-    const nextExercises = [
-      ...exercises,
-      {
-        id: crypto.randomUUID(),
-        lessonId: exerciseLessonId,
-        lessonTitle: lesson?.title || '',
-        question: exerciseForm.question.trim(),
-        options: [
-          { key: 'A', content: exerciseForm.optionA.trim() },
-          { key: 'B', content: exerciseForm.optionB.trim() },
-          { key: 'C', content: exerciseForm.optionC.trim() },
-          { key: 'D', content: exerciseForm.optionD.trim() },
-        ],
+    try {
+      const options = [
+        exerciseForm.optionA.trim(),
+        exerciseForm.optionB.trim(),
+        exerciseForm.optionC.trim(),
+        exerciseForm.optionD.trim(),
+      ];
+      const correctIndex = ['A', 'B', 'C', 'D'].indexOf(exerciseForm.correctOption);
+      const body = {
+        type: 'EXERCISE',
+        prompt: exerciseForm.question.trim(),
+        answer: options[correctIndex],
+        options,
         correctOption: exerciseForm.correctOption,
         explanation: exerciseForm.explanation.trim(),
-      },
-    ];
-    setExercises(nextExercises);
-    writeLessonDrafts(id, 'exercises', nextExercises);
+      };
+      if (editingExerciseId) {
+        await lessonContentItemsApi.updateLessonContentItem(editingExerciseId, body);
+      } else {
+        await lessonContentItemsApi.createLessonContentItem(exerciseLessonId, body);
+      }
+      setExerciseForm({
+        question: '',
+        optionA: '',
+        optionB: '',
+        optionC: '',
+        optionD: '',
+        correctOption: 'A',
+        explanation: '',
+      });
+      setEditingExerciseId(null);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  function editExercise(item) {
+    const options = item.options || [];
+    setExerciseLessonId(item.lessonId);
+    setExerciseForm({
+      question: item.question || item.prompt || '',
+      optionA: options[0] || '',
+      optionB: options[1] || '',
+      optionC: options[2] || '',
+      optionD: options[3] || '',
+      correctOption: item.correctOption || 'A',
+      explanation: item.explanation || '',
+    });
+    setEditingExerciseId(item.id);
+  }
+
+  function cancelExerciseEdit() {
     setExerciseForm({
       question: '',
       optionA: '',
@@ -448,6 +557,18 @@ export default function CourseDetailPage() {
       correctOption: 'A',
       explanation: '',
     });
+    setEditingExerciseId(null);
+  }
+
+  async function deleteExercise(itemId) {
+    if (!confirm('Xóa câu bài tập này vĩnh viễn? Bài học exercise vẫn được giữ lại.')) return;
+    try {
+      await lessonContentItemsApi.deleteLessonContentItem(itemId);
+      if (editingExerciseId === itemId) cancelExerciseEdit();
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   if (loading) return <p className="muted">Đang tải...</p>;
@@ -524,7 +645,7 @@ export default function CourseDetailPage() {
               <li key={ls.id}>
                 <span>{ls.title}</span>
                 <span className="status-pill neutral">
-                  {LESSON_TYPES[getLessonType(ls.title)].label}
+                  {getLessonTypeLabel(getLessonType(ls.title))}
                 </span>
                 <span className={`status-pill ${ls.isPreview ? 'success' : 'warning'}`}>
                   {ls.isPreview ? 'Cho phép học thử' : 'Không học thử'}
@@ -722,9 +843,9 @@ export default function CourseDetailPage() {
       </section>
 
       <section className="panel">
-        <h2>Flashcard bài học (bản nháp)</h2>
+        <h2>Flashcard bài học</h2>
         <p className="muted">
-          Dữ liệu dưới đây chỉ là bản nháp trong trình duyệt để chuẩn bị UI. Nội dung chưa được gửi lên backend và chưa hiển thị cho học viên.
+          Nội dung được lưu vào backend và learner review theo lịch spaced repetition SM-2.
         </p>
         <form className="form-grid" onSubmit={handleFlashcardSubmit}>
           <label>
@@ -734,6 +855,7 @@ export default function CourseDetailPage() {
               onChange={(e) => {
                 setFlashcardChapterId(e.target.value);
                 setFlashcardLessonId('');
+                cancelFlashcardEdit();
               }}
               required
             >
@@ -749,7 +871,10 @@ export default function CourseDetailPage() {
             Bài học flashcard
             <select
               value={flashcardLessonId}
-              onChange={(e) => setFlashcardLessonId(e.target.value)}
+              onChange={(e) => {
+                setFlashcardLessonId(e.target.value);
+                cancelFlashcardEdit();
+              }}
               required
               disabled={!flashcardChapterId || flashcardLessons.length === 0}
             >
@@ -800,26 +925,43 @@ export default function CourseDetailPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Lưu nháp flashcard
+              {editingFlashcardId ? 'Cập nhật flashcard' : 'Lưu flashcard'}
             </button>
+            {editingFlashcardId && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={cancelFlashcardEdit}>
+                Hủy sửa
+              </button>
+            )}
           </div>
         </form>
-        {flashcards.length > 0 && (
+        {!flashcardLessonId ? (
+          <p className="muted">Chọn một bài học flashcard để xem, sửa hoặc xóa nội dung đã lưu.</p>
+        ) : visibleFlashcards.length > 0 ? (
           <ul className="admin-data-list">
-            {flashcards.map((item) => (
+            {visibleFlashcards.map((item) => (
               <li key={item.id}>
                 <strong>{item.lessonTitle}</strong>
                 <span>{item.front} → {item.back}</span>
+                <div className="row-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => editFlashcard(item)}>
+                    Sửa
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm danger" onClick={() => deleteFlashcard(item.id)}>
+                    Xóa
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="muted">Bài học này chưa có flashcard nào.</p>
         )}
       </section>
 
       <section className="panel">
-        <h2>Exercise bài học (bản nháp)</h2>
+        <h2>Exercise bài học</h2>
         <p className="muted">
-          Dữ liệu dưới đây chỉ là bản nháp trong trình duyệt để chuẩn bị UI. Nội dung chưa được gửi lên backend và chưa hiển thị cho học viên.
+          Nội dung được lưu vào backend và learner review theo lịch spaced repetition SM-2.
         </p>
         <form className="form-grid" onSubmit={handleExerciseSubmit}>
           <label>
@@ -829,6 +971,7 @@ export default function CourseDetailPage() {
               onChange={(e) => {
                 setExerciseChapterId(e.target.value);
                 setExerciseLessonId('');
+                cancelExerciseEdit();
               }}
               required
             >
@@ -844,7 +987,10 @@ export default function CourseDetailPage() {
             Bài học exercise
             <select
               value={exerciseLessonId}
-              onChange={(e) => setExerciseLessonId(e.target.value)}
+              onChange={(e) => {
+                setExerciseLessonId(e.target.value);
+                cancelExerciseEdit();
+              }}
               required
               disabled={!exerciseChapterId || exerciseLessons.length === 0}
             >
@@ -943,19 +1089,36 @@ export default function CourseDetailPage() {
           </label>
           <div className="form-actions span-2">
             <button type="submit" className="btn btn-primary btn-sm">
-              Lưu nháp bài tập
+              {editingExerciseId ? 'Cập nhật bài tập' : 'Lưu bài tập'}
             </button>
+            {editingExerciseId && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={cancelExerciseEdit}>
+                Hủy sửa
+              </button>
+            )}
           </div>
         </form>
-        {exercises.length > 0 && (
+        {!exerciseLessonId ? (
+          <p className="muted">Chọn một bài học exercise để xem, sửa hoặc xóa nội dung đã lưu.</p>
+        ) : visibleExercises.length > 0 ? (
           <ul className="admin-data-list">
-            {exercises.map((item) => (
+            {visibleExercises.map((item) => (
               <li key={item.id}>
                 <strong>{item.lessonTitle}</strong>
                 <span>{item.question} → Đáp án {item.correctOption}</span>
+                <div className="row-actions">
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => editExercise(item)}>
+                    Sửa
+                  </button>
+                  <button type="button" className="btn btn-ghost btn-sm danger" onClick={() => deleteExercise(item.id)}>
+                    Xóa
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
+        ) : (
+          <p className="muted">Bài học này chưa có bài tập nào.</p>
         )}
       </section>
 
