@@ -77,12 +77,13 @@ public class ExamScoringEngine {
     }
 
     private String findAnswer(List<QuestionAnswer> answers, java.util.UUID questionId) {
-        if (answers == null) return null;
-        return answers.stream()
-                .filter(answer -> answer.questionId().equals(questionId))
-                .map(QuestionAnswer::answer)
-                .findFirst()
-                .orElse(null);
+        if (answers == null || questionId == null) return null;
+        for (QuestionAnswer answer : answers) {
+            if (answer != null && questionId.equals(answer.questionId())) {
+                return answer.answer();
+            }
+        }
+        return null;
     }
 
     public record QuestionAnswer(java.util.UUID questionId, String answer) {}
