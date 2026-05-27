@@ -3,6 +3,7 @@ package com.vku.edtech.modules.exams.presentation.controller;
 import com.vku.edtech.modules.exams.application.port.in.CreateExamUseCase;
 import com.vku.edtech.modules.exams.application.port.in.DeleteExamUseCase;
 import com.vku.edtech.modules.exams.application.port.in.GetAllExamsUseCase;
+import com.vku.edtech.modules.exams.application.port.in.GetExamUseCase;
 import com.vku.edtech.modules.exams.application.port.in.UpdateExamUseCase;
 import com.vku.edtech.modules.exams.domain.model.Exam;
 import com.vku.edtech.modules.exams.presentation.dto.mapper.ExamResponseMapper;
@@ -37,6 +38,7 @@ public class ExamAdminController {
     private final UpdateExamUseCase updateExamUseCase;
     private final DeleteExamUseCase deleteExamUseCase;
     private final GetAllExamsUseCase getAllExamsUseCase;
+    private final GetExamUseCase getExamUseCase;
     private final ExamResponseMapper examResponseMapper;
 
     @Operation(summary = "Lấy danh sách đề thi", security = @SecurityRequirement(name = "bearerAuth"))
@@ -48,6 +50,13 @@ public class ExamAdminController {
                         .map(examResponseMapper::toResponse)
                         .toList();
         return ResponseEntity.ok(responses);
+    }
+
+    @Operation(summary = "Lấy chi tiết đề thi", security = @SecurityRequirement(name = "bearerAuth"))
+    @GetMapping("/{id}")
+    public ResponseEntity<ExamResponse> getById(@PathVariable UUID id) {
+        Exam exam = getExamUseCase.getExam(new GetExamUseCase.GetExamQuery(id));
+        return ResponseEntity.ok(examResponseMapper.toResponse(exam));
     }
 
     @Operation(summary = "Tạo đề thi", security = @SecurityRequirement(name = "bearerAuth"))
