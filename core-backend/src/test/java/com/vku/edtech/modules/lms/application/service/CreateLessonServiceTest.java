@@ -47,6 +47,22 @@ class CreateLessonServiceTest {
     }
 
     @Test
+    @DisplayName("Create lesson ignores requested orderIndex")
+    void createLesson_ignoresRequestedOrderIndex() {
+        UUID chapterId = UUID.randomUUID();
+        when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter(chapterId, false)));
+        when(lessonQueryPort.findMaxOrderIndexByChapterId(chapterId)).thenReturn(Optional.of(2));
+        when(lessonCommandPort.save(org.mockito.ArgumentMatchers.any(Lesson.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Lesson lesson =
+                createLessonService.create(
+                        new CreateLessonUseCase.CreateLessonCommand(chapterId, "Lesson 3", 1, false));
+
+        assertEquals(3, lesson.getOrderIndex());
+    }
+
+    @Test
     @DisplayName("Tạo lesson trong chapter không tồn tại phải ném ngoại lệ")
     void createLesson_notFound() {
         UUID chapterId = UUID.randomUUID();
@@ -62,6 +78,14 @@ class CreateLessonServiceTest {
 
     private Chapter chapter(UUID id, boolean deleted) {
         Instant now = Instant.now();
-        return Chapter.builder().id(id).title("t").orderIndex(1).isDeleted(deleted).createdAt(now).updatedAt(now).build();
+        return Chapter.builder()
+                .id(id)
+                .courseId(UUID.randomUUID())
+                .title("t")
+                .orderIndex(1)
+                .isDeleted(deleted)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 }

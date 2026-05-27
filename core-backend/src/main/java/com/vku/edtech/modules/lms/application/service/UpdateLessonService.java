@@ -29,6 +29,7 @@ public class UpdateLessonService implements UpdateLessonUseCase {
                         .findByIdAndNotDeleted(command.lessonId())
                         .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy lesson"));
 
+        Integer finalOrderIndex = null;
         if (command.chapterId() != null) {
             Chapter chapter =
                     chapterQueryPort
@@ -39,14 +40,13 @@ public class UpdateLessonService implements UpdateLessonUseCase {
             if (Boolean.TRUE.equals(chapter.getIsDeleted())) {
                 throw new ResourceNotFoundException("Chapter đã bị xóa");
             }
-        }
 
-        Integer finalOrderIndex = command.orderIndex();
-        if ((finalOrderIndex == null || finalOrderIndex <= 0)
-                && command.chapterId() != null
-                && !command.chapterId().equals(lesson.getChapterId())) {
-            finalOrderIndex =
-                    lessonQueryPort.findMaxOrderIndexByChapterId(command.chapterId()).orElse(0) + 1;
+            if (!command.chapterId().equals(lesson.getChapterId())) {
+                chapterQueryPort.lockCourseForOrdering(chapter.getCourseId());
+                finalOrderIndex =
+                        lessonQueryPort.findMaxOrderIndexByChapterId(command.chapterId()).orElse(0)
+                                + 1;
+            }
         }
 
         lesson.updateDetails(

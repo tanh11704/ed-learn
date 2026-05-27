@@ -40,6 +40,7 @@ class UpdateLessonServiceTest {
 
         when(lessonQueryPort.findByIdAndNotDeleted(lessonId)).thenReturn(Optional.of(lesson));
         when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter(chapterId, false)));
+        when(lessonQueryPort.findMaxOrderIndexByChapterId(chapterId)).thenReturn(Optional.of(1));
         when(lessonCommandPort.save(org.mockito.ArgumentMatchers.any(Lesson.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -51,6 +52,27 @@ class UpdateLessonServiceTest {
         assertEquals("New", updated.getTitle());
         assertEquals(2, updated.getOrderIndex());
         verify(lessonCommandPort).save(org.mockito.ArgumentMatchers.any(Lesson.class));
+    }
+
+    @Test
+    @DisplayName("Update lesson ignores requested orderIndex when staying in same chapter")
+    void updateLesson_sameChapterIgnoresRequestedOrderIndex() {
+        UUID lessonId = UUID.randomUUID();
+        UUID chapterId = UUID.randomUUID();
+        Lesson lesson = lesson(lessonId, chapterId, "Old", 3, false);
+
+        when(lessonQueryPort.findByIdAndNotDeleted(lessonId)).thenReturn(Optional.of(lesson));
+        when(chapterQueryPort.findById(chapterId)).thenReturn(Optional.of(chapter(chapterId, false)));
+        when(lessonCommandPort.save(org.mockito.ArgumentMatchers.any(Lesson.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Lesson updated =
+                updateLessonService.update(
+                        new UpdateLessonUseCase.UpdateLessonCommand(
+                                lessonId, chapterId, "New", 1, true));
+
+        assertEquals("New", updated.getTitle());
+        assertEquals(3, updated.getOrderIndex());
     }
 
     @Test
@@ -69,7 +91,15 @@ class UpdateLessonServiceTest {
 
     private Chapter chapter(UUID id, boolean deleted) {
         Instant now = Instant.now();
-        return Chapter.builder().id(id).title("t").orderIndex(1).isDeleted(deleted).createdAt(now).updatedAt(now).build();
+        return Chapter.builder()
+                .id(id)
+                .courseId(UUID.randomUUID())
+                .title("t")
+                .orderIndex(1)
+                .isDeleted(deleted)
+                .createdAt(now)
+                .updatedAt(now)
+                .build();
     }
 
     private Lesson lesson(UUID id, UUID chapterId, String title, int orderIndex, boolean preview) {
