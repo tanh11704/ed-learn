@@ -6,7 +6,10 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.SetBucketPolicyArgs;
+import jakarta.annotation.PostConstruct;
+import java.net.URI;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +40,15 @@ public class MinioStorageAdapter implements FileStoragePort {
         this.bucket = bucket;
     }
 
+    @PostConstruct
+    void initializeBucket() {
+        try {
+            ensureBucketExists();
+        } catch (Exception e) {
+            throw new FileStorageException("Lỗi hệ thống: Không thể khởi tạo bucket MinIO!", e);
+        }
+    }
+
     @Override
     public String uploadFile(MultipartFile file, String subDirectory) {
         try {
@@ -57,17 +69,30 @@ public class MinioStorageAdapter implements FileStoragePort {
         }
     }
 
+    @Override
+    public void deleteFile(String fileUrl) {
+        String objectName = resolveObjectName(fileUrl);
+        if (objectName.isBlank()) {
+            return;
+        }
+
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder().bucket(bucket).object(objectName).build());
+        } catch (Exception e) {
+            throw new FileStorageException("Lỗi hệ thống: Không thể xóa file khỏi MinIO!", e);
+        }
+    }
+
     private void ensureBucketExists() throws Exception {
         boolean exists =
                 minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!exists) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-            minioClient.setBucketPolicy(
-                    SetBucketPolicyArgs.builder()
-                            .bucket(bucket)
-                            .config(publicReadPolicy())
-                            .build());
         }
+
+        minioClient.setBucketPolicy(
+                SetBucketPolicyArgs.builder().bucket(bucket).config(publicReadPolicy()).build());
     }
 
     private String buildObjectName(MultipartFile file, String subDirectory) {
@@ -111,5 +136,31 @@ public class MinioStorageAdapter implements FileStoragePort {
 
     private static String trimSlashes(String value) {
         return value == null ? "" : value.replaceAll("^/+|/+$", "");
+    }
+
+    private String resolveObjectName(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            return "";
+        }
+
+        String value = fileUrl.trim();
+        try {
+            URI uri = URI.create(value);
+            if (uri.getScheme() != null && uri.getHost() != null) {
+                value = uri.getPath();
+                value = trimSlashes(value);
+                String bucketPrefix = bucket + "/";
+                return value.startsWith(bucketPrefix) ? value.substring(bucketPrefix.length()) : "";
+            }
+        } catch (IllegalArgumentException ignored) {
+            return "";
+        }
+
+        value = trimSlashes(value);
+        String bucketPrefix = bucket + "/";
+        if (value.startsWith(bucketPrefix)) {
+            return value.substring(bucketPrefix.length());
+        }
+        return value;
     }
 }

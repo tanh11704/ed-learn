@@ -36,15 +36,27 @@ public class UpdateCourseService implements UpdateCourseUseCase {
                         .orElseThrow(
                                 () -> new ResourceNotFoundException("Không tìm thấy khóa học"));
 
+        String oldThumbnailUrl = course.getThumbnailUrl();
+        boolean replacingUploadedThumbnail = false;
         String thumbnailUrl = command.thumbnailUrl();
         if (command.thumbnailFile() != null && !command.thumbnailFile().isEmpty()) {
             thumbnailUrl = fileStoragePort.uploadFile(command.thumbnailFile(), "courses");
+            replacingUploadedThumbnail = true;
         }
 
         course.updateDetails(command.title(), command.description(), command.subject(), thumbnailUrl);
 
         Course updated = courseCommandPort.save(course);
+        if (replacingUploadedThumbnail && shouldDeleteOldThumbnail(oldThumbnailUrl, thumbnailUrl)) {
+            fileStoragePort.deleteFile(oldThumbnailUrl);
+        }
         //        courseCachePort.deleteCourse(updated.getId());
         return updated;
+    }
+
+    private boolean shouldDeleteOldThumbnail(String oldThumbnailUrl, String newThumbnailUrl) {
+        return oldThumbnailUrl != null
+                && !oldThumbnailUrl.isBlank()
+                && !oldThumbnailUrl.equals(newThumbnailUrl);
     }
 }
