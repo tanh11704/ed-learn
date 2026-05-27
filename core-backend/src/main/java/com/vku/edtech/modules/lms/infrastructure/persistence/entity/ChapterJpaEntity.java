@@ -34,6 +34,7 @@ public class ChapterJpaEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL, orphanRemoval = true)
     @Filter(name = "lessonDeletedFilter", condition = "is_deleted = :isDeleted")
+    @OrderBy("orderIndex ASC, id ASC")
     @Builder.Default
     private Set<LessonJpaEntity> lessons = new LinkedHashSet<>();
 

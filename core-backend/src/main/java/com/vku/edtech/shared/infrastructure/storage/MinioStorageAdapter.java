@@ -6,7 +6,9 @@ import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import io.minio.SetBucketPolicyArgs;
+import java.net.URI;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -21,6 +23,7 @@ public class MinioStorageAdapter implements FileStoragePort {
     private final MinioClient minioClient;
     private final String bucket;
     private final String publicUrl;
+    private final String endpoint;
 
     public MinioStorageAdapter(
             @Value("${app.storage.minio.endpoint}") String endpoint,
@@ -33,6 +36,7 @@ public class MinioStorageAdapter implements FileStoragePort {
                         .endpoint(endpoint)
                         .credentials(accessKey, secretKey)
                         .build();
+        this.endpoint = stripTrailingSlash(endpoint);
         this.publicUrl = stripTrailingSlash(publicUrl);
         this.bucket = bucket;
     }
@@ -57,16 +61,28 @@ public class MinioStorageAdapter implements FileStoragePort {
         }
     }
 
+    @Override
+    public void deleteFile(String fileUrl) {
+        String objectName = resolveObjectName(fileUrl);
+        if (objectName.isBlank()) {
+            return;
+        }
+
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder().bucket(bucket).object(objectName).build());
+        } catch (Exception e) {
+            throw new FileStorageException("Lỗi hệ thống: Không thể xóa file khỏi MinIO!", e);
+        }
+    }
+
     private void ensureBucketExists() throws Exception {
         boolean exists =
                 minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build());
         if (!exists) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
             minioClient.setBucketPolicy(
-                    SetBucketPolicyArgs.builder()
-                            .bucket(bucket)
-                            .config(publicReadPolicy())
-                            .build());
+                    SetBucketPolicyArgs.builder().bucket(bucket).config(publicReadPolicy()).build());
         }
     }
 
@@ -111,5 +127,57 @@ public class MinioStorageAdapter implements FileStoragePort {
 
     private static String trimSlashes(String value) {
         return value == null ? "" : value.replaceAll("^/+|/+$", "");
+    }
+
+    private String resolveObjectName(String fileUrl) {
+        if (fileUrl == null || fileUrl.isBlank()) {
+            return "";
+        }
+
+        String value = fileUrl.trim();
+        try {
+            URI uri = URI.create(value);
+            if (uri.getScheme() != null && uri.getHost() != null) {
+                if (!isManagedStorageUrl(uri)) {
+                    return "";
+                }
+                value = uri.getPath();
+                value = trimSlashes(value);
+                String bucketPrefix = bucket + "/";
+                return value.startsWith(bucketPrefix) ? value.substring(bucketPrefix.length()) : "";
+            }
+        } catch (IllegalArgumentException ignored) {
+            return "";
+        }
+
+        value = trimSlashes(value);
+        String bucketPrefix = bucket + "/";
+        if (value.startsWith(bucketPrefix)) {
+            return value.substring(bucketPrefix.length());
+        }
+        return value;
+    }
+
+    private boolean isManagedStorageUrl(URI uri) {
+        return matchesConfiguredBase(uri, endpoint) || matchesConfiguredBase(uri, publicUrl);
+    }
+
+    private boolean matchesConfiguredBase(URI uri, String configuredBaseUrl) {
+        if (configuredBaseUrl == null || configuredBaseUrl.isBlank()) {
+            return false;
+        }
+
+        try {
+            URI configuredUri = URI.create(configuredBaseUrl);
+            int configuredPort = configuredUri.getPort();
+            int uriPort = uri.getPort();
+            return configuredUri.getScheme() != null
+                    && configuredUri.getHost() != null
+                    && configuredUri.getScheme().equalsIgnoreCase(uri.getScheme())
+                    && configuredUri.getHost().equalsIgnoreCase(uri.getHost())
+                    && configuredPort == uriPort;
+        } catch (IllegalArgumentException ignored) {
+            return false;
+        }
     }
 }

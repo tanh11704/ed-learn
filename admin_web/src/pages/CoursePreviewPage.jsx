@@ -11,6 +11,7 @@ import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
+import { applyFallbackImage, resolveAssetUrl } from '../utils/assets.js';
 
 const DEFAULT_COURSE_THUMBNAIL_URL =
   'https://i.pinimg.com/736x/b6/de/f7/b6def776cbfebaa567515710933e1e93.jpg';
@@ -60,6 +61,7 @@ export default function CoursePreviewPage() {
   }, [id]);
 
   const lessonTotal = useMemo(() => countLessons(chapters), [chapters]);
+  const thumbnailUrl = resolveAssetUrl(course?.thumbnailUrl) || DEFAULT_COURSE_THUMBNAIL_URL;
   const previewLessonTotal = useMemo(
     () =>
       chapters.reduce(
@@ -113,8 +115,9 @@ export default function CoursePreviewPage() {
         </div>
         <div className="course-hero-media">
           <img
-            src={course.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL}
+            src={thumbnailUrl}
             alt={course.title}
+            onError={(event) => applyFallbackImage(event, DEFAULT_COURSE_THUMBNAIL_URL)}
           />
         </div>
       </section>

@@ -4,6 +4,7 @@ import { BookOpen, ImagePlus, Plus, Pencil, Trash2 } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as coursesApi from '../api/courses.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 const DEFAULT_COURSE_THUMBNAIL_URL =
   'https://i.pinimg.com/736x/b6/de/f7/b6def776cbfebaa567515710933e1e93.jpg';
@@ -63,7 +64,7 @@ export default function CoursesPage() {
       thumbnailUrl: course.thumbnailUrl || '',
       thumbnailFile: null,
     });
-    setThumbnailPreview(course.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL);
+    setThumbnailPreview(resolveAssetUrl(course.thumbnailUrl) || DEFAULT_COURSE_THUMBNAIL_URL);
     setShowForm(true);
   }
 
@@ -73,7 +74,7 @@ export default function CoursesPage() {
     setThumbnailPreview(
       file
         ? URL.createObjectURL(file)
-        : form.thumbnailUrl || DEFAULT_COURSE_THUMBNAIL_URL,
+        : resolveAssetUrl(form.thumbnailUrl) || DEFAULT_COURSE_THUMBNAIL_URL,
     );
   }
 
