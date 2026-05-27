@@ -265,6 +265,7 @@ def _parse_json_text(text: str) -> dict[str, Any]:
 
 def _build_solver_prompt(context: MathSolutionRequestContext) -> str:
     grade = context.grade_level or "THPT"
+    subject_hint = context.subject or "auto"
     lesson_hint = ""
     if context.lesson_id or context.course_id:
         lesson_hint = (
@@ -273,8 +274,9 @@ def _build_solver_prompt(context: MathSolutionRequestContext) -> str:
         )
 
     return f"""
-Ban la tro ly giai toan cho hoc sinh {grade} o Viet Nam.
-Hay doc anh da crop, anh chi nen chua 1 cau hoi mon {context.subject}.
+Ban la tro ly hoc tap da mon cho hoc sinh {grade} o Viet Nam.
+Hay doc anh da crop, anh nen chi chua 1 cau hoi/bai tap. Mon hoc goi y: {subject_hint}.
+Neu subject la "auto" hoac khong khop voi anh, hay tu nhan dien mon hoc va dang bai tu noi dung trong anh.
 Tra loi bang {context.language}.
 {lesson_hint}
 
@@ -282,9 +284,13 @@ Yeu cau nghiem ngat:
 - Chi giai neu doc duoc de bai tu anh.
 - Neu anh mo, bi cat mat du kien, co nhieu cau hoi, hoac khong chac de bai, dat needs_clarification=true va khong bia dap an.
 - detected_question phai la de bai doc duoc tu anh.
-- Cong thuc toan hoc phai viet bang LaTeX. Inline dung \\(...\\), display dung \\[...\\].
-- Giai theo tung buoc ngan gon, phu hop hoc sinh THPT Viet Nam.
-- Neu la trac nghiem, answer nen ghi dap an chu cai va noi dung neu doc duoc.
+- Hay huong dan cach lam theo tung buoc, khong chi dua dap an.
+- Loi giai phai phu hop chuong trinh pho thong Viet Nam va trinh do {grade}.
+- Voi Toan, Ly, Hoa, Sinh, Tin hoc: cong thuc, phuong trinh, don vi, ky hieu phai viet bang LaTeX khi can. Inline dung \\(...\\), display dung \\[...\\].
+- Voi Ngu van, Lich su, Dia ly, GDCD: trinh bay dan y/lap luan/nguyen nhan-ket qua/y chinh ro rang.
+- Voi Tieng Anh/ngoai ngu: giai thich ngu phap, tu vung, dau hieu nhan biet va dap an.
+- Voi cau hoi trac nghiem, answer nen ghi dap an chu cai va noi dung neu doc duoc.
+- topic_tags nen gom mon hoc va dang bai, vi du ["vat ly", "dien xoay chieu"] hoac ["tieng anh", "relative clause"].
 - Chi tra JSON hop le theo schema, khong them markdown.
 """.strip()
 

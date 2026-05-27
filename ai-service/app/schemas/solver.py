@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 
 
 class MathSolutionRequestContext(BaseModel):
-    subject: str = Field(default="math", examples=["math"])
+    subject: str = Field(default="auto", examples=["auto", "math", "physics", "chemistry", "english"])
     grade_level: str | None = Field(default=None, examples=["12"])
     language: str = Field(default="vi", examples=["vi"])
     lesson_id: str | None = Field(default=None, examples=["don-dieu-cua-ham-so"])
@@ -12,14 +12,14 @@ class MathSolutionRequestContext(BaseModel):
 
 class MathSolutionStep(BaseModel):
     title: str = Field(examples=["Buoc 1"])
-    explanation: str = Field(examples=["Tinh dao ham cua ham so."])
+    explanation: str = Field(examples=["Xac dinh yeu cau cua de bai va du kien da cho."])
     latex: str = Field(default="", examples=[r"\(f'(x)=2x-3\)"])
 
 
 class MathSolutionResponse(BaseModel):
     detected_question: str = Field(
         default="",
-        description="Question text read from the uploaded image. Use LaTeX for formulas.",
+        description="Question text read from the uploaded image. Use LaTeX for formulas when needed.",
         examples=[r"Tim khoang dong bien cua ham so \(y=x^3-3x+1\)."],
     )
     answer: str = Field(

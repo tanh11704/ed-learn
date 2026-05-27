@@ -13,11 +13,12 @@ router = APIRouter(dependencies=[Depends(require_ai_service_key)])
 @router.post(
     "/solve-image",
     response_model=MathSolutionResponse,
-    summary="Solve one cropped math question image",
+    summary="Solve one cropped homework question image",
     description=(
         "Stateless MVP endpoint for the mobile AI Solver. Upload one cropped image "
-        "containing one math question. The service does not save the image or result; "
-        "it calls Gemini Vision and returns a structured Vietnamese solution with LaTeX."
+        "containing one homework question from any school subject. The service does "
+        "not save the image or result; it calls Gemini Vision and returns a structured "
+        "Vietnamese solution. Math/science formulas are returned with LaTeX."
     ),
 )
 async def solve_image(
@@ -25,7 +26,10 @@ async def solve_image(
         UploadFile,
         File(description="Required image file. Supported content types: image/jpeg, image/png, image/webp."),
     ],
-    subject: Annotated[str, Form(description="Subject name. Default: math.")] = "math",
+    subject: Annotated[
+        str,
+        Form(description="Subject hint. Use auto when unknown. Examples: auto, math, physics, chemistry, english."),
+    ] = "auto",
     grade_level: Annotated[str | None, Form(description="Optional grade level, e.g. 12.")] = None,
     language: Annotated[str, Form(description="Response language. Default: vi.")] = "vi",
     lesson_id: Annotated[str | None, Form(description="Optional lesson id if user is inside a lesson.")] = None,
