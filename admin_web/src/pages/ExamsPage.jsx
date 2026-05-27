@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HelpCircle, Pencil, Plus, Trash2 } from 'lucide-react';
+import { HelpCircle, Pencil, Plus, Send, Trash2 } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as examsApi from '../api/exams.js';
@@ -85,6 +85,28 @@ export default function ExamsPage() {
     if (!confirm('Xóa đề thi này?')) return;
     try {
       await examsApi.deleteExam(id);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handlePublish(exam) {
+    if (!confirm('Xuất bản đề thi này? Học sinh sẽ có thể bắt đầu làm đề.')) {
+      return;
+    }
+
+    setError('');
+    try {
+      await examsApi.updateExam(exam.id, {
+        title: exam.title,
+        subject: exam.subject,
+        schoolYear: Number(exam.schoolYear),
+        durationMinutes: Number(exam.durationMinutes),
+        totalQuestions: Number(exam.totalQuestions),
+        description: exam.description || '',
+        status: 'PUBLISHED',
+      });
       await load();
     } catch (err) {
       setError(err.message);
@@ -207,7 +229,7 @@ export default function ExamsPage() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="ACTIVE">Đang hoạt động</option>
+              <option value="ACTIVE">Tất cả đề chưa lưu trữ</option>
               <option value="DRAFT">Bản nháp</option>
               <option value="PUBLISHED">Đã xuất bản</option>
               <option value="ARCHIVED">Đã xóa / lưu trữ</option>
@@ -248,6 +270,16 @@ export default function ExamsPage() {
                     >
                       <HelpCircle size={14} /> Quản lý câu hỏi
                     </Link>
+                    {exam.status === 'DRAFT' && (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        onClick={() => handlePublish(exam)}
+                        title="Xuất bản đề thi"
+                      >
+                        <Send size={14} /> Xuất bản
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="btn-icon"
