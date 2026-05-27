@@ -26,8 +26,15 @@ class ChatService:
         ]
 
         if not filtered_sources:
+            messages = build_direct_llm_messages(
+                question=request.question,
+                chat_history=request.chat_history,
+                course_id=request.course_id,
+                lesson_id=request.lesson_id,
+            )
+            answer = await self.llm_service.chat(messages)
             return ChatResponse(
-                answer="Minh chua du du lieu trong bai hoc de tra loi chinh xac. Em hay chon dung bai hoc hoac hoi cau lien quan hon den noi dung bai.",
+                answer=answer,
                 sources=[],
                 confidence=0.0,
                 used_fallback=True,
@@ -71,4 +78,42 @@ def _fallback_answer(question: str, sources: list[SourceChunk]) -> str:
         f"{context}\n\n"
         f"Cau hoi cua em: {question}"
     )
+
+
+def build_direct_llm_messages(
+    *,
+    question: str,
+    chat_history: list,
+    course_id: str,
+    lesson_id: str | None,
+) -> list[dict[str, str]]:
+    messages: list[dict[str, str]] = [
+        {
+            "role": "system",
+            "content": (
+                "Ban la tro ly hoc tap cho hoc sinh THPT o Viet Nam. "
+                "Khong tim thay ngu canh phu hop trong RAG, nen hay tra loi bang kien thuc tong quat cua ban. "
+                "Neu cau hoi phu thuoc vao noi dung rieng cua bai hoc/tai lieu ma ban khong co, hay noi ro dieu do. "
+                "Giai thich ngan gon, de hieu, dung tieng Viet. "
+                "Voi cong thuc toan, dung LaTeX khi can."
+            ),
+        }
+    ]
+    messages.extend(
+        {"role": item.role, "content": item.content}
+        for item in chat_history[-6:]
+    )
+    scope = f"course_id={course_id}"
+    if lesson_id:
+        scope += f", lesson_id={lesson_id}"
+    messages.append(
+        {
+            "role": "user",
+            "content": (
+                f"Pham vi hoc tap hien tai: {scope}.\n"
+                f"Cau hoi cua hoc sinh: {question}"
+            ),
+        }
+    )
+    return messages
 

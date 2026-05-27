@@ -23,6 +23,9 @@ public record CreateQuestionRequest(
                 @NotBlank(message = "content không được để trống")
                 @Size(max = 5000, message = "content tối đa 5000 ký tự")
                 String content,
+        @Schema(description = "URL hình ảnh minh họa cho câu hỏi, nếu có")
+                @Size(max = 1000, message = "imageUrl tối đa 1000 ký tự")
+                String imageUrl,
         @Schema(description = "Thứ tự câu hỏi", example = "1") Integer orderIndex,
         @Schema(description = "Điểm của câu hỏi", example = "0.25")
                 @NotNull(message = "score không được để trống")

@@ -3,8 +3,10 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, FileQuestion, Settings } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
+import MathText from '../components/MathText.jsx';
 import * as examsApi from '../api/exams.js';
 import { readStoredExamQuestions } from '../utils/examStorage.js';
+import { resolveAssetUrl } from '../utils/assets.js';
 
 const optionLabels = ['A', 'B', 'C', 'D'];
 
@@ -23,7 +25,7 @@ function sortQuestions(questions) {
 }
 
 function questionImageUrl(question) {
-  return question.imageUrl || question.image || question.mediaUrl || '';
+  return resolveAssetUrl(question.imageUrl || question.image || question.mediaUrl || '');
 }
 
 function questionTypeLabel(type) {
@@ -31,6 +33,11 @@ function questionTypeLabel(type) {
   if (type === 'TRUE_FALSE') return 'Đúng/Sai';
   if (type === 'SHORT_ANSWER') return 'Tự luận ngắn';
   return type || 'Câu hỏi';
+}
+
+function formatScore(value) {
+  const rounded = Math.round(Number(value || 0) * 100) / 100;
+  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
 }
 
 export default function ExamPreviewPage() {
@@ -81,6 +88,11 @@ export default function ExamPreviewPage() {
   }, [examId]);
 
   const title = exam?.title || 'Đề thi';
+  const totalScore = useMemo(
+    () => questions.reduce((sum, question) => sum + Number(question.score || 0), 0),
+    [questions],
+  );
+  const scoreIsComplete = Math.abs(totalScore - 10) < 0.001;
   const subtitle = useMemo(() => {
     const parts = [
       exam?.subject,
@@ -107,6 +119,25 @@ export default function ExamPreviewPage() {
 
       {error && <Alert>{error}</Alert>}
 
+      {!loading && questions.length > 0 && (
+        <section
+          className={`panel exam-score-panel ${
+            scoreIsComplete ? 'is-complete' : 'is-incomplete'
+          }`}
+        >
+          <div>
+            <span className="stat-label">Tổng điểm đề thi</span>
+            <strong>{formatScore(totalScore)} / 10</strong>
+          </div>
+          {!scoreIsComplete && (
+            <p>
+              Tổng điểm chưa đủ 10. Admin cần kiểm tra lại điểm từng câu trước
+              khi xuất bản đề.
+            </p>
+          )}
+        </section>
+      )}
+
       {loading ? (
         <section className="panel">
           <p className="muted">Đang tải đề thi...</p>
@@ -129,7 +160,9 @@ export default function ExamPreviewPage() {
             <section key={question.id || `${question.orderIndex}-${index}`} className="exam-question-card">
               <div className="question-badge">Câu {index + 1}</div>
               <div className="question-divider" />
-              <div className="question-content">{question.content}</div>
+              <MathText as="div" className="question-content">
+                {question.content}
+              </MathText>
               {questionImageUrl(question) && (
                 <img
                   src={questionImageUrl(question)}
@@ -151,7 +184,7 @@ export default function ExamPreviewPage() {
                             : 'Sai'
                           : optionLabels[optionIndex] || optionIndex + 1}
                       </span>
-                      <span>{option.content}</span>
+                      <MathText>{option.content}</MathText>
                     </div>
                   ))}
                 </div>
@@ -159,7 +192,7 @@ export default function ExamPreviewPage() {
               {question.questionType === 'SHORT_ANSWER' && question.correctAnswer && (
                 <div className="answer-item is-correct short-answer-preview">
                   <span className="answer-prefix">Đáp án</span>
-                  <span>{question.correctAnswer}</span>
+                  <MathText>{question.correctAnswer}</MathText>
                 </div>
               )}
               <p className="question-meta">
