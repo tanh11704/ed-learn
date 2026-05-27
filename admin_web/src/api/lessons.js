@@ -8,6 +8,13 @@ export function updateLesson(id, body) {
   return apiRequest(`/management/lessons/${id}`, { method: 'PUT', body });
 }
 
+export function reorderLessons(chapterId, lessonIds) {
+  return apiRequest(`/management/lessons/chapter/${chapterId}/reorder`, {
+    method: 'PUT',
+    body: { lessonIds },
+  });
+}
+
 export function updateLessonVideoUrl(id, videoUrl) {
   return apiRequest(`/management/lessons/${id}/video-url`, {
     method: 'PUT',

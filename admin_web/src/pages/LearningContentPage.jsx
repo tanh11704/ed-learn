@@ -1,10 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { FileUp, Plus, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, FileUp, Plus, Trash2 } from 'lucide-react';
 import PageHeader from '../components/PageHeader.jsx';
 import Alert from '../components/Alert.jsx';
 import * as coursesApi from '../api/courses.js';
 import * as chaptersApi from '../api/chapters.js';
 import * as lessonsApi from '../api/lessons.js';
+
+function moveItem(items, index, direction) {
+  const nextIndex = index + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) return items;
+  const nextItems = [...items];
+  [nextItems[index], nextItems[nextIndex]] = [nextItems[nextIndex], nextItems[index]];
+  return nextItems;
+}
 
 export default function LearningContentPage() {
   const [courses, setCourses] = useState([]);
@@ -84,7 +92,6 @@ export default function LearningContentPage() {
       await chaptersApi.createChapter({
         courseId,
         title: chapterTitle,
-        orderIndex: chapters.length + 1,
       });
       setChapterTitle('');
       await loadContent();
@@ -98,6 +105,31 @@ export default function LearningContentPage() {
     setError('');
     try {
       await chaptersApi.deleteChapter(chapterId);
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function moveChapter(chapterIndex, direction) {
+    const nextChapters = moveItem(chapters, chapterIndex, direction);
+    if (nextChapters === chapters || !courseId) return;
+    setError('');
+    try {
+      await chaptersApi.reorderChapters(courseId, nextChapters.map((chapter) => chapter.id));
+      await loadContent();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function moveLesson(chapter, lessonIndex, direction) {
+    const lessons = chapter.lessons || [];
+    const nextLessons = moveItem(lessons, lessonIndex, direction);
+    if (nextLessons === lessons) return;
+    setError('');
+    try {
+      await lessonsApi.reorderLessons(chapter.id, nextLessons.map((lesson) => lesson.id));
       await loadContent();
     } catch (err) {
       setError(err.message);
@@ -323,41 +355,81 @@ export default function LearningContentPage() {
         ) : chapters.length === 0 ? (
           <p className="muted">Chưa có chương</p>
         ) : (
-          chapters.map((chapter) => (
+          chapters.map((chapter, chapterIndex) => (
             <div key={chapter.id} className="content-group">
               <div className="panel-head">
                 <div>
                   <h3>{chapter.title}</h3>
                   <p className="muted">Chapter ID: {chapter.id}</p>
                 </div>
-                <button
-                  type="button"
-                  className="btn-icon danger"
-                  onClick={() => deleteChapter(chapter.id)}
-                  title="Xóa chương"
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div className="row-actions">
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    onClick={() => moveChapter(chapterIndex, -1)}
+                    disabled={chapterIndex === 0}
+                    title="Chuyển chương lên"
+                  >
+                    <ArrowUp size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-icon"
+                    onClick={() => moveChapter(chapterIndex, 1)}
+                    disabled={chapterIndex === chapters.length - 1}
+                    title="Chuyển chương xuống"
+                  >
+                    <ArrowDown size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-icon danger"
+                    onClick={() => deleteChapter(chapter.id)}
+                    title="Xóa chương"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               {(chapter.lessons || []).length === 0 ? (
                 <p className="muted">Chưa có bài học</p>
               ) : (
                 <ul className="lesson-list">
-                  {chapter.lessons.map((lesson) => (
+                  {chapter.lessons.map((lesson, lessonIndex) => (
                     <li key={lesson.id}>
                       <span>{lesson.title}</span>
                       <span className="muted">
                         {lesson.id}
                         {lesson.isPreview ? ' - Preview' : ''}
                       </span>
-                      <button
-                        type="button"
-                        className="btn-icon danger"
-                        onClick={() => deleteLesson(lesson.id)}
-                        title="Xóa bài học"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="row-actions">
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => moveLesson(chapter, lessonIndex, -1)}
+                          disabled={lessonIndex === 0}
+                          title="Chuyển bài học lên"
+                        >
+                          <ArrowUp size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-icon"
+                          onClick={() => moveLesson(chapter, lessonIndex, 1)}
+                          disabled={lessonIndex === chapter.lessons.length - 1}
+                          title="Chuyển bài học xuống"
+                        >
+                          <ArrowDown size={14} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-icon danger"
+                          onClick={() => deleteLesson(lesson.id)}
+                          title="Xóa bài học"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </li>
                   ))}
                 </ul>

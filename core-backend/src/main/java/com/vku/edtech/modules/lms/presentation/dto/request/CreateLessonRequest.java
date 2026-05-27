@@ -21,8 +21,6 @@ public record CreateLessonRequest(
                 @NotBlank(message = "title không được để trống")
                 @Size(max = 255, message = "title tối đa 255 ký tự")
                 String title,
-        @Schema(description = "Thứ tự trong chapter, bỏ trống để tự gán xuống cuối", example = "3")
-                Integer orderIndex,
         @Schema(description = "Cho phép học thử", example = "false")
                 @NotNull(message = "isPreview không được để trống")
                 Boolean isPreview) {}

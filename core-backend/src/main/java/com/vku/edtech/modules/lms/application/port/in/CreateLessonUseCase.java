@@ -6,6 +6,5 @@ import java.util.UUID;
 public interface CreateLessonUseCase {
     Lesson create(CreateLessonCommand command);
 
-    record CreateLessonCommand(
-            UUID chapterId, String title, Integer orderIndex, boolean isPreview) {}
+    record CreateLessonCommand(UUID chapterId, String title, boolean isPreview) {}
 }

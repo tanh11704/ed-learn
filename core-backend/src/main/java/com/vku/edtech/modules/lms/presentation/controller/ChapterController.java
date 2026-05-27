@@ -3,10 +3,12 @@ package com.vku.edtech.modules.lms.presentation.controller;
 import com.vku.edtech.modules.lms.application.port.in.CreateChapterUseCase;
 import com.vku.edtech.modules.lms.application.port.in.DeleteChapterUseCase;
 import com.vku.edtech.modules.lms.application.port.in.GetChaptersUseCase;
+import com.vku.edtech.modules.lms.application.port.in.ReorderChaptersUseCase;
 import com.vku.edtech.modules.lms.application.port.in.UpdateChapterUseCase;
 import com.vku.edtech.modules.lms.domain.model.Chapter;
 import com.vku.edtech.modules.lms.presentation.dto.mapper.ChapterResponseMapper;
 import com.vku.edtech.modules.lms.presentation.dto.request.CreateChapterRequest;
+import com.vku.edtech.modules.lms.presentation.dto.request.ReorderChaptersRequest;
 import com.vku.edtech.modules.lms.presentation.dto.request.UpdateChapterRequest;
 import com.vku.edtech.modules.lms.presentation.dto.response.ChapterResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,6 +31,7 @@ public class ChapterController {
     private final UpdateChapterUseCase updateChapterUseCase;
     private final DeleteChapterUseCase deleteChapterUseCase;
     private final GetChaptersUseCase getChaptersUseCase;
+    private final ReorderChaptersUseCase reorderChaptersUseCase;
     private final ChapterResponseMapper chapterMapper;
 
     @Operation(summary = "Lấy danh sách chapter theo course", security = @SecurityRequirement(name = "bearerAuth"))
@@ -60,9 +63,19 @@ public class ChapterController {
             @PathVariable("id") UUID id, @RequestBody @Valid UpdateChapterRequest request) {
         UpdateChapterUseCase.UpdateChapterCommand command =
                 new UpdateChapterUseCase.UpdateChapterCommand(
-                        id, request.courseId(), request.title(), request.orderIndex());
+                        id, request.courseId(), request.title());
         Chapter chapter = updateChapterUseCase.updateChapter(command);
         return ResponseEntity.ok(chapterMapper.toResponse(chapter));
+    }
+
+    @Operation(summary = "Sắp xếp lại chapter", security = @SecurityRequirement(name = "bearerAuth"))
+    @PutMapping("/course/{courseId}/reorder")
+    public ResponseEntity<Void> reorder(
+            @PathVariable("courseId") UUID courseId,
+            @RequestBody @Valid ReorderChaptersRequest request) {
+        reorderChaptersUseCase.reorder(
+                new ReorderChaptersUseCase.ReorderChaptersCommand(courseId, request.chapterIds()));
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Xóa chapter", security = @SecurityRequirement(name = "bearerAuth"))

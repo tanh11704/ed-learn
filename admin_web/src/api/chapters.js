@@ -14,6 +14,13 @@ export function updateChapter(id, body) {
   return apiRequest(`/management/chapters/${id}`, { method: 'PUT', body });
 }
 
+export function reorderChapters(courseId, chapterIds) {
+  return apiRequest(`/management/chapters/course/${courseId}/reorder`, {
+    method: 'PUT',
+    body: { chapterIds },
+  });
+}
+
 export function deleteChapter(id) {
   return apiRequest(`/management/chapters/${id}`, { method: 'DELETE' });
 }

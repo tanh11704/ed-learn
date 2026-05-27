@@ -33,11 +33,10 @@ public class CreateLessonService implements CreateLessonUseCase {
             throw new ResourceNotFoundException("Chapter đã bị xóa");
         }
 
-        Integer finalOrderIndex = command.orderIndex();
-        if (finalOrderIndex == null || finalOrderIndex <= 0) {
-            finalOrderIndex =
-                    lessonQueryPort.findMaxOrderIndexByChapterId(command.chapterId()).orElse(0) + 1;
-        }
+        chapterQueryPort.lockCourseForOrdering(chapter.getCourseId());
+
+        Integer finalOrderIndex =
+                lessonQueryPort.findMaxOrderIndexByChapterId(command.chapterId()).orElse(0) + 1;
 
         Lesson lesson =
                 Lesson.create(

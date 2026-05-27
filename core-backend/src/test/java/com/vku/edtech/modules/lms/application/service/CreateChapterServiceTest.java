@@ -37,4 +37,19 @@ class CreateChapterServiceTest {
 
         assertEquals(4, chapter.getOrderIndex());
     }
+
+    @Test
+    @DisplayName("Create chapter ignores requested orderIndex")
+    void createChapter_ignoresRequestedOrderIndex() {
+        UUID courseId = UUID.randomUUID();
+        when(chapterQueryPort.findMaxOrderIdxByCourseId(courseId)).thenReturn(1);
+        when(chapterCommandPort.save(org.mockito.ArgumentMatchers.any(Chapter.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        Chapter chapter =
+                createChapterService.createChapter(
+                        new CreateChapterUseCase.CreateChapterCommand(courseId, "Chapter 2", 1));
+
+        assertEquals(2, chapter.getOrderIndex());
+    }
 }
