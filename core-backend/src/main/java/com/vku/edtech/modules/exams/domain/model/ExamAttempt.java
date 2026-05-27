@@ -42,7 +42,6 @@ public class ExamAttempt {
 
         Instant now = Instant.now();
         return ExamAttempt.builder()
-                .id(UUID.randomUUID())
                 .examId(examId)
                 .userId(userId)
                 .gradeLevel(gradeLevel)
