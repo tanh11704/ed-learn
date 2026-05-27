@@ -7,6 +7,7 @@ FastAPI service cho chatbot RAG theo lesson/course.
 - `POST /api/v1/ingest/lesson`: nhan noi dung lesson, chia chunk, tao embedding va luu vao ChromaDB.
 - Ingest ho tro `sections[]` cho production va van ho tro `text` legacy cho MVP.
 - `POST /api/v1/chat`: nhan cau hoi hoc sinh, tim chunk lien quan theo `course_id`/`lesson_id`, dua ngu canh cho LLM va tra loi kem sources.
+- `POST /api/v1/exams/extract-pdf`: upload PDF de thi, trich xuat thanh JSON cau hoi gan voi `CreateQuestionRequest` cua Spring Boot.
 - LLM/embedding di qua provider abstraction. Mac dinh cau hinh `AI_PROVIDER=gemini`, van giu provider `ollama` de co the chuyen doi sau nay.
 
 ## Luong hoat dong RAG
@@ -339,3 +340,88 @@ Invoke-RestMethod `
 ```
 
 Service se search tat ca chunks co `course_id = toan-12`.
+
+## Extract de thi PDF
+
+Endpoint:
+
+```http
+POST /api/v1/exams/extract-pdf
+```
+
+Headers:
+
+```text
+X-AI-Service-Key: dev-ai-service-key
+```
+
+Body type: `form-data`
+
+Fields:
+
+- `file`: PDF de thi.
+- `exam_id`: UUID de thi trong Spring Boot, optional.
+- `subject`: mon thi, optional.
+- `grade_level`: khoi lop, optional.
+- `profile`: cau truc de, default `THPT_2026`.
+
+Postman setup:
+
+```text
+Method: POST
+URL: http://localhost:8001/api/v1/exams/extract-pdf
+Headers:
+  X-AI-Service-Key: dev-ai-service-key
+Body:
+  form-data
+    file      File    de-thi.pdf
+    exam_id   Text    100ab6bd-ed08-4bfa-af40-d00977051d70
+    subject   Text    Toan
+    grade_level Text  12
+    profile   Text    THPT_2026
+```
+
+Response:
+
+```json
+{
+  "exam_id": "100ab6bd-ed08-4bfa-af40-d00977051d70",
+  "subject": "Toan",
+  "profile": "THPT_2026",
+  "question_count": 1,
+  "warnings": [
+    "Admin should review extracted questions and answers before saving to Postgres."
+  ],
+  "questions": [
+    {
+      "examId": "100ab6bd-ed08-4bfa-af40-d00977051d70",
+      "questionType": "MULTIPLE_CHOICE",
+      "paperPart": "PART_I",
+      "content": "Cau 1. Ham so nao dong bien tren \\(\\mathbb{R}\\)?",
+      "orderIndex": 1,
+      "score": 0.25,
+      "correctAnswer": null,
+      "options": [
+        {
+          "content": "A. \\(y = x\\)",
+          "correct": true,
+          "orderIndex": 1
+        }
+      ]
+    }
+  ]
+}
+```
+
+Client/admin nen review response truoc khi goi Spring Boot luu vao Postgres. De luu, lap qua tung item trong `questions` va goi:
+
+```http
+POST /api/v1/admin/exams/questions
+```
+
+Luu y:
+
+- Endpoint hien tai doc text PDF bang `pypdf`, phu hop PDF co text layer.
+- PDF scan anh/chup tu may anh co the khong extract duoc text; can OCR/vision flow rieng.
+- Neu PDF dai, service cat text truoc khi gui LLM. Nen tach PDF lon thanh nhieu phan de tang do chinh xac.
+- Cong thuc toan trong response duoc yeu cau tra ve LaTeX voi inline delimiter `\\(...\\)`. Frontend nen render bang KaTeX hoac MathJax.

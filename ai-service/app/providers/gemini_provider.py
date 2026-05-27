@@ -25,7 +25,7 @@ class GeminiProvider(AiProvider):
         except httpx.HTTPError as exc:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Gemini embedding service is unavailable: {exc}",
+                detail=_http_error_detail("Gemini embedding service is unavailable", exc),
             ) from exc
 
         data = response.json()
@@ -63,7 +63,7 @@ class GeminiProvider(AiProvider):
         except httpx.HTTPError as exc:
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Gemini chat service is unavailable: {exc}",
+                detail=_http_error_detail("Gemini chat service is unavailable", exc),
             ) from exc
 
         text = _extract_text(response.json())
@@ -121,3 +121,10 @@ def _to_provider_error(message: str, exc: httpx.HTTPStatusError) -> HTTPExceptio
         detail = f"{message}: {exc.response.text}"
     return HTTPException(status_code=exc.response.status_code, detail=detail)
 
+
+def _http_error_detail(message: str, exc: httpx.HTTPError) -> str:
+    detail = str(exc) or exc.__class__.__name__
+    request = getattr(exc, "request", None)
+    if request is not None:
+        detail = f"{detail}; url={request.url}"
+    return f"{message}: {detail}"
