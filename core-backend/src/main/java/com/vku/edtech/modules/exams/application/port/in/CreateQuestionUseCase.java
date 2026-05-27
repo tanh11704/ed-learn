@@ -5,6 +5,7 @@ import com.vku.edtech.modules.exams.domain.model.ExamQuestionPaperPart;
 import com.vku.edtech.modules.exams.domain.model.ExamQuestionType;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface CreateQuestionUseCase {
     ExamQuestion create(CreateQuestionCommand command);
@@ -14,6 +15,8 @@ public interface CreateQuestionUseCase {
             ExamQuestionType questionType,
             ExamQuestionPaperPart paperPart,
             String content,
+            String imageUrl,
+            MultipartFile imageFile,
             Integer orderIndex,
             Double score,
             String correctAnswer,

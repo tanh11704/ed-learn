@@ -1058,12 +1058,37 @@ select {
   overflow-wrap: anywhere;
 }
 
+.math-text-fragment .katex-display {
+  margin: 0.65em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.math-text-fragment .katex {
+  white-space: normal;
+}
+
 .question-image {
   display: block;
   width: min(640px, 100%);
   max-height: 460px;
   object-fit: contain;
   margin: 18px auto 0;
+}
+
+.question-image-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.question-image-preview img {
+  width: min(280px, 100%);
+  max-height: 180px;
+  object-fit: contain;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
 }
 
 .answer-list {
@@ -1111,6 +1136,37 @@ select {
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
+}
+
+.exam-score-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.exam-score-panel strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 1.45rem;
+}
+
+.exam-score-panel p {
+  margin: 0;
+  color: #92400e;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.exam-score-panel.is-complete {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.exam-score-panel.is-incomplete {
+  border-color: #fde68a;
+  background: #fffbeb;
 }
 
 .option-editor {
