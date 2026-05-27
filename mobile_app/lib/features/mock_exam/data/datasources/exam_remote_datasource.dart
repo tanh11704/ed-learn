@@ -31,7 +31,7 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
 
   @override
   Future<List<ExamApiModel>> getAvailableExams() async {
-    for (final path in ['/exams/available', '/exams']) {
+    for (final path in ['/exams']) {
       try {
         final response = await _client.get(path);
         if (response.statusCode == 200) {

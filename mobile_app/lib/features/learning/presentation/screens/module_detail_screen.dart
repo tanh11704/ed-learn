@@ -90,7 +90,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                 title: lesson.title,
                 duration: '0 phút',
                 status: status,
-                type: LessonType.video,
+                type: _inferLessonType(lesson.title),
                 description: lesson.description,
                 videoUrl: lesson.videoUrl,
               );
@@ -109,6 +109,23 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  LessonType _inferLessonType(String title) {
+    final normalized = title.toLowerCase();
+    if (normalized.contains('flashcard') ||
+        normalized.contains('flash card') ||
+        normalized.contains('thẻ')) {
+      return LessonType.flashcard;
+    }
+    if (normalized.contains('exercise') ||
+        normalized.contains('bài tập') ||
+        normalized.contains('luyện tập') ||
+        normalized.contains('quiz') ||
+        normalized.contains('kiểm tra')) {
+      return LessonType.exercise;
+    }
+    return LessonType.video;
   }
 
   @override
