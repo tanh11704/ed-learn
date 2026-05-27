@@ -6,13 +6,14 @@ CI/CD cho `admin_web` deploy bản build Vite lên VPS và serve qua Nginx tại
 
 Thêm các secrets trong repository GitHub:
 
-| Secret                   | Bắt buộc | Mô tả                                                                    |
-| ------------------------ | -------- | ------------------------------------------------------------------------ |
-| `VPS_HOST`               | Có       | IP hoặc hostname VPS                                                     |
-| `VPS_USERNAME`           | Có       | User SSH deploy                                                          |
-| `VPS_SSH_KEY`            | Có       | Private key SSH                                                          |
-| `ADMIN_WEB_API_BASE_URL` | Không    | API URL build vào Vite, mặc định `https://api.phuocanh.me/api/v1`        |
-| `ADMIN_WEB_DEPLOY_PATH`  | Không    | Thư mục deploy trên VPS, mặc định `/opt/edlearn/admin_web`               |
+| Secret                       | Bắt buộc | Mô tả                                                                                  |
+| ---------------------------- | -------- | -------------------------------------------------------------------------------------- |
+| `VPS_HOST`                   | Có       | IP hoặc hostname VPS                                                                   |
+| `VPS_USERNAME`               | Có       | User SSH deploy                                                                        |
+| `VPS_SSH_KEY`                | Có       | Private key SSH                                                                        |
+| `ADMIN_WEB_API_BASE_URL`     | Không    | API URL build vào Vite, mặc định `https://api.phuocanh.me/api/v1`                      |
+| `ADMIN_WEB_MINIO_PUBLIC_URL` | Không    | Public URL của MinIO/S3 dùng để hiển thị ảnh, mặc định `https://minio.phuocanh.me`     |
+| `ADMIN_WEB_DEPLOY_PATH`      | Không    | Thư mục deploy trên VPS, mặc định `/opt/edlearn/admin_web`                             |
 
 ## VPS Setup
 
