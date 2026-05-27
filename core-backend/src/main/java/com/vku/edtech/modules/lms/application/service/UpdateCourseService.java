@@ -11,6 +11,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +50,7 @@ public class UpdateCourseService implements UpdateCourseUseCase {
 
         Course updated = courseCommandPort.save(course);
         if (replacingUploadedThumbnail && shouldDeleteOldThumbnail(oldThumbnailUrl, thumbnailUrl)) {
-            fileStoragePort.deleteFile(oldThumbnailUrl);
+            deleteOldThumbnailAfterCommit(oldThumbnailUrl);
         }
         //        courseCachePort.deleteCourse(updated.getId());
         return updated;
@@ -58,5 +60,20 @@ public class UpdateCourseService implements UpdateCourseUseCase {
         return oldThumbnailUrl != null
                 && !oldThumbnailUrl.isBlank()
                 && !oldThumbnailUrl.equals(newThumbnailUrl);
+    }
+
+    private void deleteOldThumbnailAfterCommit(String oldThumbnailUrl) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            fileStoragePort.deleteFile(oldThumbnailUrl);
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronization() {
+                    @Override
+                    public void afterCommit() {
+                        fileStoragePort.deleteFile(oldThumbnailUrl);
+                    }
+                });
     }
 }
