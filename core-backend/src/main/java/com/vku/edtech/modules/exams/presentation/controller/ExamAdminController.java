@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Quản lý đề thi", description = "API admin để tạo, sửa, xóa và xem danh sách đề thi")
@@ -40,9 +41,12 @@ public class ExamAdminController {
 
     @Operation(summary = "Lấy danh sách đề thi", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping
-    public ResponseEntity<List<ExamResponse>> getAll() {
+    public ResponseEntity<List<ExamResponse>> getAll(
+            @RequestParam(defaultValue = "ACTIVE") String status) {
         List<ExamResponse> responses =
-                getAllExamsUseCase.getAllExams().stream().map(examResponseMapper::toResponse).toList();
+                getAllExamsUseCase.getAllExams(status).stream()
+                        .map(examResponseMapper::toResponse)
+                        .toList();
         return ResponseEntity.ok(responses);
     }
 

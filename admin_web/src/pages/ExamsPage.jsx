@@ -21,12 +21,13 @@ export default function ExamsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [statusFilter, setStatusFilter] = useState('ACTIVE');
 
   async function load() {
     setLoading(true);
     setError('');
     try {
-      const data = await examsApi.getExams();
+      const data = await examsApi.getExams({ status: statusFilter });
       setExams(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err.message);
@@ -37,7 +38,7 @@ export default function ExamsPage() {
 
   useEffect(() => {
     load();
-  }, []);
+  }, [statusFilter]);
 
   function openCreate() {
     setEditingId(null);
@@ -199,6 +200,20 @@ export default function ExamsPage() {
       )}
 
       <section className="panel">
+        <div className="table-toolbar">
+          <label className="field-label">
+            Trạng thái đề thi
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="ACTIVE">Đang hoạt động</option>
+              <option value="DRAFT">Bản nháp</option>
+              <option value="PUBLISHED">Đã xuất bản</option>
+              <option value="ARCHIVED">Đã xóa / lưu trữ</option>
+            </select>
+          </label>
+        </div>
         {loading ? (
           <p className="muted">Đang tải...</p>
         ) : exams.length === 0 ? (

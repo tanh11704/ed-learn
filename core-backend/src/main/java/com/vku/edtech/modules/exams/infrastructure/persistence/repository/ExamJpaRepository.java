@@ -1,9 +1,14 @@
 package com.vku.edtech.modules.exams.infrastructure.persistence.repository;
 
 import com.vku.edtech.modules.exams.infrastructure.persistence.entity.ExamJpaEntity;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ExamJpaRepository extends JpaRepository<ExamJpaEntity, UUID> {}
+public interface ExamJpaRepository extends JpaRepository<ExamJpaEntity, UUID> {
+    List<ExamJpaEntity> findAllByStatusNotOrderByCreatedAtDesc(String status);
+
+    List<ExamJpaEntity> findAllByStatusOrderByCreatedAtDesc(String status);
+}
