@@ -6,5 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ExamAttemptAnswerPersistenceMapper {
+    ExamAttemptAnswer toDomain(ExamAttemptAnswerJpaEntity entity);
+
     ExamAttemptAnswerJpaEntity toEntity(ExamAttemptAnswer domain);
 }
