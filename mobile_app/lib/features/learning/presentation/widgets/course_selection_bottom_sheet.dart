@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../data/datasources/learning_remote_datasource.dart';
 import '../../data/models/course_models.dart';
 import '../../data/repositories/learning_repository_impl.dart';
@@ -9,11 +10,11 @@ class CourseSelectionBottomSheet extends StatefulWidget {
   final String? selectedCourseId;
 
   const CourseSelectionBottomSheet({
-    Key? key,
+    super.key,
     this.onHideNavBar,
     this.onShowNavBar,
     this.selectedCourseId,
-  }) : super(key: key);
+  });
 
   @override
   State<CourseSelectionBottomSheet> createState() =>
@@ -25,11 +26,13 @@ class _CourseSelectionBottomSheetState
   late String selectedCourseId;
   final LearningRepositoryImpl _repository =
       LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+
   bool _isLoading = true;
+  bool _isEnrolling = false;
+  bool _showExploreCourses = false;
   String? _errorMessage;
   List<CourseSummary> _myCourses = [];
   List<CourseSummary> _publicCourses = [];
-  bool _isEnrolling = false;
 
   @override
   void initState() {
@@ -61,15 +64,14 @@ class _CourseSelectionBottomSheetState
 
       final publicCourses = await _repository.getCourses(
         page: 0,
-        size: 12,
+        size: 24,
         forceRefresh: forceRefresh,
       );
 
       final selected = widget.selectedCourseId ??
-          (myCourses.isNotEmpty
-              ? myCourses.first.id
-              : (publicCourses.isNotEmpty ? publicCourses.first.id : ''));
+          (myCourses.isNotEmpty ? myCourses.first.id : selectedCourseId);
 
+      if (!mounted) return;
       setState(() {
         _myCourses = myCourses;
         _publicCourses = publicCourses;
@@ -77,6 +79,7 @@ class _CourseSelectionBottomSheetState
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -85,13 +88,11 @@ class _CourseSelectionBottomSheetState
   }
 
   Future<void> _enrollCourse(CourseSummary course) async {
-    setState(() {
-      _isEnrolling = true;
-    });
+    setState(() => _isEnrolling = true);
 
     try {
       await _repository.enrollCourse(course.id);
-      await _loadCourses();
+      await _loadCourses(forceRefresh: true);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Đã đăng ký khóa học ${course.title}')),
@@ -102,20 +103,23 @@ class _CourseSelectionBottomSheetState
         SnackBar(content: Text('Không thể đăng ký: $e')),
       );
     } finally {
-      if (mounted) {
-        setState(() {
-          _isEnrolling = false;
-        });
-      }
+      if (mounted) setState(() => _isEnrolling = false);
     }
   }
 
+  List<CourseSummary> get _exploreCourses {
+    final enrolledIds = _myCourses.map((course) => course.id).toSet();
+    return _publicCourses
+        .where((course) => !enrolledIds.contains(course.id))
+        .toList();
+  }
+
   IconData _courseIcon(CourseSummary course) {
-    final subject = course.subject?.toLowerCase() ?? '';
+    final subject = (course.subject ?? '').toLowerCase();
     if (subject.contains('math') || subject.contains('toán')) {
       return Icons.functions;
     }
-    if (subject.contains('ielts') || subject.contains('english')) {
+    if (subject.contains('english') || subject.contains('ielts')) {
       return Icons.language;
     }
     if (subject.contains('data')) {
@@ -126,7 +130,7 @@ class _CourseSelectionBottomSheetState
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
       child: Text(
         title,
         style: const TextStyle(
@@ -141,13 +145,10 @@ class _CourseSelectionBottomSheetState
 
   Widget _buildEmptyMessage(String message) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       child: Text(
         message,
-        style: TextStyle(
-          color: Colors.grey[600],
-          fontSize: 13,
-        ),
+        style: TextStyle(color: Colors.grey[600], fontSize: 13),
       ),
     );
   }
@@ -158,28 +159,29 @@ class _CourseSelectionBottomSheetState
     VoidCallback? onTap,
     Widget? trailing,
   }) {
-    final bgColor = isSelected ? const Color(0xFFF4F8FF) : const Color(0xFFF3F4F6);
-    final borderColor = isSelected ? const Color(0xFF2563EB) : Colors.transparent;
-    final iconBgColor = isSelected ? const Color(0xFFDBEAFE) : const Color(0xFFE5E7EB);
-    final iconColor = isSelected ? const Color(0xFF2563EB) : const Color(0xFF6B7280);
+    final bgColor =
+        isSelected ? const Color(0xFFF4F8FF) : const Color(0xFFF3F4F6);
+    final borderColor =
+        isSelected ? const Color(0xFF2563EB) : Colors.transparent;
+    final iconBgColor =
+        isSelected ? const Color(0xFFDBEAFE) : const Color(0xFFE5E7EB);
+    final iconColor =
+        isSelected ? const Color(0xFF2563EB) : const Color(0xFF6B7280);
     final titleColor = isSelected ? const Color(0xFF2563EB) : Colors.black87;
 
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 6.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
             color: bgColor,
-            border: Border.all(
-              color: borderColor,
-              width: 1.5,
-            ),
+            border: Border.all(color: borderColor, width: 1.5),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 14.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 Container(
@@ -189,11 +191,7 @@ class _CourseSelectionBottomSheetState
                     color: iconBgColor,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    _courseIcon(course),
-                    color: iconColor,
-                    size: 24,
-                  ),
+                  child: Icon(_courseIcon(course), color: iconColor, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -210,7 +208,9 @@ class _CourseSelectionBottomSheetState
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        course.subject ?? course.description ?? 'Khóa học phổ biến',
+                        course.subject ??
+                            course.description ??
+                            'Khóa học phổ biến',
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w400,
@@ -229,8 +229,100 @@ class _CourseSelectionBottomSheetState
     );
   }
 
+  Widget _buildExploreButton(int count) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(100),
+        onTap: count == 0
+            ? null
+            : () {
+                setState(() => _showExploreCourses = !_showExploreCourses);
+              },
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            border: Border.all(color: Colors.grey.shade300, width: 1.5),
+            color: Colors.white,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                _showExploreCourses ? Icons.expand_less : Icons.add,
+                color: const Color(0xFF2563EB),
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _showExploreCourses
+                    ? 'Thu gọn khóa học'
+                    : 'Khám phá thêm khóa học',
+                style: const TextStyle(
+                  color: Color(0xFF2563EB),
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSettingsLinks() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {},
+            child: Row(
+              children: [
+                Icon(Icons.settings, color: Colors.grey[600], size: 22),
+                const SizedBox(width: 16),
+                Text(
+                  'Tùy chỉnh lộ trình hiện tại',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          InkWell(
+            onTap: () {},
+            child: Row(
+              children: [
+                Icon(Icons.flag_outlined, color: Colors.grey[600], size: 22),
+                const SizedBox(width: 16),
+                Text(
+                  'Thay đổi mục tiêu điểm số',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final exploreCourses = _exploreCourses;
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -241,7 +333,6 @@ class _CourseSelectionBottomSheetState
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // 1. Drag Handle (Thanh kéo xám trên cùng)
               Container(
                 width: 40,
                 height: 4,
@@ -251,10 +342,9 @@ class _CourseSelectionBottomSheetState
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
-
-              // 2. Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -269,7 +359,11 @@ class _CourseSelectionBottomSheetState
                     Row(
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.refresh, size: 22, color: Colors.black54),
+                          icon: const Icon(
+                            Icons.refresh,
+                            size: 22,
+                            color: Colors.black54,
+                          ),
                           onPressed: () => _loadCourses(forceRefresh: true),
                           splashRadius: 22,
                           padding: EdgeInsets.zero,
@@ -277,7 +371,11 @@ class _CourseSelectionBottomSheetState
                         ),
                         const SizedBox(width: 6),
                         IconButton(
-                          icon: const Icon(Icons.close, size: 24, color: Colors.black54),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 24,
+                            color: Colors.black54,
+                          ),
                           onPressed: () => Navigator.pop(context),
                           splashRadius: 24,
                           padding: EdgeInsets.zero,
@@ -289,8 +387,6 @@ class _CourseSelectionBottomSheetState
                 ),
               ),
               const SizedBox(height: 8),
-
-              // 3. Danh sách môn học
               if (_isLoading)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
@@ -298,7 +394,8 @@ class _CourseSelectionBottomSheetState
                 )
               else if (_errorMessage != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
                     children: [
                       Text(
@@ -316,25 +413,28 @@ class _CourseSelectionBottomSheetState
                 )
               else
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildSectionHeader('Khóa học của tôi'),
                       if (_myCourses.isEmpty)
-                        _buildEmptyMessage('Bạn chưa đăng ký khóa học nào.')
+                        _buildEmptyMessage(
+                          'Bạn chưa đăng ký khóa học nào.',
+                        )
                       else
                         ..._myCourses.map(
                           (course) => _buildCourseTile(
                             course: course,
                             isSelected: selectedCourseId == course.id,
                             onTap: () {
-                              setState(() {
-                                selectedCourseId = course.id;
-                              });
-                              Future.delayed(const Duration(milliseconds: 250), () {
-                                Navigator.pop(context, course);
-                              });
+                              setState(() => selectedCourseId = course.id);
+                              Future.delayed(
+                                const Duration(milliseconds: 250),
+                                () {
+                                  if (mounted) Navigator.pop(context, course);
+                                },
+                              );
                             },
                             trailing: selectedCourseId == course.id
                                 ? const Icon(
@@ -349,120 +449,39 @@ class _CourseSelectionBottomSheetState
                                   ),
                           ),
                         ),
-                      const SizedBox(height: 16),
-                      _buildSectionHeader('Khám phá khóa học'),
-                      if (_publicCourses.isEmpty)
-                        _buildEmptyMessage('Không có khóa học công khai.')
-                      else
-                        ..._publicCourses.map(
-                          (course) => _buildCourseTile(
-                            course: course,
-                            isSelected: selectedCourseId == course.id,
-                            trailing: _myCourses.any((c) => c.id == course.id)
-                                ? const Icon(
-                                    Icons.check_circle,
-                                    color: Color(0xFF2563EB),
-                                    size: 26,
-                                  )
-                                : TextButton(
-                                    onPressed: _isEnrolling
-                                        ? null
-                                        : () => _enrollCourse(course),
-                                    child: const Text('Đăng ký'),
-                                  ),
+                      const SizedBox(height: 8),
+                      _buildExploreButton(exploreCourses.length),
+                      if (_showExploreCourses) ...[
+                        const SizedBox(height: 12),
+                        _buildSectionHeader('Khám phá thêm khóa học'),
+                        if (exploreCourses.isEmpty)
+                          _buildEmptyMessage(
+                            'Không còn khóa học mới để đăng ký.',
+                          )
+                        else
+                          ...exploreCourses.map(
+                            (course) => _buildCourseTile(
+                              course: course,
+                              isSelected: false,
+                              trailing: TextButton(
+                                onPressed: _isEnrolling
+                                    ? null
+                                    : () => _enrollCourse(course),
+                                child: const Text('Đăng ký'),
+                              ),
+                            ),
                           ),
-                        ),
+                      ],
                     ],
                   ),
                 ),
-
-              const SizedBox(height: 8),
-
-              // 4. Nút Khám phá thêm khóa học
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(100),
-                  onTap: () {
-                    // Xử lý thêm khóa học
-                  },
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      // Viền nét đứt (Dùng viền liền xám nhạt làm fallback, nếu muốn đứt hẳn bạn cài package dotted_border nhé)
-                      border: Border.all(color: Colors.grey.shade300, width: 1.5), 
-                      color: Colors.white,
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        Icon(Icons.add, color: Color(0xFF2563EB), size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Khám phá thêm khóa học',
-                          style: TextStyle(
-                            color: Color(0xFF2563EB),
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
               const SizedBox(height: 24),
-              
-              // Divider mờ
-              const Divider(height: 1, color: Color(0xFFF3F4F6), thickness: 1.5),
-
-              // 5. Cài đặt lộ trình (Bỏ nền xám, dùng nền trắng hoàn toàn)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
-                child: Column(
-                  children: [
-                    InkWell(
-                      onTap: () {},
-                      child: Row(
-                        children: [
-                          Icon(Icons.settings, color: Colors.grey[600], size: 22),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Tùy chỉnh lộ trình hiện tại',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    InkWell(
-                      onTap: () {},
-                      child: Row(
-                        children: [
-                          Icon(Icons.flag_outlined, color: Colors.grey[600], size: 22), // Đổi icon cờ
-                          const SizedBox(width: 16),
-                          Text(
-                            'Thay đổi mục tiêu điểm số', // Cập nhật text chuẩn thiết kế
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
+              const Divider(
+                height: 1,
+                color: Color(0xFFF3F4F6),
+                thickness: 1.5,
               ),
+              _buildSettingsLinks(),
             ],
           ),
         ),

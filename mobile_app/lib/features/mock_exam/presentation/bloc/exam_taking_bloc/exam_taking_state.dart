@@ -20,16 +20,18 @@ class ExamAnswerOption extends Equatable {
 class ExamQuestion extends Equatable {
   final String id;
   final String content;
+  final String? imageUrl;
   final List<ExamAnswerOption> options;
 
   const ExamQuestion({
     required this.id,
     required this.content,
+    this.imageUrl,
     required this.options,
   });
 
   @override
-  List<Object?> get props => [id, content, options];
+  List<Object?> get props => [id, content, imageUrl, options];
 }
 
 abstract class ExamTakingState extends Equatable {
@@ -52,6 +54,7 @@ class ExamTakingLoaded extends ExamTakingState {
   final int remainingSeconds;
   final Map<int, String> selectedAnswers;
   final bool isSubmitting;
+  final String? submitError;
 
   const ExamTakingLoaded({
     required this.sessionId,
@@ -62,6 +65,7 @@ class ExamTakingLoaded extends ExamTakingState {
     required this.remainingSeconds,
     required this.selectedAnswers,
     this.isSubmitting = false,
+    this.submitError,
   });
 
   ExamQuestion get currentQuestion => questions[currentIndex];
@@ -75,6 +79,8 @@ class ExamTakingLoaded extends ExamTakingState {
     int? remainingSeconds,
     Map<int, String>? selectedAnswers,
     bool? isSubmitting,
+    String? submitError,
+    bool clearSubmitError = false,
   }) {
     return ExamTakingLoaded(
       sessionId: sessionId ?? this.sessionId,
@@ -85,6 +91,7 @@ class ExamTakingLoaded extends ExamTakingState {
       remainingSeconds: remainingSeconds ?? this.remainingSeconds,
       selectedAnswers: selectedAnswers ?? this.selectedAnswers,
       isSubmitting: isSubmitting ?? this.isSubmitting,
+      submitError: clearSubmitError ? null : submitError ?? this.submitError,
     );
   }
 
@@ -98,6 +105,7 @@ class ExamTakingLoaded extends ExamTakingState {
         remainingSeconds,
         selectedAnswers,
         isSubmitting,
+        submitError,
       ];
 }
 

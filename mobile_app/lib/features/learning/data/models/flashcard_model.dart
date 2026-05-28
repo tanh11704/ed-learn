@@ -30,15 +30,33 @@ class Flashcard {
   }) : createdAt = createdAt ?? DateTime.now();
 
   // Factory constructor from JSON
-  factory Flashcard.fromJson(Map<String, dynamic> json) {
+  factory Flashcard.fromJson(
+    Map<String, dynamic> json, {
+    String? fallbackLessonId,
+    String? fallbackModuleName,
+  }) {
+    final rawDifficulty = (json['difficulty'] ?? 'medium').toString().toLowerCase();
+    final question = (json['question'] ??
+            json['prompt'] ??
+            json['front'] ??
+            json['term'] ??
+            '')
+        .toString();
+    final answer = (json['answer'] ??
+            json['back'] ??
+            json['definition'] ??
+            json['content'] ??
+            '')
+        .toString();
+
     return Flashcard(
-      id: json['id'] as String,
-      question: json['question'] as String,
-      answer: json['answer'] as String,
-      lessonId: json['lessonId'] as String,
-      moduleName: json['moduleName'] as String,
+      id: (json['id'] ?? json['itemId'] ?? '').toString(),
+      question: question,
+      answer: answer,
+      lessonId: (json['lessonId'] ?? fallbackLessonId ?? '').toString(),
+      moduleName: (json['moduleName'] ?? fallbackModuleName ?? '').toString(),
       difficulty: FlashcardDifficulty.values.firstWhere(
-        (e) => e.toString().split('.').last == json['difficulty'],
+        (e) => e.toString().split('.').last == rawDifficulty,
         orElse: () => FlashcardDifficulty.medium,
       ),
       reviewCount: json['reviewCount'] as int? ?? 0,
@@ -49,8 +67,8 @@ class Flashcard {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'] as String)
           : null,
-      explanation: json['explanation'] as String?,
-      answerImageUrl: json['answerImageUrl'] as String?,
+      explanation: json['explanation']?.toString(),
+      answerImageUrl: json['answerImageUrl']?.toString(),
     );
   }
 

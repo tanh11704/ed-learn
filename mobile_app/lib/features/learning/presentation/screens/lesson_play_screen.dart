@@ -49,7 +49,18 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   void initState() {
     super.initState();
     _applyInitialLesson();
+    _loadCompletionState();
     _loadLesson();
+  }
+
+  Future<void> _loadCompletionState() async {
+    if (widget.courseId == null || widget.courseId!.isEmpty) return;
+    final completedLessonIds =
+        await _cacheService.getCompletedLessonIds(widget.courseId!);
+    if (!mounted) return;
+    setState(() {
+      _isCompleted = completedLessonIds.contains(widget.lessonId);
+    });
   }
 
   void _applyInitialLesson() {
@@ -79,8 +90,13 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
     try {
       final lesson = await _repository.playLesson(widget.lessonId);
+      final completedLessonIds = widget.courseId == null ||
+              widget.courseId!.isEmpty
+          ? <String>{}
+          : await _cacheService.getCompletedLessonIds(widget.courseId!);
       setState(() {
         _lessonDetail = lesson;
+        _isCompleted = completedLessonIds.contains(widget.lessonId);
         _isLoading = false;
       });
       _syncYoutubeController(lesson.videoUrl);
@@ -214,6 +230,9 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                     ),
                   )
                 : SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).padding.bottom + 96,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -316,6 +335,98 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         _lessonDetail!.videoUrl!.isNotEmpty;
     final durationLabel = _formatDuration(_lessonDetail?.durationMinutes);
     final youtubeController = _youtubeController;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1a1f3a),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: youtubeController != null
+            ? YoutubePlayer(
+                controller: youtubeController,
+                aspectRatio: 16 / 9,
+                autoFullScreen: true,
+              )
+            : Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    color: const Color(0xFF1a1f3a),
+                    child: Center(
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.3),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          hasVideo
+                              ? Icons.play_arrow_rounded
+                              : Icons.videocam_off_outlined,
+                          color: Colors.white,
+                          size: 48,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (hasVideo)
+                    Positioned(
+                      bottom: 14,
+                      left: 14,
+                      right: 14,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.68),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          'Link video không phải YouTube hoặc chưa hỗ trợ phát trực tiếp.',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  if (durationLabel.isNotEmpty)
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          durationLabel,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+      ),
+    );
 
     return Container(
       height: 240,
@@ -853,15 +964,40 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   }
 
   Widget _buildCompleteButton() {
+    if (_isCompleted) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            color: Colors.green.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.green.withOpacity(0.35)),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.check_circle, color: Colors.green, size: 20),
+              SizedBox(width: 8),
+              Text(
+                'Đã hoàn thành bài học',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       child: ElevatedButton.icon(
-        onPressed: (_isCompleting || _isCompleted) ? null : _completeLesson,
-        icon: Icon(
-          _isCompleted
-              ? Icons.check_circle
-              : Icons.check_circle_outline,
-        ),
+        onPressed: _isCompleting ? null : _completeLesson,
+        icon: const Icon(Icons.check_circle_outline),
         style: ElevatedButton.styleFrom(
           backgroundColor:
               _isCompleted ? Colors.green : AppColors.primary,

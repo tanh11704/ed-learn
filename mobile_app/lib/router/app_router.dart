@@ -15,6 +15,7 @@ import 'package:mobile_app/features/learning/presentation/screens/quiz_result_sc
 import 'package:mobile_app/features/learning/presentation/screens/quiz_review_screen.dart';
 import 'package:mobile_app/features/learning/presentation/screens/flashcard_screen.dart';
 import 'package:mobile_app/features/learning/presentation/bloc/flashcard_bloc.dart';
+import 'package:mobile_app/features/learning/data/datasources/learning_remote_datasource.dart';
 import 'package:mobile_app/features/ai_solver/presentation/screens/ai_solver_screen.dart';
 import 'package:mobile_app/features/ai_solver/presentation/screens/image_crop_screen.dart';
 import 'package:mobile_app/features/ai_solver/presentation/screens/analyzing_screen.dart';
@@ -157,8 +158,10 @@ final appRouter = GoRouter(
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     return QuizScreen(
+                      lessonId: extra?['lessonId'] ?? '',
                       quizName: extra?['quizName'] ?? 'Quiz',
                       moduleName: extra?['moduleName'] ?? 'Module',
+                      courseId: extra?['courseId'],
                     );
                   },
                 ),
@@ -194,9 +197,10 @@ final appRouter = GoRouter(
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     return BlocProvider(
-                      create: (context) => FlashcardBloc(),
+                      create: (context) => FlashcardBloc(LearningRemoteDataSourceImpl()),
                       child: FlashcardScreen(
                         lessonId: extra?['lessonId'] ?? 'lesson-1',
+                        lessonName: extra?['lessonName'] ?? 'Flashcard',
                         moduleName: extra?['moduleName'] ?? 'Module',
                       ),
                     );

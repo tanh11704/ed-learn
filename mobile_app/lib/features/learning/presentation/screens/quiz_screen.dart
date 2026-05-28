@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
+import '../../data/datasources/learning_remote_datasource.dart';
 import '../../data/models/quiz_question_model.dart';
 
 class QuizScreen extends StatefulWidget {
+  final String lessonId;
   final String quizName;
   final String moduleName;
+  final String? courseId;
 
   const QuizScreen({
     Key? key,
-    this.quizName = 'Geography Quiz',
-    this.moduleName = 'Pandas Analysis',
+    this.lessonId = '',
+    this.quizName = 'Bai tap',
+    this.moduleName = 'Module',
+    this.courseId,
   }) : super(key: key);
 
   @override
@@ -19,91 +24,73 @@ class QuizScreen extends StatefulWidget {
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  late List<QuizQuestion> questions;
+  final LearningRemoteDataSource _remoteDataSource = LearningRemoteDataSourceImpl();
+  List<QuizQuestion> questions = [];
   int currentQuestionIndex = 0;
   Map<int, String> userAnswers = {};
   DateTime? startTime;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    startTime = DateTime.now();
-    _initializeQuestions();
+    _loadQuestions();
   }
 
-  void _initializeQuestions() {
-    questions = [
-      QuizQuestion(
-        id: 1,
-        question: 'Which of these is the smallest country in the world by land area?',
-        options: ['Monaco', 'Vatican City', 'San Marino', 'Liechtenstein'],
-        correctAnswer: 'Vatican City',
-        explanation: 'Vatican City is the smallest country in the world with an area of only 0.44 square kilometers.',
-      ),
-      QuizQuestion(
-        id: 2,
-        question: 'What is the capital of Australia?',
-        options: ['Sydney', 'Melbourne', 'Canberra', 'Brisbane'],
-        correctAnswer: 'Canberra',
-        explanation: 'Canberra is the capital city of Australia, located between Sydney and Melbourne.',
-      ),
-      QuizQuestion(
-        id: 3,
-        question: 'Which mountain is the highest in the world?',
-        options: ['K2', 'Mount Everest', 'Kangchenjunga', 'Makalu'],
-        correctAnswer: 'Mount Everest',
-        explanation: 'Mount Everest is the highest mountain in the world at 8,849 meters.',
-      ),
-      QuizQuestion(
-        id: 4,
-        question: 'What is the largest desert in the world?',
-        options: ['Sahara', 'Arabian', 'Gobi', 'Antarctica'],
-        correctAnswer: 'Antarctica',
-        explanation: 'Antarctica is technically the largest desert in the world.',
-      ),
-      QuizQuestion(
-        id: 5,
-        question: 'Which country has the most islands?',
-        options: ['Sweden', 'Norway', 'Indonesia', 'Finland'],
-        correctAnswer: 'Indonesia',
-        explanation: 'Indonesia has the most islands of any country with over 17,000 islands.',
-      ),
-      QuizQuestion(
-        id: 6,
-        question: 'What is the longest river in the world?',
-        options: ['Amazon', 'Nile', 'Yangtze', 'Mississippi'],
-        correctAnswer: 'Nile',
-        explanation: 'The Nile River is the longest river in the world at approximately 6,650 kilometers.',
-      ),
-      QuizQuestion(
-        id: 7,
-        question: 'Which continent is the largest by area?',
-        options: ['Africa', 'Asia', 'Europe', 'North America'],
-        correctAnswer: 'Asia',
-        explanation: 'Asia is the largest continent by area with approximately 44.58 million square kilometers.',
-      ),
-      QuizQuestion(
-        id: 8,
-        question: 'What is the capital of Japan?',
-        options: ['Osaka', 'Tokyo', 'Kyoto', 'Hiroshima'],
-        correctAnswer: 'Tokyo',
-        explanation: 'Tokyo is the capital and largest city of Japan.',
-      ),
-      QuizQuestion(
-        id: 9,
-        question: 'Which ocean is the largest?',
-        options: ['Atlantic', 'Indian', 'Arctic', 'Pacific'],
-        correctAnswer: 'Pacific',
-        explanation: 'The Pacific Ocean is the largest ocean, covering more area than all other oceans combined.',
-      ),
-      QuizQuestion(
-        id: 10,
-        question: 'What is the deepest point in the ocean?',
-        options: ['Mariana Trench', 'Tonga Trench', 'Kuril-Kamchatka Trench', 'Kermadec Trench'],
-        correctAnswer: 'Mariana Trench',
-        explanation: 'The Mariana Trench is the deepest part of the ocean at approximately 10,994 meters.',
-      ),
-    ];
+  Future<void> _loadQuestions() async {
+    final lessonId = await _resolveLessonId();
+    if (lessonId.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Thiếu thông tin bài tập.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final loadedQuestions = await _remoteDataSource.getLessonExercises(lessonId);
+      if (!mounted) return;
+      setState(() {
+        questions = loadedQuestions;
+        currentQuestionIndex = 0;
+        userAnswers = {};
+        startTime = DateTime.now();
+        _isLoading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
+  Future<String> _resolveLessonId() async {
+    if (widget.lessonId.trim().isNotEmpty) {
+      return widget.lessonId.trim();
+    }
+
+    final courseId = widget.courseId;
+    if (courseId == null || courseId.trim().isEmpty) {
+      return '';
+    }
+
+    final course = await _remoteDataSource.getCourseDetail(courseId);
+    for (final chapter in course.chapters) {
+      for (final lesson in chapter.lessons) {
+        if (lesson.title.trim().toLowerCase() == widget.quizName.trim().toLowerCase()) {
+          return lesson.id;
+        }
+      }
+    }
+    return '';
   }
 
   void _selectAnswer(String answer) {
@@ -118,20 +105,19 @@ class _QuizScreenState extends State<QuizScreen> {
         currentQuestionIndex++;
       });
     } else {
-      // Last question - navigate to result screen
       _submitQuiz();
     }
   }
 
   void _submitQuiz() {
-    int correctCount = 0;
-    for (var question in questions) {
+    var correctCount = 0;
+    for (final question in questions) {
       if (userAnswers[question.id] == question.correctAnswer) {
         correctCount++;
       }
     }
 
-    final duration = DateTime.now().difference(startTime!);
+    final duration = DateTime.now().difference(startTime ?? DateTime.now());
     final minutes = duration.inMinutes;
 
     context.push(
@@ -148,6 +134,7 @@ class _QuizScreenState extends State<QuizScreen> {
   }
 
   void _showQuestionNavigator() {
+    if (questions.isEmpty) return;
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -167,7 +154,7 @@ class _QuizScreenState extends State<QuizScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '${questions.length} Câu hỏi',
+                '${questions.length} câu hỏi',
                 style: AppTextStyles.bodyLarge.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
@@ -205,9 +192,6 @@ class _QuizScreenState extends State<QuizScreen> {
                         ? AppColors.primary
                         : (isAnswered ? Colors.green : Colors.grey[300]),
                     borderRadius: BorderRadius.circular(8),
-                    border: isCurrent
-                        ? Border.all(color: AppColors.primary, width: 2)
-                        : null,
                   ),
                   child: Center(
                     child: Text(
@@ -231,11 +215,170 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return _buildScaffoldBody(const Center(child: CircularProgressIndicator()));
+    }
+
+    if (_errorMessage != null) {
+      return _buildScaffoldBody(
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _errorMessage!,
+                  textAlign: TextAlign.center,
+                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _loadQuestions,
+                  child: const Text('Thử lại'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (questions.isEmpty) {
+      return _buildScaffoldBody(
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'Bài học này chưa có câu hỏi bài tập.',
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+            ),
+          ),
+        ),
+      );
+    }
+
     final currentQuestion = questions[currentQuestionIndex];
     final isLastQuestion = currentQuestionIndex == questions.length - 1;
     final hasAnswered = userAnswers.containsKey(currentQuestion.id);
     final selectedAnswer = userAnswers[currentQuestion.id];
 
+    return _buildScaffoldBody(
+      SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'Question ${currentQuestionIndex + 1} of ${questions.length}',
+              style: AppTextStyles.caption.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(height: 8),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                value: (currentQuestionIndex + 1) / questions.length,
+                minHeight: 6,
+                backgroundColor: Colors.grey[200],
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Text(
+              currentQuestion.question,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 32),
+            ...List.generate(currentQuestion.options.length, (index) {
+              final option = currentQuestion.options[index];
+              final isSelected = selectedAnswer == option;
+              final optionLabel = String.fromCharCode(65 + index);
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () => _selectAnswer(option),
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                        width: isSelected ? 2 : 1.5,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.primary : Colors.grey[200],
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              optionLabel,
+                              style: TextStyle(
+                                color: isSelected ? Colors.white : Colors.grey[600],
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            option,
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textPrimary,
+                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: hasAnswered ? _nextQuestion : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: hasAnswered ? AppColors.primary : Colors.grey[300],
+                disabledBackgroundColor: Colors.grey[300],
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                isLastQuestion ? 'Nộp bài' : 'Tiếp theo',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScaffoldBody(Widget body) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
@@ -246,147 +389,24 @@ class _QuizScreenState extends State<QuizScreen> {
           icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
-        title: Expanded(
-          child: Text(
-            widget.quizName,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodyMedium.copyWith(
-              color: AppColors.textPrimary,
-              fontWeight: FontWeight.w700,
-            ),
+        title: Text(
+          widget.quizName,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w700,
           ),
         ),
         centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.grid_3x3_rounded, color: AppColors.primary),
-            onPressed: _showQuestionNavigator,
+            onPressed: questions.isEmpty ? null : _showQuestionNavigator,
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Question number
-              Text(
-                'Question ${currentQuestionIndex + 1} of ${questions.length}',
-                style: AppTextStyles.caption.copyWith(
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: (currentQuestionIndex + 1) / questions.length,
-                  minHeight: 6,
-                  backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Question text
-              Text(
-                currentQuestion.question,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Answer options
-              ...List.generate(currentQuestion.options.length, (index) {
-                final option = currentQuestion.options[index];
-                final isSelected = selectedAnswer == option;
-                final optionLabel = String.fromCharCode(65 + index); // A, B, C, D
-
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: GestureDetector(
-                    onTap: () => _selectAnswer(option),
-                    child: Container(
-                      padding: const EdgeInsets.all(14),
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: isSelected ? AppColors.primary : Colors.grey[300]!,
-                          width: isSelected ? 2 : 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: isSelected ? AppColors.primary : Colors.grey[200],
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                optionLabel,
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.grey[600],
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              option,
-                              style: AppTextStyles.bodyMedium.copyWith(
-                                color: AppColors.textPrimary,
-                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }),
-
-              const SizedBox(height: 32),
-
-              // Next button
-              ElevatedButton(
-                onPressed: hasAnswered ? _nextQuestion : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: hasAnswered ? AppColors.primary : Colors.grey[300],
-                  disabledBackgroundColor: Colors.grey[300],
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  isLastQuestion ? 'Nộp bài' : 'Tiếp theo',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      body: body,
     );
   }
 }

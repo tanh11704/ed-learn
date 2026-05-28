@@ -1,10 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../data/datasources/learning_remote_datasource.dart';
 import '../../data/models/flashcard_model.dart';
 import 'flashcard_event.dart';
 import 'flashcard_state.dart';
 
 class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
-  FlashcardBloc() : super(const FlashcardInitial()) {
+  final LearningRemoteDataSource remoteDataSource;
+
+  FlashcardBloc(this.remoteDataSource) : super(const FlashcardInitial()) {
     // Register event handlers
     on<LoadFlashcards>(_onLoadFlashcards);
     on<NextFlashcard>(_onNextFlashcard);
@@ -26,9 +29,10 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     emit(const FlashcardLoading());
 
     try {
-      // TODO: Thay bằng API call hoặc repository
-      // Hiện tại mock data
-      final flashcards = _mockFlashcards(event.lessonId, event.moduleName);
+      final flashcards = await remoteDataSource.getLessonFlashcards(
+        event.lessonId,
+        event.moduleName,
+      );
       final flashcardSet = FlashcardSet(
         id: 'set_${event.lessonId}',
         name: 'Ôn tập $event.moduleName',

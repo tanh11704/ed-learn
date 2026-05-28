@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../data/models/exam_session_args.dart';
@@ -24,17 +25,31 @@ class ExamTakingScreen extends StatelessWidget {
             examId: args.examId,
             examTitle: args.examTitle,
             durationMinutes: args.durationMinutes,
+            gradeLevel: args.gradeLevel,
+            className: args.className,
           ),
         ),
       child: BlocListener<ExamTakingBloc, ExamTakingState>(
-        listenWhen: (prev, curr) =>
-            curr is ExamTakingFinished || curr is ExamTakingError,
+        listenWhen: (prev, curr) {
+          final hasSubmitError = curr is ExamTakingLoaded &&
+              curr.submitError != null &&
+              (prev is! ExamTakingLoaded ||
+                  prev.submitError != curr.submitError);
+          return curr is ExamTakingFinished ||
+              curr is ExamTakingError ||
+              hasSubmitError;
+        },
         listener: (context, state) {
           if (state is ExamTakingFinished) {
             context.go('/exam/exam-result', extra: state);
           } else if (state is ExamTakingError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message)),
+            );
+          } else if (state is ExamTakingLoaded &&
+              state.submitError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.submitError!)),
             );
           }
         },
@@ -54,15 +69,20 @@ class ExamTakingScreen extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 6),
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFEDED),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.timer,
-                              size: 20, color: Color(0xFFFF4D4F)),
+                          const Icon(
+                            Icons.timer,
+                            size: 20,
+                            color: Color(0xFFFF4D4F),
+                          ),
                           const SizedBox(width: 10),
                           Text(
                             '$minutes:$seconds',
@@ -90,14 +110,13 @@ class ExamTakingScreen extends StatelessWidget {
                       onPressed: state is! ExamTakingLoaded || isSubmitting
                           ? null
                           : () {
-                              final answered = state.selectedAnswers.length;
                               showModalBottomSheet(
                                 context: context,
                                 isScrollControlled: true,
                                 backgroundColor: Colors.transparent,
                                 builder: (ctx) => SubmitConfirmationDialog(
                                   totalQuestions: state.questions.length,
-                                  answeredCount: answered,
+                                  answeredCount: state.selectedAnswers.length,
                                   onSubmit: () {
                                     Navigator.of(ctx).pop();
                                     context
@@ -111,7 +130,8 @@ class ExamTakingScreen extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2E6BFF),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
                         elevation: 0,
                       ),
                       child: isSubmitting
@@ -126,8 +146,9 @@ class ExamTakingScreen extends StatelessWidget {
                           : const Text(
                               'Nộp bài',
                               style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white),
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
                             ),
                     );
                   },
@@ -147,8 +168,10 @@ class ExamTakingScreen extends StatelessWidget {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(state.message,
-                          textAlign: TextAlign.center),
+                      child: Text(
+                        state.message,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   );
                 }
@@ -189,11 +212,32 @@ class ExamTakingScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: Text(
-                                  question.content,
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _ExamFormattedText(
+                                      question.content,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                    if (question.imageUrl != null &&
+                                        question.imageUrl!.isNotEmpty) ...[
+                                      const SizedBox(height: 12),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          question.imageUrl!,
+                                          fit: BoxFit.contain,
+                                          errorBuilder: (_, __, ___) =>
+                                              const SizedBox.shrink(),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ),
                               const SizedBox(width: 70),
@@ -205,9 +249,9 @@ class ExamTakingScreen extends StatelessWidget {
                             (option) => _AnswerTile(
                               label: option.label,
                               text: option.text,
-                              selected: state.selectedAnswers[
-                                      state.currentIndex] ==
-                                  option.id,
+                              selected:
+                                  state.selectedAnswers[state.currentIndex] ==
+                                      option.id,
                               onTap: () => context.read<ExamTakingBloc>().add(
                                     SelectAnswer(
                                       questionIndex: state.currentIndex,
@@ -239,7 +283,9 @@ class ExamTakingScreen extends StatelessWidget {
                               const Text(
                                 'TIẾN ĐỘ LÀM BÀI',
                                 style: TextStyle(
-                                    fontSize: 11, fontWeight: FontWeight.w700),
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                               const Spacer(),
                               Text(
@@ -322,12 +368,21 @@ class _AnswerTile extends StatelessWidget {
                   : null,
             ),
             const SizedBox(width: 12),
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                color: selected ? const Color(0xFF1D4ED8) : Colors.black87,
+              ),
+            ),
+            const SizedBox(width: 6),
             Expanded(
-              child: Text(
-                '$label  $text',
+              child: _ExamFormattedText(
+                _stripOptionLabel(text),
                 style: TextStyle(
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                   color: selected ? const Color(0xFF1D4ED8) : Colors.black87,
+                  height: 1.3,
                 ),
               ),
             ),
@@ -336,4 +391,82 @@ class _AnswerTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class _ExamFormattedText extends StatelessWidget {
+  final String text;
+  final TextStyle style;
+
+  const _ExamFormattedText(
+    this.text, {
+    required this.style,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final normalized = _normalizeText(text);
+    final parts = _splitMath(normalized);
+
+    if (parts.length == 1 && !parts.first.isMath) {
+      return Text(normalized, style: style);
+    }
+
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 2,
+      runSpacing: 4,
+      children: parts.map((part) {
+        if (!part.isMath) {
+          return Text(part.value, style: style);
+        }
+        return Math.tex(
+          part.value,
+          textStyle: style,
+          mathStyle: MathStyle.text,
+          textScaleFactor: 1,
+          onErrorFallback: (_) => Text(part.value, style: style),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _TextPart {
+  final String value;
+  final bool isMath;
+
+  const _TextPart(this.value, this.isMath);
+}
+
+List<_TextPart> _splitMath(String value) {
+  final parts = <_TextPart>[];
+  final regex = RegExp(r'\\\((.*?)\\\)|\\\[(.*?)\\\]');
+  var cursor = 0;
+
+  for (final match in regex.allMatches(value)) {
+    if (match.start > cursor) {
+      parts.add(_TextPart(value.substring(cursor, match.start), false));
+    }
+    parts.add(_TextPart((match.group(1) ?? match.group(2) ?? '').trim(), true));
+    cursor = match.end;
+  }
+
+  if (cursor < value.length) {
+    final rest = value.substring(cursor);
+    final looksLikeMath = RegExp(r'\\frac|\\sqrt|[_^{}]').hasMatch(rest);
+    parts.add(_TextPart(rest, looksLikeMath));
+  }
+
+  return parts.where((part) => part.value.isNotEmpty).toList();
+}
+
+String _normalizeText(String value) {
+  return value
+      .replaceAll(r'\n', '\n')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
+
+String _stripOptionLabel(String value) {
+  return value.replaceFirst(RegExp(r'^[A-H]\.\s*'), '').trim();
 }

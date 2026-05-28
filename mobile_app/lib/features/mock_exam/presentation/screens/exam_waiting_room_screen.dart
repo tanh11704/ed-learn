@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/mock_exam/data/models/exam_session_args.dart';
@@ -37,8 +36,11 @@ class ExamWaitingRoomScreen extends StatelessWidget {
                   color: const Color(0xFFE5E7EB),
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Icon(Icons.shield_outlined,
-                    size: 64, color: Colors.orange),
+                child: const Icon(
+                  Icons.shield_outlined,
+                  size: 64,
+                  color: Colors.orange,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -57,13 +59,22 @@ class ExamWaitingRoomScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 13, color: Colors.black54),
             ),
+            if (!args.hasValidExamId) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Đề thi không hợp lệ. Vui lòng quay lại thư viện và tải lại danh sách đề.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: Colors.redAccent),
+              ),
+            ],
             const SizedBox(height: 20),
             const Text(
               'Quy định phòng thi',
               style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87),
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Colors.black87,
+              ),
             ),
             const SizedBox(height: 12),
             const _RuleItem(
@@ -89,9 +100,9 @@ class ExamWaitingRoomScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFBFDBFE)),
               ),
-              child: Row(
+              child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Icon(Icons.info_outline, color: Color(0xFF3B82F6)),
                   SizedBox(width: 8),
                   Expanded(
@@ -108,14 +119,16 @@ class ExamWaitingRoomScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  context.push('/exam/camera-check', extra: args);
-                },
+                onPressed: args.hasValidExamId
+                    ? () => context.push('/exam/camera-check', extra: args)
+                    : null,
                 icon: const Icon(Icons.videocam_outlined, color: Colors.white),
                 label: const Text(
-                  'Đồng ý và Cấp quyền Camera',
+                  'Đồng ý và cấp quyền Camera',
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.white),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E6BFF),
@@ -157,12 +170,18 @@ class _RuleItem extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.black87)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
               const SizedBox(height: 4),
-              Text(subtitle,
-                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
+              Text(
+                subtitle,
+                style: const TextStyle(fontSize: 12, color: Colors.black54),
+              ),
             ],
           ),
         ),

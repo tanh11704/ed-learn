@@ -156,8 +156,8 @@ class LessonDetail {
 
   factory LessonDetail.fromJson(Map<String, dynamic> json) {
     return LessonDetail(
-      id: (json['id'] ?? '').toString(),
-      chapterId: (json['chapterId'] ?? '').toString(),
+      id: (json['id'] ?? json['lessonId'] ?? json['itemId'] ?? json['uuid'] ?? '').toString(),
+      chapterId: (json['chapterId'] ?? json['moduleId'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       videoUrl: json['videoUrl']?.toString(),
       pdfUrl: json['pdfUrl']?.toString(),
