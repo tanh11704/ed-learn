@@ -1,4 +1,3 @@
-/// Model map từ ExamResponse (OpenAPI).
 class ExamApiModel {
   final String id;
   final String title;

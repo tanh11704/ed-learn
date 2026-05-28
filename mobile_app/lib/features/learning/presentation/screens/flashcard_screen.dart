@@ -8,11 +8,13 @@ import '../../data/models/flashcard_model.dart';
 
 class FlashcardScreen extends StatefulWidget {
   final String lessonId;
+  final String lessonName;
   final String moduleName;
 
   const FlashcardScreen({
     Key? key,
     required this.lessonId,
+    this.lessonName = 'Flashcard',
     required this.moduleName,
   }) : super(key: key);
 
@@ -112,9 +114,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
           _showExitConfirmation(context);
         },
       ),
-      title: const Text(
-        'BIOLOGY 101',
-        style: TextStyle(
+      title: Text(
+        widget.lessonName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(
           color: Colors.black,
           fontSize: 16,
           fontWeight: FontWeight.bold,
@@ -152,7 +156,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
           children: [
             const Icon(Icons.inbox, size: 64, color: Colors.grey),
             const SizedBox(height: 16),
-            const Text('No flashcards found'),
+            const Text('Bài học này chưa có flashcard'),
           ],
         ),
       );

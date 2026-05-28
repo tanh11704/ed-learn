@@ -20,34 +20,6 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
   List<Subject> _subjects = [Subject(id: 'all', title: 'Tất cả')];
   bool _isLoading = true;
   String? _errorMessage;
-  bool _usingFallback = false;
-
-  static final List<Exam> _fallbackExams = [
-    Exam(
-      id: 'demo-1',
-      subjectId: 'toán',
-      durationMinutes: 120,
-      level: 'KHÓ',
-      levelColor: const Color(0xFFFF6B6B),
-      title: 'Đề thi thử THPT Quốc gia 2026',
-      subtitle: '- Môn Toán (Lần 1)',
-      time: '120 phút',
-      questions: '50 câu hỏi',
-      taken: '2,150 lượt thi',
-    ),
-    Exam(
-      id: 'demo-2',
-      subjectId: 'tiếng_anh',
-      durationMinutes: 45,
-      level: 'TRUNG BÌNH',
-      levelColor: const Color(0xFF1CC88A),
-      title: 'Kiểm tra định kỳ Tiếng Anh 12',
-      subtitle: 'Unit 4: Urbanisation',
-      time: '45 phút',
-      questions: '30 câu hỏi',
-      taken: '5,541 lượt thi',
-    ),
-  ];
 
   @override
   void initState() {
@@ -74,23 +46,15 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
         _exams = exams;
         _subjects = [
           Subject(id: 'all', title: 'Tất cả'),
-          ...subjectMap.entries.map(
-            (e) => Subject(id: e.key, title: e.value),
-          ),
+          ...subjectMap.entries.map((e) => Subject(id: e.key, title: e.value)),
         ];
-        _usingFallback = false;
         _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _exams = _fallbackExams;
-        _subjects = [
-          Subject(id: 'all', title: 'Tất cả'),
-          Subject(id: 'toán', title: 'Toán học'),
-          Subject(id: 'tiếng_anh', title: 'Tiếng Anh'),
-        ];
-        _usingFallback = true;
+        _exams = [];
+        _subjects = [Subject(id: 'all', title: 'Tất cả')];
         _errorMessage = e.toString().replaceFirst('Exception: ', '');
         _isLoading = false;
       });
@@ -134,11 +98,11 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
                 child: ListView(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   children: [
-                    if (_usingFallback && _errorMessage != null)
+                    if (_errorMessage != null)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: Text(
-                          'Đang hiển thị dữ liệu mẫu ($_errorMessage)',
+                          _errorMessage!,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.orange,
@@ -161,7 +125,7 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
                       const Center(
                         child: Padding(
                           padding: EdgeInsets.all(20),
-                          child: Text('Chưa có đề thi cho môn này'),
+                          child: Text('Chưa có đề thi được phát hành'),
                         ),
                       )
                     else
@@ -176,6 +140,7 @@ class _ExamLibraryScreenState extends State<ExamLibraryScreen> {
 
 class _SearchBar extends StatelessWidget {
   const _SearchBar();
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -251,29 +216,19 @@ class CategoryTabs extends StatelessWidget {
 
 class _SectionHeader extends StatelessWidget {
   const _SectionHeader();
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Text(
-          'ĐỀ THI NỔI BẬT',
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-        ),
-        const Spacer(),
-        TextButton(
-          onPressed: () {},
-          child: const Text(
-            'Xem tất cả',
-            style: TextStyle(color: Color(0xFF2E6BFF), fontSize: 12),
-          ),
-        ),
-      ],
+    return const Text(
+      'ĐỀ THI ĐÃ PHÁT HÀNH',
+      style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
     );
   }
 }
 
 class _ExamCard extends StatelessWidget {
   final Exam exam;
+
   const _ExamCard({required this.exam});
 
   @override
@@ -335,13 +290,17 @@ class _ExamCard extends StatelessWidget {
             children: [
               const Icon(Icons.access_time, size: 14, color: Colors.black45),
               const SizedBox(width: 4),
-              Text(exam.time,
-                  style: const TextStyle(fontSize: 11, color: Colors.black45)),
+              Text(
+                exam.time,
+                style: const TextStyle(fontSize: 11, color: Colors.black45),
+              ),
               const SizedBox(width: 16),
               const Icon(Icons.list_alt, size: 14, color: Colors.black45),
               const SizedBox(width: 4),
-              Text(exam.questions,
-                  style: const TextStyle(fontSize: 11, color: Colors.black45)),
+              Text(
+                exam.questions,
+                style: const TextStyle(fontSize: 11, color: Colors.black45),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -356,6 +315,7 @@ class _ExamCard extends StatelessWidget {
                     examId: exam.id,
                     examTitle: exam.title,
                     durationMinutes: exam.durationMinutes,
+                    gradeLevel: 12,
                   ),
                 );
               },
@@ -367,8 +327,10 @@ class _ExamCard extends StatelessWidget {
                 ),
                 elevation: 0,
               ),
-              child: const Text('Thi ngay',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Thi ngay',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ),
         ],

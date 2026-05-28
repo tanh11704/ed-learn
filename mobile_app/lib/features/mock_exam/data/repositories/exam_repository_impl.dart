@@ -13,12 +13,19 @@ class ExamRepositoryImpl implements ExamRepository {
   Future<List<ExamApiModel>> getAvailableExams() => _remote.getAvailableExams();
 
   @override
+  Future<ExamApiModel> getExam(String examId) => _remote.getExam(examId);
+
+  @override
   Future<ExamSessionModel> startExamSession({
     required String examId,
     required int durationMinutes,
+    int gradeLevel = 12,
+    String? className,
   }) async {
     final session = await _remote.startSession(
       examId: examId,
+      gradeLevel: gradeLevel,
+      className: className,
       durationMinutes: durationMinutes,
     );
     if (session.questions.isEmpty) {
@@ -33,6 +40,7 @@ class ExamRepositoryImpl implements ExamRepository {
     required String questionId,
     required String optionId,
   }) async {
+    // No draft-answer endpoint yet; ignore failures and keep answers in Bloc state.
     try {
       await _remote.saveDraftAnswer(
         sessionId: sessionId,
@@ -46,10 +54,20 @@ class ExamRepositoryImpl implements ExamRepository {
   Future<ExamSubmissionResult> submitExam({
     required String sessionId,
     required List<({String questionId, String optionId})> answers,
-  }) async {
+  }) {
     return _remote.submitSession(
       sessionId: sessionId,
       answers: answers,
     );
+  }
+
+  @override
+  Future<ExamAttemptReview> getAttemptReview(String attemptId) {
+    return _remote.getAttemptReview(attemptId);
+  }
+
+  @override
+  Future<List<ExamAttemptSummary>> getMyAttempts() {
+    return _remote.getMyAttempts();
   }
 }

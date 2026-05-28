@@ -11,15 +11,20 @@ class LoadExamTaking extends ExamTakingEvent {
   final String examId;
   final String examTitle;
   final int durationMinutes;
+  final int gradeLevel;
+  final String? className;
 
   const LoadExamTaking({
     required this.examId,
     required this.examTitle,
     this.durationMinutes = 45,
+    this.gradeLevel = 12,
+    this.className,
   });
 
   @override
-  List<Object?> get props => [examId, examTitle, durationMinutes];
+  List<Object?> get props =>
+      [examId, examTitle, durationMinutes, gradeLevel, className];
 }
 
 class SelectAnswer extends ExamTakingEvent {

@@ -303,8 +303,10 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                               context.push(
                                                 '/learning/quiz-start',
                                                 extra: {
+                                                  'lessonId': lesson.id,
                                                   'quizName': lesson.name,
                                                   'moduleName': _chapter?.title ?? widget.moduleName,
+                                                  'courseId': widget.courseId,
                                                 },
                                               );
                                             } else if (lesson.isFlashcard) {
@@ -312,6 +314,7 @@ class _ModuleDetailScreenState extends State<ModuleDetailScreen> {
                                                 '/learning/flashcard-start',
                                                 extra: {
                                                   'lessonId': lesson.id,
+                                                  'lessonName': lesson.name,
                                                   'moduleName': _chapter?.title ?? widget.moduleName,
                                                 },
                                               );

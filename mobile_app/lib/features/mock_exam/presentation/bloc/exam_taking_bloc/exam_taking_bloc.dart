@@ -31,6 +31,8 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
       final session = await _repository.startExamSession(
         examId: event.examId,
         durationMinutes: event.durationMinutes,
+        gradeLevel: event.gradeLevel,
+        className: event.className,
       );
 
       final questions = mapSessionQuestions(session.questions);
@@ -70,7 +72,12 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
     final updated = Map<int, String>.from(currentState.selectedAnswers);
     updated[event.questionIndex] = event.optionId;
 
-    emit(currentState.copyWith(selectedAnswers: updated));
+    emit(
+      currentState.copyWith(
+        selectedAnswers: updated,
+        clearSubmitError: true,
+      ),
+    );
 
     final question = currentState.questions[event.questionIndex];
     await _repository.saveDraftAnswer(
@@ -83,14 +90,20 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
   void _onGoToQuestion(GoToQuestion event, Emitter<ExamTakingState> emit) {
     if (state is! ExamTakingLoaded) return;
     final currentState = state as ExamTakingLoaded;
-    emit(currentState.copyWith(currentIndex: event.questionIndex));
+    emit(currentState.copyWith(
+      currentIndex: event.questionIndex,
+      clearSubmitError: true,
+    ));
   }
 
   void _onTickTimer(TickTimer event, Emitter<ExamTakingState> emit) {
     if (state is! ExamTakingLoaded) return;
     final currentState = state as ExamTakingLoaded;
+    if (currentState.isSubmitting) return;
+
     final remaining = currentState.remainingSeconds - 1;
     if (remaining <= 0) {
+      emit(currentState.copyWith(remainingSeconds: 0));
       add(const SubmitExam());
     } else {
       emit(currentState.copyWith(remainingSeconds: remaining));
@@ -105,7 +118,7 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
     final currentState = state as ExamTakingLoaded;
     if (currentState.isSubmitting) return;
 
-    emit(currentState.copyWith(isSubmitting: true));
+    emit(currentState.copyWith(isSubmitting: true, clearSubmitError: true));
     _timer?.cancel();
 
     final answers = currentState.selectedAnswers.entries
@@ -127,7 +140,12 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
         examTitle: currentState.examTitle,
       ));
     } catch (e) {
-      emit(ExamTakingError(e.toString()));
+      emit(
+        currentState.copyWith(
+          isSubmitting: false,
+          submitError: e.toString().replaceFirst('Exception: ', ''),
+        ),
+      );
     }
   }
 

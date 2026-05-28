@@ -9,16 +9,14 @@ class ExamResultScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final extra = GoRouterState.of(context).extra;
-    ExamTakingFinished? finished;
-    if (extra is ExamTakingFinished) {
-      finished = extra;
-    }
-
+    final finished = extra is ExamTakingFinished ? extra : null;
     final result = finished?.result;
     final examTitle = finished?.examTitle ?? 'Bài thi';
-    final scoreText = result?.scoreLabel ?? '8.5';
+    final score = result?.score;
+    final maxScore = result?.maxScore;
+    final scoreText = score == null ? '—' : score.toStringAsFixed(1);
     final message = result?.message ??
-        'Bạn đã hoàn thành bài thi. Kết quả chi tiết sẽ có khi hệ thống chấm xong.';
+        'Bạn đã hoàn thành bài thi. Bấm xem lại bài làm để kiểm tra đáp án.';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FC),
@@ -64,7 +62,9 @@ class ExamResultScreen extends StatelessWidget {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: const Color(0xFF3B82F6), width: 8),
+                        color: const Color(0xFF3B82F6),
+                        width: 8,
+                      ),
                     ),
                     child: Center(
                       child: Column(
@@ -78,9 +78,9 @@ class ExamResultScreen extends StatelessWidget {
                               color: Color(0xFF2563EB),
                             ),
                           ),
-                          if (result?.maxScore != null)
+                          if (maxScore != null)
                             Text(
-                              '/${result!.maxScore!.toStringAsFixed(0)}',
+                              '/${maxScore.toStringAsFixed(0)}',
                               style: const TextStyle(color: Colors.black45),
                             ),
                         ],
@@ -91,14 +91,15 @@ class ExamResultScreen extends StatelessWidget {
                   Text(
                     result?.status == 'GRADED' ? 'Tuyệt vời!' : 'Đã nộp bài',
                     style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     message,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 12, color: Colors.black54),
+                    style: const TextStyle(fontSize: 12, color: Colors.black54),
                   ),
                 ],
               ),
@@ -108,15 +109,18 @@ class ExamResultScreen extends StatelessWidget {
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const ExamSolutionDetailScreen(),
-                    ),
-                  );
-                },
+                onPressed: result?.submissionId == null
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ExamSolutionDetailScreen(
+                              attemptId: result!.submissionId,
+                            ),
+                          ),
+                        );
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2E6BFF),
                   shape: RoundedRectangleBorder(
@@ -124,9 +128,11 @@ class ExamResultScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Xem đáp án chi tiết',
+                  'Xem lại bài làm',
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.white),
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),

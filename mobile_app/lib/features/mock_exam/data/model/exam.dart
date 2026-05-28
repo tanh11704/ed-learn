@@ -28,14 +28,14 @@ class Exam {
   });
 
   factory Exam.fromApi(ExamApiModel api) {
-    final status = (api.status ?? 'DRAFT').toUpperCase();
+    final status = (api.status ?? 'PUBLISHED').toUpperCase();
     final (level, levelColor) = _levelFromStatus(status);
-
     final yearLabel = api.schoolYear != null ? ' • ${api.schoolYear}' : '';
+
     return Exam(
       id: api.id,
       title: api.title,
-      subtitle: api.description?.isNotEmpty == true
+      subtitle: api.description?.trim().isNotEmpty == true
           ? api.description!
           : '${api.subject}$yearLabel',
       level: level,
@@ -44,10 +44,9 @@ class Exam {
       questions: api.totalQuestions > 0
           ? '${api.totalQuestions} câu hỏi'
           : 'Chưa có câu hỏi',
-      taken: status == 'PUBLISHED' ? 'Đang mở' : 'Bản nháp',
+      taken: status == 'PUBLISHED' ? 'Đang mở' : status,
       subjectId: _subjectKey(api.subject),
-      durationMinutes:
-          api.durationMinutes > 0 ? api.durationMinutes : 45,
+      durationMinutes: api.durationMinutes > 0 ? api.durationMinutes : 45,
     );
   }
 

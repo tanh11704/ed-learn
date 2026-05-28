@@ -9,6 +9,7 @@ List<ExamQuestion> mapSessionQuestions(List<ExamQuestionDto> dtos) {
     return ExamQuestion(
       id: dto.id,
       content: dto.content,
+      imageUrl: dto.imageUrl,
       options: sorted.asMap().entries.map((entry) {
         final label = labels[entry.key % labels.length];
         return ExamAnswerOption(
