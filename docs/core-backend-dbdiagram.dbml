@@ -1,0 +1,343 @@
+Project edlearn_core_backend {
+  database_type: "PostgreSQL"
+  Note: "Generated from core-backend Flyway migrations in src/main/resources/db/migration"
+}
+
+Enum role_type {
+  ADMIN
+  USER
+}
+
+Table users {
+  id uuid [pk, default: `gen_random_uuid()`]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [not null]
+  full_name varchar(100) [not null]
+  role role_type [default: 'USER']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table refresh_tokens {
+  id uuid [pk, default: `gen_random_uuid()`]
+  token varchar(255) [not null, unique]
+  expires_at timestamptz [not null]
+  device_info varchar(255)
+  revoked boolean [not null, default: false]
+  user_id uuid [not null]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id [name: "idx_refresh_tokens_user_id"]
+  }
+}
+
+Table courses {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  description text
+  subject varchar(100)
+  thumbnail_url varchar(255)
+  status varchar(50) [not null, default: 'ACTIVE']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table chapters {
+  id uuid [pk, default: `gen_random_uuid()`]
+  course_id uuid [not null]
+  title varchar(255) [not null]
+  order_index integer [not null, default: 0]
+  is_deleted boolean [default: false]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    course_id [name: "idx_chapters_course_id"]
+    (course_id, order_index) [unique, name: "uk_active_chapters_course_order"]
+  }
+}
+
+Table lessons {
+  id uuid [pk, default: `gen_random_uuid()`]
+  chapter_id uuid [not null]
+  title varchar(255) [not null]
+  video_url text
+  pdf_url text
+  order_index integer [not null, default: 0]
+  is_deleted boolean [not null, default: false]
+  is_preview boolean [default: false]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    chapter_id [name: "idx_lessons_chapter_id"]
+    (chapter_id, order_index) [unique, name: "uk_active_lessons_chapter_order"]
+  }
+}
+
+Table enrollments {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  course_id uuid [not null]
+  price bigint [not null, default: 0]
+  status varchar(50) [not null, default: 'ACTIVE']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    course_id [name: "idx_enrollment_course_id"]
+    created_at [name: "idx_enrollment_created_at"]
+    user_id [name: "idx_enrollment_user_id"]
+  }
+}
+
+Table user_streaks {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null, unique]
+  current_streak int [not null, default: 0]
+  longest_streak int [not null, default: 0]
+  last_activity_day date
+  streak_freeze_count int [not null, default: 0]
+  status varchar(50) [not null, default: 'INACTIVE']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+}
+
+Table user_progress_lessons {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  lesson_id uuid [not null]
+  status varchar(20) [not null]
+  completed_at timestamptz
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (user_id, lesson_id) [unique, name: "uk_user_progress_lessons_user_lesson"]
+    user_id [name: "idx_user_progress_lessons_user_id"]
+    lesson_id [name: "idx_user_progress_lessons_lesson_id"]
+    status [name: "idx_user_progress_lessons_status"]
+  }
+}
+
+Table user_courses {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  course_id uuid [not null]
+  progress_percent integer [not null, default: 0]
+  last_accessed_lesson_id uuid
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (user_id, course_id) [unique, name: "uk_user_courses_user_course"]
+    user_id [name: "idx_user_courses_user_id"]
+    course_id [name: "idx_user_courses_course_id"]
+  }
+}
+
+Table error_bank {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  question_content text [not null]
+  wrong_answer text
+  correct_answer text
+  repetition_count integer [not null, default: 0]
+  ease_factor double [not null, default: 2.5]
+  interval_days integer [not null, default: 1]
+  next_review_date timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    user_id [name: "idx_error_bank_user_id"]
+    next_review_date [name: "idx_error_bank_next_review_date"]
+  }
+}
+
+Table lesson_content_items {
+  id uuid [pk, default: `gen_random_uuid()`]
+  lesson_id uuid [not null]
+  type varchar(30) [not null]
+  prompt text [not null]
+  answer text [not null]
+  explanation text
+  options_json text
+  correct_option varchar(10)
+  order_index integer [not null, default: 0]
+  is_deleted boolean [not null, default: false]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    lesson_id [name: "idx_lesson_content_items_lesson_id"]
+    type [name: "idx_lesson_content_items_type"]
+  }
+}
+
+Table lesson_content_item_reviews {
+  id uuid [pk, default: `gen_random_uuid()`]
+  item_id uuid [not null]
+  user_id uuid [not null]
+  repetition_count integer [not null, default: 0]
+  ease_factor double [not null, default: 2.5]
+  interval_days integer [not null, default: 1]
+  next_review_date timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (item_id, user_id) [unique, name: "uk_lesson_content_item_reviews_item_user"]
+    (user_id, next_review_date) [name: "idx_lesson_content_item_reviews_user_due"]
+  }
+}
+
+Table badges {
+  id uuid [pk, default: `gen_random_uuid()`]
+  code varchar(100) [not null, unique]
+  name varchar(255) [not null]
+  description text
+  image_url varchar(500)
+  category varchar(50) [not null]
+  xp_reward int [not null, default: 0]
+}
+
+Table user_badges {
+  id uuid [pk, default: `gen_random_uuid()`]
+  user_id uuid [not null]
+  badge_id uuid [not null]
+  earned_at timestamp [not null]
+  is_new boolean [not null, default: true]
+
+  indexes {
+    user_id [name: "idx_user_badges_user_id"]
+    badge_id [name: "idx_user_badges_badge_id"]
+  }
+}
+
+Table exams {
+  id uuid [pk, default: `gen_random_uuid()`]
+  title varchar(255) [not null]
+  subject varchar(100) [not null]
+  school_year integer [not null]
+  duration_minutes integer [not null]
+  total_questions integer [not null, default: 0]
+  description text
+  status varchar(50) [not null, default: 'DRAFT']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    subject [name: "idx_exams_subject"]
+    school_year [name: "idx_exams_school_year"]
+    status [name: "idx_exams_status"]
+  }
+}
+
+Table exam_questions {
+  id uuid [pk, default: `gen_random_uuid()`]
+  exam_id uuid [not null]
+  question_type varchar(50) [not null, default: 'MULTIPLE_CHOICE']
+  paper_part varchar(50) [not null, default: 'PART_I']
+  content text [not null]
+  image_url varchar(1000)
+  order_index integer [not null, default: 0]
+  score double [not null, default: 1]
+  correct_answer text
+  deleted boolean [not null, default: false]
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    exam_id [name: "idx_exam_questions_exam_id"]
+    question_type [name: "idx_exam_questions_type"]
+    paper_part [name: "idx_exam_questions_paper_part"]
+  }
+}
+
+Table exam_question_options {
+  id uuid [pk, default: `gen_random_uuid()`]
+  question_id uuid [not null]
+  content text [not null]
+  correct boolean [not null, default: false]
+  order_index integer [not null, default: 0]
+  option_type varchar(50) [not null, default: 'STANDARD']
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    question_id [name: "idx_exam_question_options_question_id"]
+  }
+}
+
+Table exam_attempts {
+  id uuid [pk, default: `gen_random_uuid()`]
+  exam_id uuid [not null]
+  user_id uuid [not null]
+  grade_level integer [not null]
+  class_name varchar(100)
+  status varchar(30) [not null, default: 'IN_PROGRESS']
+  started_at timestamptz [not null, default: `CURRENT_TIMESTAMP`]
+  submitted_at timestamptz
+  duration_seconds integer
+  score double
+  max_score double
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    exam_id [name: "idx_exam_attempts_exam_id"]
+    user_id [name: "idx_exam_attempts_user_id"]
+    grade_level [name: "idx_exam_attempts_grade_level"]
+    status [name: "idx_exam_attempts_status"]
+    started_at [name: "idx_exam_attempts_started_at"]
+  }
+}
+
+Table exam_attempt_answers {
+  id uuid [pk, default: `gen_random_uuid()`]
+  attempt_id uuid [not null]
+  question_id uuid [not null]
+  selected_option_id uuid
+  answer_text text
+  correct boolean
+  score double
+  created_at timestamptz [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamptz [default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (attempt_id, question_id) [unique, name: "uk_exam_attempt_answers_attempt_question"]
+    attempt_id [name: "idx_exam_attempt_answers_attempt_id"]
+    question_id [name: "idx_exam_attempt_answers_question_id"]
+  }
+}
+
+Ref: refresh_tokens.user_id > users.id [delete: cascade]
+Ref: chapters.course_id > courses.id [delete: cascade]
+Ref: lessons.chapter_id > chapters.id [delete: cascade]
+Ref: enrollments.user_id > users.id [delete: restrict]
+Ref: enrollments.course_id > courses.id [delete: restrict]
+Ref: user_streaks.user_id - users.id [delete: cascade]
+Ref: user_progress_lessons.lesson_id > lessons.id
+Ref: user_courses.course_id > courses.id
+Ref: user_courses.last_accessed_lesson_id > lessons.id
+Ref: lesson_content_items.lesson_id > lessons.id [delete: cascade]
+Ref: lesson_content_item_reviews.item_id > lesson_content_items.id [delete: cascade]
+Ref: user_badges.user_id > users.id
+Ref: user_badges.badge_id > badges.id
+Ref: exam_questions.exam_id > exams.id [delete: cascade]
+Ref: exam_question_options.question_id > exam_questions.id [delete: cascade]
+Ref: exam_attempts.exam_id > exams.id [delete: cascade]
+Ref: exam_attempts.user_id > users.id [delete: restrict]
+Ref: exam_attempt_answers.attempt_id > exam_attempts.id [delete: cascade]
+Ref: exam_attempt_answers.question_id > exam_questions.id [delete: cascade]
+Ref: exam_attempt_answers.selected_option_id > exam_question_options.id
+
+// Inferred from application usage; these user_id columns have indexes/domain usage
+// but no explicit foreign key in the current Flyway migrations.
+Ref: user_progress_lessons.user_id > users.id
+Ref: user_courses.user_id > users.id
+Ref: error_bank.user_id > users.id
+Ref: lesson_content_item_reviews.user_id > users.id
