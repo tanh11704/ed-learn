@@ -78,7 +78,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Không tải được huy hiệu',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
@@ -114,19 +116,33 @@ class _BadgesScreenState extends State<BadgesScreen> {
                         color: Colors.black.withValues(alpha: 0.06),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
-                      )
+                      ),
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('BỘ SƯU TẬP HUY HIỆU', style: AppTextStyles.caption.copyWith(color: const Color(0xFFFF7E36), fontWeight: FontWeight.w700)),
+                      Text(
+                        'BỘ SƯU TẬP HUY HIỆU',
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFFFF7E36),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Text('$unlockedCount huy hiệu', style: AppTextStyles.heading1),
+                          Text(
+                            '$unlockedCount huy hiệu',
+                            style: AppTextStyles.heading1,
+                          ),
                           const Spacer(),
-                          Text('$unlockedCount / $totalCount đã mở', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                          Text(
+                            '$unlockedCount / $totalCount đã mở',
+                            style: AppTextStyles.bodyMedium.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -134,15 +150,23 @@ class _BadgesScreenState extends State<BadgesScreen> {
                         borderRadius: BorderRadius.circular(99),
                         child: LinearProgressIndicator(
                           minHeight: 9,
-                          value: totalCount > 0 ? unlockedCount / totalCount : 0.0,
+                          value: totalCount > 0
+                              ? unlockedCount / totalCount
+                              : 0.0,
                           backgroundColor: AppColors.border,
-                          valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                          valueColor: const AlwaysStoppedAnimation(
+                            AppColors.primary,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          const Icon(Icons.emoji_events_outlined, size: 16, color: Color(0xFFFF7E36)),
+                          const Icon(
+                            Icons.emoji_events_outlined,
+                            size: 16,
+                            color: Color(0xFFFF7E36),
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             unlockedCount == 0
@@ -151,7 +175,7 @@ class _BadgesScreenState extends State<BadgesScreen> {
                             style: AppTextStyles.caption,
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -161,10 +185,22 @@ class _BadgesScreenState extends State<BadgesScreen> {
                     Text('Bộ sưu tập', style: AppTextStyles.heading1),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
-                      child: Text('$unlockedCount/$totalCount ĐÃ MỞ', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
-                    )
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '$unlockedCount/$totalCount ĐÃ MỞ',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -180,13 +216,15 @@ class _BadgesScreenState extends State<BadgesScreen> {
                   ),
                   itemBuilder: (context, index) {
                     final badge = badges[index];
-                    final card = _badgeItem(badge, onTap: badge.unlocked ? () => context.go('/profile/badges/detail') : null);
+                    final card = _badgeItem(
+                      badge,
+                      onTap: badge.unlocked
+                          ? () => context.go('/profile/badges/detail')
+                          : null,
+                    );
                     return badge.unlocked
                         ? card
-                        : Opacity(
-                            opacity: 0.78,
-                            child: card,
-                          );
+                        : Opacity(opacity: 0.78, child: card);
                   },
                 ),
                 const SizedBox(height: 22),
@@ -206,22 +244,33 @@ class _BadgesScreenState extends State<BadgesScreen> {
                           shape: BoxShape.circle,
                           color: Colors.white,
                         ),
-                        child: const Icon(Icons.workspace_premium_outlined, color: AppColors.primary),
+                        child: const Icon(
+                          Icons.workspace_premium_outlined,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Sắp nhận được huy hiệu mới', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+                            Text(
+                              'Sắp nhận được huy hiệu mới',
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                             const SizedBox(height: 2),
-                            Text('Hoàn thành thêm 2 bài học tiếng Anh để mở khóa "Bậc thầy ngôn ngữ".', style: AppTextStyles.caption),
+                            Text(
+                              'Hoàn thành thêm 2 bài học tiếng Anh để mở khóa "Bậc thầy ngôn ngữ".',
+                              style: AppTextStyles.caption,
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           );
@@ -230,7 +279,10 @@ class _BadgesScreenState extends State<BadgesScreen> {
     );
   }
 
-  List<_BadgeItem> _buildBadgeItems(List<UserBadgeResponse> data, {required int totalCount}) {
+  List<_BadgeItem> _buildBadgeItems(
+    List<UserBadgeResponse> data, {
+    required int totalCount,
+  }) {
     final unlocked = data.asMap().entries.map((entry) {
       final index = entry.key;
       final badge = entry.value;
@@ -275,7 +327,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
               color: badge.unlocked ? badge.color : Colors.transparent,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: badge.unlocked ? Colors.transparent : const Color(0xFFBAC2D1),
+                color: badge.unlocked
+                    ? Colors.transparent
+                    : const Color(0xFFBAC2D1),
                 width: 1.5,
               ),
               boxShadow: badge.unlocked
@@ -284,7 +338,7 @@ class _BadgesScreenState extends State<BadgesScreen> {
                         color: badge.color.withValues(alpha: 0.28),
                         blurRadius: 14,
                         offset: const Offset(0, 6),
-                      )
+                      ),
                     ]
                   : null,
             ),
@@ -294,16 +348,15 @@ class _BadgesScreenState extends State<BadgesScreen> {
                     child: Image.network(
                       badge.imageUrl!,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Icon(
-                        badge.icon,
-                        color: Colors.white,
-                        size: 28,
-                      ),
+                      errorBuilder: (_, _, _) =>
+                          Icon(badge.icon, color: Colors.white, size: 28),
                     ),
                   )
                 : Icon(
                     badge.icon,
-                    color: badge.unlocked ? Colors.white : const Color(0xFF9EA5B5),
+                    color: badge.unlocked
+                        ? Colors.white
+                        : const Color(0xFF9EA5B5),
                     size: 28,
                   ),
           ),
@@ -311,7 +364,9 @@ class _BadgesScreenState extends State<BadgesScreen> {
           Text(
             badge.name,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: badge.unlocked ? AppColors.textPrimary : AppColors.textSecondary,
+              color: badge.unlocked
+                  ? AppColors.textPrimary
+                  : AppColors.textSecondary,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
@@ -322,7 +377,10 @@ class _BadgesScreenState extends State<BadgesScreen> {
             const SizedBox(height: 2),
             Text(
               '+${badge.xpReward} XP',
-              style: AppTextStyles.caption.copyWith(color: const Color(0xFFFF7E36), fontWeight: FontWeight.w700),
+              style: AppTextStyles.caption.copyWith(
+                color: const Color(0xFFFF7E36),
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ],

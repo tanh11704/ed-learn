@@ -4,14 +4,14 @@ import 'performance_state.dart';
 
 class PerformanceBloc extends Bloc<PerformanceEvent, PerformanceState> {
   PerformanceBloc()
-      : super(
-          PerformanceState(
-            isLoading: true,
-            capability: _mockCapability(),
-            progress: _mockProgress(),
-            timeManagement: _mockTimeManagement(),
-          ),
-        ) {
+    : super(
+        PerformanceState(
+          isLoading: true,
+          capability: _mockCapability(),
+          progress: _mockProgress(),
+          timeManagement: _mockTimeManagement(),
+        ),
+      ) {
     on<LoadPerformanceData>((event, emit) async {
       emit(
         PerformanceState(

@@ -4,11 +4,7 @@ class CameraPipView extends StatelessWidget {
   final double size;
   final Widget? child;
 
-  const CameraPipView({
-    super.key,
-    this.size = 52,
-    this.child,
-  });
+  const CameraPipView({super.key, this.size = 52, this.child});
 
   @override
   Widget build(BuildContext context) {

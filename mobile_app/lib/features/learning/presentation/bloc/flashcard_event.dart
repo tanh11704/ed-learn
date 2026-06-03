@@ -12,10 +12,7 @@ class LoadFlashcards extends FlashcardEvent {
   final String lessonId;
   final String moduleName;
 
-  const LoadFlashcards({
-    required this.lessonId,
-    required this.moduleName,
-  });
+  const LoadFlashcards({required this.lessonId, required this.moduleName});
 
   @override
   List<Object?> get props => [lessonId, moduleName];

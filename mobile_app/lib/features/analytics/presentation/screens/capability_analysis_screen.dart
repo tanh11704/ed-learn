@@ -31,18 +31,25 @@ class CapabilityAnalysisScreen extends StatelessWidget {
                     children: [
                       Text(
                         '${capability.overallScore.toStringAsFixed(0)}/100',
-                        style: AppTextStyles.heading1.copyWith(color: AppColors.primary),
+                        style: AppTextStyles.heading1.copyWith(
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.success.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
                           '+${capability.improvementPercent.toStringAsFixed(1)}% tháng này',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.success),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.success,
+                          ),
                         ),
                       ),
                     ],
@@ -97,8 +104,16 @@ class CapabilityAnalysisScreen extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Expanded(child: Text(skill.label, style: AppTextStyles.bodyLarge)),
-                        Text('${skill.value.toStringAsFixed(0)}%', style: AppTextStyles.bodyMedium),
+                        Expanded(
+                          child: Text(
+                            skill.label,
+                            style: AppTextStyles.bodyLarge,
+                          ),
+                        ),
+                        Text(
+                          '${skill.value.toStringAsFixed(0)}%',
+                          style: AppTextStyles.bodyMedium,
+                        ),
                       ],
                     ),
                   ),

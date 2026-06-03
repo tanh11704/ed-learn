@@ -34,7 +34,12 @@ class PremiumFeatureItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
+                Text(
+                  title,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 2),
                 Text(subtitle, style: AppTextStyles.caption),
               ],

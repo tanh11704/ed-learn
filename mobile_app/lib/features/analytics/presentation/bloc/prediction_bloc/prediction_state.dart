@@ -31,7 +31,13 @@ class ScorePrediction extends Equatable {
   });
 
   @override
-  List<Object?> get props => [score, accuracy, targetLabel, targetDescription, remainingScore];
+  List<Object?> get props => [
+    score,
+    accuracy,
+    targetLabel,
+    targetDescription,
+    remainingScore,
+  ];
 }
 
 class LearningStage extends Equatable {

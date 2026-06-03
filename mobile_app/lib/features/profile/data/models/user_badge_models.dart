@@ -42,17 +42,17 @@ class UserBadgeResponse extends Equatable {
 
   @override
   List<Object?> get props => [
-        userBadgeId,
-        badgeId,
-        badgeCode,
-        badgeName,
-        badgeDescription,
-        category,
-        imageUrl,
-        xpReward,
-        earnedAt,
-        isNew,
-      ];
+    userBadgeId,
+    badgeId,
+    badgeCode,
+    badgeName,
+    badgeDescription,
+    category,
+    imageUrl,
+    xpReward,
+    earnedAt,
+    isNew,
+  ];
 }
 
 class PageUserBadgeResponse extends Equatable {

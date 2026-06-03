@@ -19,7 +19,13 @@ class _RankingScreenState extends State<RankingScreen> {
   ];
 
   static final _ranking = [
-    _RankItem(position: 4, name: 'Văn Đức', xp: '7,200 XP', trendUp: true, isMe: true),
+    _RankItem(
+      position: 4,
+      name: 'Văn Đức',
+      xp: '7,200 XP',
+      trendUp: true,
+      isMe: true,
+    ),
     _RankItem(position: 5, name: 'Quang Thắng', xp: '6,850 XP'),
     _RankItem(position: 6, name: 'Xuân Tuấn', xp: '6,100 XP', trendUp: false),
     _RankItem(position: 7, name: 'Bảo Ngọc', xp: '5,920 XP', trendUp: true),
@@ -50,8 +56,20 @@ class _RankingScreenState extends State<RankingScreen> {
               padding: const EdgeInsets.all(4),
               child: Row(
                 children: [
-                  Expanded(child: _periodButton(title: 'Tuần này', selected: _isWeek, onTap: () => setState(() => _isWeek = true))),
-                  Expanded(child: _periodButton(title: 'Tháng này', selected: !_isWeek, onTap: () => setState(() => _isWeek = false))),
+                  Expanded(
+                    child: _periodButton(
+                      title: 'Tuần này',
+                      selected: _isWeek,
+                      onTap: () => setState(() => _isWeek = true),
+                    ),
+                  ),
+                  Expanded(
+                    child: _periodButton(
+                      title: 'Tháng này',
+                      selected: !_isWeek,
+                      onTap: () => setState(() => _isWeek = false),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -72,9 +90,7 @@ class _RankingScreenState extends State<RankingScreen> {
                 color: AppColors.white,
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: Column(
-                children: _ranking.map(_rankingRow).toList(),
-              ),
+              child: Column(children: _ranking.map(_rankingRow).toList()),
             ),
           ],
         ),
@@ -82,7 +98,11 @@ class _RankingScreenState extends State<RankingScreen> {
     );
   }
 
-  Widget _periodButton({required String title, required bool selected, required VoidCallback onTap}) {
+  Widget _periodButton({
+    required String title,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),
@@ -126,7 +146,11 @@ class _RankingScreenState extends State<RankingScreen> {
               child: CircleAvatar(
                 radius: isFirst ? 34 : 24,
                 backgroundColor: Colors.orange.shade100,
-                child: Icon(Icons.person, color: AppColors.primary, size: isFirst ? 34 : 22),
+                child: Icon(
+                  Icons.person,
+                  color: AppColors.primary,
+                  size: isFirst ? 34 : 22,
+                ),
               ),
             ),
             if (isFirst)
@@ -134,7 +158,11 @@ class _RankingScreenState extends State<RankingScreen> {
                 top: -16,
                 left: 0,
                 right: 0,
-                child: Icon(Icons.workspace_premium, color: Colors.amber, size: 20),
+                child: Icon(
+                  Icons.workspace_premium,
+                  color: Colors.amber,
+                  size: 20,
+                ),
               ),
             Positioned(
               bottom: -4,
@@ -149,14 +177,21 @@ class _RankingScreenState extends State<RankingScreen> {
                 ),
                 child: Text(
                   '${person.rank}',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                  style: AppTextStyles.caption.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Text(person.name, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+        Text(
+          person.name,
+          style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600),
+          textAlign: TextAlign.center,
+        ),
         const SizedBox(height: 2),
         Text(person.xp, style: AppTextStyles.caption),
         const SizedBox(height: 8),
@@ -165,7 +200,9 @@ class _RankingScreenState extends State<RankingScreen> {
           height: barHeight,
           margin: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: isFirst ? AppColors.primary.withValues(alpha: 0.28) : AppColors.border.withValues(alpha: 0.55),
+            color: isFirst
+                ? AppColors.primary.withValues(alpha: 0.28)
+                : AppColors.border.withValues(alpha: 0.55),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
             border: Border.all(color: AppColors.border),
           ),
@@ -179,7 +216,9 @@ class _RankingScreenState extends State<RankingScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
-        color: item.isMe ? AppColors.primary.withValues(alpha: 0.08) : AppColors.white,
+        color: item.isMe
+            ? AppColors.primary.withValues(alpha: 0.08)
+            : AppColors.white,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: AppColors.border),
       ),
@@ -187,15 +226,28 @@ class _RankingScreenState extends State<RankingScreen> {
         children: [
           SizedBox(
             width: 24,
-            child: Text('${item.position}', style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+            child: Text(
+              '${item.position}',
+              style: AppTextStyles.bodyMedium.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
-          const CircleAvatar(radius: 16, child: Icon(Icons.person_outline, size: 18)),
+          const CircleAvatar(
+            radius: 16,
+            child: Icon(Icons.person_outline, size: 18),
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.name, style: AppTextStyles.bodyMedium.copyWith(fontWeight: FontWeight.w600)),
+                Text(
+                  item.name,
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 Text(item.xp, style: AppTextStyles.caption),
               ],
             ),
@@ -208,7 +260,12 @@ class _RankingScreenState extends State<RankingScreen> {
 
   Widget _trendIcon(bool? trendUp) {
     if (trendUp == null) {
-      return Text('—', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary));
+      return Text(
+        '—',
+        style: AppTextStyles.bodyMedium.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      );
     }
     return Icon(
       trendUp ? Icons.trending_up : Icons.trending_down,

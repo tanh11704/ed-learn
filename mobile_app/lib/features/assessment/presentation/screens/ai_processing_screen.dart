@@ -51,7 +51,10 @@ class AiProcessingScreen extends StatelessWidget {
                         width: 170,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primaryLight, width: 2),
+                          border: Border.all(
+                            color: AppColors.primaryLight,
+                            width: 2,
+                          ),
                         ),
                       ),
                       Container(
@@ -59,22 +62,38 @@ class AiProcessingScreen extends StatelessWidget {
                         width: 130,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.warning.withValues(alpha: 0.5), width: 2, style: BorderStyle.solid),
+                          border: Border.all(
+                            color: AppColors.warning.withValues(alpha: 0.5),
+                            width: 2,
+                            style: BorderStyle.solid,
+                          ),
                         ),
                       ),
                       const CircleAvatar(
                         radius: 34,
                         backgroundColor: AppColors.white,
-                        child: Icon(Icons.settings, color: AppColors.primary, size: 30),
+                        child: Icon(
+                          Icons.settings,
+                          color: AppColors.primary,
+                          size: 30,
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              Text('AI đang thiết kế lộ trình\ndành riêng cho bạn...', style: AppTextStyles.heading1, textAlign: TextAlign.center),
+              Text(
+                'AI đang thiết kế lộ trình\ndành riêng cho bạn...',
+                style: AppTextStyles.heading1,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
-              Text('Phân tích sở thích và mục tiêu cá nhân', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
+              Text(
+                'Phân tích sở thích và mục tiêu cá nhân',
+                style: AppTextStyles.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 24),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -89,8 +108,20 @@ class AiProcessingScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('ĐANG XỬ LÝ', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w700, color: AppColors.primary)),
-                        Text('65%', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w600)),
+                        Text(
+                          'ĐANG XỬ LÝ',
+                          style: AppTextStyles.caption.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        Text(
+                          '65%',
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -100,7 +131,9 @@ class AiProcessingScreen extends StatelessWidget {
                         minHeight: 6,
                         value: 0.65,
                         backgroundColor: AppColors.primaryLight,
-                        valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.primary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class EmptyDashboardView extends StatelessWidget {
-  const EmptyDashboardView({Key? key}) : super(key: key);
+  const EmptyDashboardView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,10 +63,7 @@ class EmptyDashboardView extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               'Hãy tạo một nhiệm vụ mới để bắt đầu học tập hôm nay',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 48),
@@ -82,10 +79,7 @@ class EmptyDashboardView extends StatelessWidget {
                 icon: const Icon(Icons.add, size: 20),
                 label: const Text(
                   'Tạo nhiệm vụ',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue[600],

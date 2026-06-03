@@ -26,7 +26,13 @@ class UserModel extends Equatable {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'email': email, 'name': name, 'avatar': avatar, 'role': role};
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'avatar': avatar,
+      'role': role,
+    };
   }
 
   @override

@@ -29,8 +29,15 @@ class NotebookBloc extends Bloc<NotebookEvent, NotebookState> {
   void _onCreateNotebook(CreateNotebook event, Emitter<NotebookState> emit) {
     if (state is NotebookLoaded) {
       final currentState = state as NotebookLoaded;
-      final updated = List<String>.from(currentState.notebooks)..add(event.name);
-      emit(currentState.copyWith(notebooks: updated, selectedIndex: updated.length - 1, saved: true));
+      final updated = List<String>.from(currentState.notebooks)
+        ..add(event.name);
+      emit(
+        currentState.copyWith(
+          notebooks: updated,
+          selectedIndex: updated.length - 1,
+          saved: true,
+        ),
+      );
     }
   }
 }

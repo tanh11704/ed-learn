@@ -52,7 +52,10 @@ class _SelfStudyRoomScreenState extends State<SelfStudyRoomScreen> {
         ),
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none)),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.notifications_none),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -80,7 +83,10 @@ class _SelfStudyRoomScreenState extends State<SelfStudyRoomScreen> {
                       height: 60,
                       width: 80,
                       color: AppColors.primary.withValues(alpha: 0.15),
-                      child: const Icon(Icons.people_alt, color: AppColors.primary),
+                      child: const Icon(
+                        Icons.people_alt,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -88,10 +94,15 @@ class _SelfStudyRoomScreenState extends State<SelfStudyRoomScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Cùng học, cùng tiến bộ', style: AppTextStyles.bodyLarge),
+                        Text(
+                          'Cùng học, cùng tiến bộ',
+                          style: AppTextStyles.bodyLarge,
+                        ),
                         const SizedBox(height: 4),
-                        Text('Tham gia cùng 1,240 học sinh đang online',
-                            style: AppTextStyles.caption),
+                        Text(
+                          'Tham gia cùng 1,240 học sinh đang online',
+                          style: AppTextStyles.caption,
+                        ),
                       ],
                     ),
                   ),
@@ -131,7 +142,12 @@ class _SelfStudyRoomScreenState extends State<SelfStudyRoomScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Phòng đang hoạt động', style: AppTextStyles.bodyLarge),
-                Text('Xem thêm', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                Text(
+                  'Xem thêm',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -199,19 +215,30 @@ class _RoomCard extends StatelessWidget {
               color: AppColors.success.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+            child: const Icon(
+              Icons.check_circle,
+              color: AppColors.success,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(data.subject, style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+                Text(
+                  data.subject,
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.success,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(data.title, style: AppTextStyles.bodyLarge),
                 const SizedBox(height: 6),
-                Text('👥 ${data.members}/${data.total} • ${data.timeLeft}',
-                    style: AppTextStyles.caption),
+                Text(
+                  '👥 ${data.members}/${data.total} • ${data.timeLeft}',
+                  style: AppTextStyles.caption,
+                ),
               ],
             ),
           ),
@@ -227,7 +254,10 @@ class _RoomCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18),
                 ),
-                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                textStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               child: const Text('Tham gia'),
             ),
@@ -243,7 +273,11 @@ class _FilterChip extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _FilterChip({required this.label, required this.onTap, this.isSelected = false});
+  const _FilterChip({
+    required this.label,
+    required this.onTap,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {

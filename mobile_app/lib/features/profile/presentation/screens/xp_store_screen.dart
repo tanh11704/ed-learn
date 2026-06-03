@@ -21,22 +21,76 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
   final List<String> _tabs = const ['Khung Avatar', 'Giao diện', 'Voucher'];
 
   final List<_StoreItem> _avatarItems = const [
-    _StoreItem(name: 'Khung Avatar\nLửa Thiêng', priceXp: 500, color: Color(0xFFFF7A1A), icon: Icons.blur_circular),
-    _StoreItem(name: 'Khung Avatar\nPhi Hành Gia', priceXp: 800, color: Color(0xFF6A64FF), icon: Icons.crop_square_rounded),
-    _StoreItem(name: 'Khung Avatar\nVương Miện', priceXp: 1500, requiredLevel: 'Cần Cấp 15', color: Color(0xFFA0846A), icon: Icons.workspace_premium),
-    _StoreItem(name: 'Khung Avatar\nKim Cương', priceXp: 2000, requiredLevel: 'Cần Cấp 20', color: Color(0xFF7D889A), icon: Icons.diamond_outlined),
+    _StoreItem(
+      name: 'Khung Avatar\nLửa Thiêng',
+      priceXp: 500,
+      color: Color(0xFFFF7A1A),
+      icon: Icons.blur_circular,
+    ),
+    _StoreItem(
+      name: 'Khung Avatar\nPhi Hành Gia',
+      priceXp: 800,
+      color: Color(0xFF6A64FF),
+      icon: Icons.crop_square_rounded,
+    ),
+    _StoreItem(
+      name: 'Khung Avatar\nVương Miện',
+      priceXp: 1500,
+      requiredLevel: 'Cần Cấp 15',
+      color: Color(0xFFA0846A),
+      icon: Icons.workspace_premium,
+    ),
+    _StoreItem(
+      name: 'Khung Avatar\nKim Cương',
+      priceXp: 2000,
+      requiredLevel: 'Cần Cấp 20',
+      color: Color(0xFF7D889A),
+      icon: Icons.diamond_outlined,
+    ),
   ];
 
   final List<_StoreItem> _themeItems = const [
-    _StoreItem(name: 'Theme Neon', priceXp: 600, color: Color(0xFF00C2FF), icon: Icons.color_lens_outlined),
-    _StoreItem(name: 'Theme Tối', priceXp: 750, color: Color(0xFF454A5E), icon: Icons.dark_mode_outlined),
-    _StoreItem(name: 'Theme Galaxy', priceXp: 1200, requiredLevel: 'Cần Cấp 14', color: Color(0xFF5A4AC9), icon: Icons.auto_awesome),
+    _StoreItem(
+      name: 'Theme Neon',
+      priceXp: 600,
+      color: Color(0xFF00C2FF),
+      icon: Icons.color_lens_outlined,
+    ),
+    _StoreItem(
+      name: 'Theme Tối',
+      priceXp: 750,
+      color: Color(0xFF454A5E),
+      icon: Icons.dark_mode_outlined,
+    ),
+    _StoreItem(
+      name: 'Theme Galaxy',
+      priceXp: 1200,
+      requiredLevel: 'Cần Cấp 14',
+      color: Color(0xFF5A4AC9),
+      icon: Icons.auto_awesome,
+    ),
   ];
 
   final List<_StoreItem> _voucherItems = const [
-    _StoreItem(name: 'Voucher giảm 10%', priceXp: 900, color: Color(0xFF29B36A), icon: Icons.local_offer_outlined),
-    _StoreItem(name: 'Voucher 50.000đ', priceXp: 1200, color: Color(0xFF1D9BF0), icon: Icons.card_giftcard_outlined),
-    _StoreItem(name: 'Voucher 100.000đ', priceXp: 2500, requiredLevel: 'Cần Cấp 16', color: Color(0xFF7D889A), icon: Icons.lock_outline_rounded),
+    _StoreItem(
+      name: 'Voucher giảm 10%',
+      priceXp: 900,
+      color: Color(0xFF29B36A),
+      icon: Icons.local_offer_outlined,
+    ),
+    _StoreItem(
+      name: 'Voucher 50.000đ',
+      priceXp: 1200,
+      color: Color(0xFF1D9BF0),
+      icon: Icons.card_giftcard_outlined,
+    ),
+    _StoreItem(
+      name: 'Voucher 100.000đ',
+      priceXp: 2500,
+      requiredLevel: 'Cần Cấp 16',
+      color: Color(0xFF7D889A),
+      icon: Icons.lock_outline_rounded,
+    ),
   ];
 
   @override
@@ -63,7 +117,11 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final items = _selectedTab == 0 ? _avatarItems : _selectedTab == 1 ? _themeItems : _voucherItems;
+    final items = _selectedTab == 0
+        ? _avatarItems
+        : _selectedTab == 1
+        ? _themeItems
+        : _voucherItems;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -95,9 +153,19 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.workspace_premium_outlined, size: 16, color: AppColors.primary),
+                            const Icon(
+                              Icons.workspace_premium_outlined,
+                              size: 16,
+                              color: AppColors.primary,
+                            ),
                             const SizedBox(width: 6),
-                            Text('SỐ DƯ HIỆN TẠI', style: AppTextStyles.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700)),
+                            Text(
+                              'SỐ DƯ HIỆN TẠI',
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 6),
@@ -105,18 +173,25 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                             ? const SizedBox(
                                 height: 28,
                                 width: 28,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : RichText(
                                 text: TextSpan(
                                   children: [
                                     TextSpan(
                                       text: _formatXp(_totalXp),
-                                      style: AppTextStyles.heading1.copyWith(fontWeight: FontWeight.w800),
+                                      style: AppTextStyles.heading1.copyWith(
+                                        fontWeight: FontWeight.w800,
+                                      ),
                                     ),
                                     TextSpan(
                                       text: ' XP',
-                                      style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                                      style: AppTextStyles.bodyLarge.copyWith(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -130,7 +205,10 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                       setState(() => _isLoading = true);
                       _loadXpBalance();
                     },
-                    icon: const Icon(Icons.refresh_rounded, color: AppColors.primary),
+                    icon: const Icon(
+                      Icons.refresh_rounded,
+                      color: AppColors.primary,
+                    ),
                     tooltip: 'Làm mới',
                   ),
                 ],
@@ -147,12 +225,18 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline, size: 14, color: Color(0xFFD48A00)),
+                  const Icon(
+                    Icons.info_outline,
+                    size: 14,
+                    color: Color(0xFFD48A00),
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'XP được tích lũy từ các huy hiệu bạn đã đạt được',
-                      style: AppTextStyles.caption.copyWith(color: const Color(0xFFD48A00)),
+                      style: AppTextStyles.caption.copyWith(
+                        color: const Color(0xFFD48A00),
+                      ),
                     ),
                   ),
                 ],
@@ -166,7 +250,9 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 children: List.generate(_tabs.length, (index) {
                   final selected = index == _selectedTab;
                   return Padding(
-                    padding: EdgeInsets.only(right: index == _tabs.length - 1 ? 0 : 16),
+                    padding: EdgeInsets.only(
+                      right: index == _tabs.length - 1 ? 0 : 16,
+                    ),
                     child: GestureDetector(
                       onTap: () => setState(() => _selectedTab = index),
                       child: AnimatedContainer(
@@ -175,7 +261,9 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                         decoration: BoxDecoration(
                           border: Border(
                             bottom: BorderSide(
-                              color: selected ? AppColors.primary : Colors.transparent,
+                              color: selected
+                                  ? AppColors.primary
+                                  : Colors.transparent,
                               width: 2.5,
                             ),
                           ),
@@ -183,8 +271,12 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                         child: Text(
                           _tabs[index],
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: selected ? AppColors.primary : AppColors.textSecondary,
-                            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                            fontWeight: selected
+                                ? FontWeight.w700
+                                : FontWeight.w500,
                           ),
                         ),
                       ),
@@ -223,7 +315,10 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
               ),
               child: Text(
                 'Hoàn thành thử thách để kiếm thêm XP và mở khóa phần thưởng độc quyền!',
-                style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -247,7 +342,7 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
             color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Column(
@@ -284,7 +379,11 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                       color: Color(0xFFFF4444),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.close, size: 12, color: Colors.white),
+                    child: const Icon(
+                      Icons.close,
+                      size: 12,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
             ],
@@ -293,7 +392,9 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
           Text(
             item.name,
             style: AppTextStyles.bodyMedium.copyWith(
-              color: hasLevelReq ? AppColors.textSecondary : AppColors.textPrimary,
+              color: hasLevelReq
+                  ? AppColors.textSecondary
+                  : AppColors.textPrimary,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
@@ -314,13 +415,18 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: canAfford
-                      ? (item.priceXp == 800 ? const Color(0xFFF4BE22) : const Color(0xFFFF7A1A))
+                      ? (item.priceXp == 800
+                            ? const Color(0xFFF4BE22)
+                            : const Color(0xFFFF7A1A))
                       : const Color(0xFFCDD0D8),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   '${item.priceXp} XP',
-                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ),
@@ -354,19 +460,33 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
               child: Icon(item.icon, color: Colors.white, size: 38),
             ),
             const SizedBox(height: 16),
-            Text(item.name.replaceAll('\n', ' '), style: AppTextStyles.heading2, textAlign: TextAlign.center),
+            Text(
+              item.name.replaceAll('\n', ' '),
+              style: AppTextStyles.heading2,
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 8),
             RichText(
               text: TextSpan(
                 children: [
-                  TextSpan(text: 'Giá: ', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary)),
+                  TextSpan(
+                    text: 'Giá: ',
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                   TextSpan(
                     text: '${item.priceXp} XP',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   TextSpan(
                     text: '  •  Số dư: ${_formatXp(_totalXp)} XP',
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -382,12 +502,18 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.warning_amber_rounded, color: Color(0xFFFF4444), size: 18),
+                    const Icon(
+                      Icons.warning_amber_rounded,
+                      color: Color(0xFFFF4444),
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Không đủ XP. Cần thêm ${item.priceXp - _totalXp} XP nữa.',
-                        style: AppTextStyles.caption.copyWith(color: const Color(0xFFFF4444)),
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFFFF4444),
+                        ),
                       ),
                     ),
                   ],
@@ -403,12 +529,18 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: Color(0xFF29B36A), size: 18),
+                    const Icon(
+                      Icons.info_outline,
+                      color: Color(0xFF29B36A),
+                      size: 18,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Tính năng đổi thưởng sẽ sớm ra mắt. Hãy tiếp tục tích lũy XP!',
-                        style: AppTextStyles.caption.copyWith(color: const Color(0xFF29B36A)),
+                        style: AppTextStyles.caption.copyWith(
+                          color: const Color(0xFF29B36A),
+                        ),
                       ),
                     ),
                   ],
@@ -421,10 +553,18 @@ class _XpStoreScreenState extends State<XpStoreScreen> {
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                 ),
-                child: Text('Đóng', style: AppTextStyles.bodyMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700)),
+                child: Text(
+                  'Đóng',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
             ),
           ],

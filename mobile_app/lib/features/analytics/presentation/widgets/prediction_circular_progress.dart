@@ -33,15 +33,9 @@ class PredictionCircularProgress extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                label,
-                style: AppTextStyles.heading1.copyWith(fontSize: 28),
-              ),
+              Text(label, style: AppTextStyles.heading1.copyWith(fontSize: 28)),
               const SizedBox(height: 4),
-              Text(
-                'Điểm dự kiến',
-                style: AppTextStyles.bodyMedium,
-              ),
+              Text('Điểm dự kiến', style: AppTextStyles.bodyMedium),
             ],
           ),
         ],

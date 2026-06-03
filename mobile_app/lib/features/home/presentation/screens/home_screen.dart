@@ -178,7 +178,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(16),
@@ -309,8 +312,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: Column(
                                 children: [
-                                  Icon(Icons.task_alt,
-                                      size: 36, color: Colors.grey[400]),
+                                  Icon(
+                                    Icons.task_alt,
+                                    size: 36,
+                                    color: Colors.grey[400],
+                                  ),
                                   const SizedBox(height: 8),
                                   Text(
                                     'Chưa có nhiệm vụ hôm nay',
@@ -337,12 +343,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                   },
                                   onCompleted: () {
                                     context.read<HomeBloc>().add(
-                                          MarkTaskCompleted(task.id),
-                                        );
-                                    if (state.streak > 0 &&
-                                        !task.isCompleted) {
-                                      _showStreakDialog(
-                                          context, state.streak);
+                                      MarkTaskCompleted(task.id),
+                                    );
+                                    if (state.streak > 0 && !task.isCompleted) {
+                                      _showStreakDialog(context, state.streak);
                                     }
                                   },
                                 );
@@ -441,10 +445,7 @@ class _HomeScreenState extends State<HomeScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => StreakSuccessDialog(
-        streak: streak,
-        onClose: () {},
-      ),
+      builder: (context) => StreakSuccessDialog(streak: streak, onClose: () {}),
     );
   }
 
@@ -479,9 +480,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: accentColor.withValues(alpha: 0.25),
-          ),
+          border: Border.all(color: accentColor.withValues(alpha: 0.25)),
           boxShadow: [
             BoxShadow(
               color: accentColor.withValues(alpha: 0.06),
@@ -526,7 +525,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         isActive ? 'Đang duy trì' : 'Chưa hoạt động',
                         style: TextStyle(
                           fontSize: 11,
-                          color: isActive ? Colors.green[600] : Colors.grey[500],
+                          color: isActive
+                              ? Colors.green[600]
+                              : Colors.grey[500],
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -535,14 +536,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 // Status badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: isActive
                         ? Colors.green.withValues(alpha: 0.1)
                         : Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                    child: Text(
+                  child: Text(
                     isActive ? 'ACTIVE' : (state.streakStatus ?? 'INACTIVE'),
                     style: TextStyle(
                       fontSize: 10,
@@ -569,11 +573,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: state.streak > 0 ? Colors.deepOrange : Colors.grey,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.grey[200],
-                ),
+                Container(width: 1, height: 40, color: Colors.grey[200]),
                 // Longest streak
                 Expanded(
                   child: _buildStreakStat(
@@ -584,11 +584,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.amber[700]!,
                   ),
                 ),
-                Container(
-                  width: 1,
-                  height: 40,
-                  color: Colors.grey[200],
-                ),
+                Container(width: 1, height: 40, color: Colors.grey[200]),
                 // Freeze count
                 Expanded(
                   child: _buildStreakStat(
@@ -609,8 +605,11 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.calendar_today_rounded,
-                      size: 12, color: Colors.grey[500]),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    size: 12,
+                    color: Colors.grey[500],
+                  ),
                   const SizedBox(width: 6),
                   Text(
                     'Hoạt động gần nhất: $lastActivityLabel',

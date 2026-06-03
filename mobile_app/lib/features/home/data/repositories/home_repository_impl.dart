@@ -16,9 +16,9 @@ class HomeRepositoryImpl implements HomeRepository {
     this.remoteDataSource, {
     TaskRemoteDataSource? taskDataSource,
     StatisticsRemoteDataSource? statisticsDataSource,
-  })  : taskDataSource = taskDataSource ?? TaskRemoteDataSourceImpl(),
-        statisticsDataSource =
-            statisticsDataSource ?? StatisticsRemoteDataSourceImpl();
+  }) : taskDataSource = taskDataSource ?? TaskRemoteDataSourceImpl(),
+       statisticsDataSource =
+           statisticsDataSource ?? StatisticsRemoteDataSourceImpl();
 
   @override
   Future<UserModel> getUserInfo() => remoteDataSource.getUserInfo();

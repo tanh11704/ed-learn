@@ -36,7 +36,11 @@ class ScorePredictionScreen extends StatelessWidget {
                     color: AppColors.primary.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(24),
                   ),
-                  child: const Icon(Icons.emoji_events, size: 64, color: AppColors.primary),
+                  child: const Icon(
+                    Icons.emoji_events,
+                    size: 64,
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(height: 20),
                 PredictionCircularProgress(
@@ -44,9 +48,15 @@ class ScorePredictionScreen extends StatelessWidget {
                   label: prediction.score.toStringAsFixed(1),
                 ),
                 const SizedBox(height: 16),
-                Text('AI dự đoán điểm thi khối A00 của bạn', style: AppTextStyles.bodyLarge),
+                Text(
+                  'AI dự đoán điểm thi khối A00 của bạn',
+                  style: AppTextStyles.bodyLarge,
+                ),
                 const SizedBox(height: 6),
-                Text('Dựa trên kết quả 12 bài luyện tập gần nhất', style: AppTextStyles.caption),
+                Text(
+                  'Dựa trên kết quả 12 bài luyện tập gần nhất',
+                  style: AppTextStyles.caption,
+                ),
                 const SizedBox(height: 20),
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -57,18 +67,30 @@ class ScorePredictionScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(prediction.targetLabel, style: AppTextStyles.bodyLarge),
+                      Text(
+                        prediction.targetLabel,
+                        style: AppTextStyles.bodyLarge,
+                      ),
                       const SizedBox(height: 6),
-                      Text(prediction.targetDescription, style: AppTextStyles.caption),
+                      Text(
+                        prediction.targetDescription,
+                        style: AppTextStyles.caption,
+                      ),
                       const SizedBox(height: 12),
                       LinearProgressIndicator(
                         value: prediction.accuracy,
                         backgroundColor: AppColors.border,
-                        valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                        valueColor: const AlwaysStoppedAnimation(
+                          AppColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 6),
-                      Text('${(prediction.accuracy * 100).toStringAsFixed(0)}%',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                      Text(
+                        '${(prediction.accuracy * 100).toStringAsFixed(0)}%',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
                     ],
                   ),
                 ),

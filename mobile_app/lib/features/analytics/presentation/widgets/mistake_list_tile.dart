@@ -7,11 +7,7 @@ class MistakeListTile extends StatelessWidget {
   final MistakeItem item;
   final VoidCallback? onTap;
 
-  const MistakeListTile({
-    super.key,
-    required this.item,
-    this.onTap,
-  });
+  const MistakeListTile({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +23,7 @@ class MistakeListTile extends StatelessWidget {
               color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 6),
-            )
+            ),
           ],
         ),
         child: Column(
@@ -36,7 +32,10 @@ class MistakeListTile extends StatelessWidget {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -53,14 +52,13 @@ class MistakeListTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     item.tag,
-                    style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.textSecondary,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text(
-                  item.dateLabel,
-                  style: AppTextStyles.caption,
-                ),
+                Text(item.dateLabel, style: AppTextStyles.caption),
               ],
             ),
             const SizedBox(height: 12),
@@ -72,9 +70,11 @@ class MistakeListTile extends StatelessWidget {
               alignment: Alignment.centerRight,
               child: Text(
                 'Xem chi tiết  >',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.primary,
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

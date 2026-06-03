@@ -9,14 +9,14 @@ class MistakeBankBloc extends Bloc<MistakeBankEvent, MistakeBankState> {
   List<MistakeItem> _allItems = const [];
 
   MistakeBankBloc({required this.repository})
-      : super(
-          MistakeBankState(
-            isLoading: true,
-            items: _mockItems(),
-            subjects: const ['Tất cả', 'Toán học', 'Vật lý', 'Hóa học'],
-            selectedSubject: 'Tất cả',
-          ),
-        ) {
+    : super(
+        MistakeBankState(
+          isLoading: true,
+          items: _mockItems(),
+          subjects: const ['Tất cả', 'Toán học', 'Vật lý', 'Hóa học'],
+          selectedSubject: 'Tất cả',
+        ),
+      ) {
     on<LoadMistakeBank>((event, emit) async {
       emit(
         MistakeBankState(
@@ -72,8 +72,10 @@ class MistakeBankBloc extends Bloc<MistakeBankEvent, MistakeBankState> {
         id: '1',
         subject: 'Toán học',
         tag: 'Hệ thức lượng trong tam giác',
-        title: 'Cho tam giác ABC có a=5, b=7, c=8. Tính diện tích tam giác ABC... ',
-        question: 'Tính diện tích tam giác ABC và bán kính đường tròn ngoại tiếp R.',
+        title:
+            'Cho tam giác ABC có a=5, b=7, c=8. Tính diện tích tam giác ABC... ',
+        question:
+            'Tính diện tích tam giác ABC và bán kính đường tròn ngoại tiếp R.',
         dateLabel: '20/10/2023',
         attemptsLabel: 'Sai 2 lần',
         hint: 'Xem lại công thức Heron và hệ thức lượng trong tam giác.',
@@ -96,7 +98,8 @@ class MistakeBankBloc extends Bloc<MistakeBankEvent, MistakeBankState> {
         id: '3',
         subject: 'Vật lý',
         tag: 'Dao động & ứng dụng',
-        title: 'Tìm giá trị lớn nhất và nhỏ nhất của hàm số y = x^3 - 3x + 1...',
+        title:
+            'Tìm giá trị lớn nhất và nhỏ nhất của hàm số y = x^3 - 3x + 1...',
         question: 'Tìm max/min của hàm số và xét điều kiện xác định.',
         dateLabel: '15/10/2023',
         attemptsLabel: 'Sai 1 lần',
@@ -107,7 +110,10 @@ class MistakeBankBloc extends Bloc<MistakeBankEvent, MistakeBankState> {
     ];
   }
 
-  static List<MistakeItem> _applyFilter(List<MistakeItem> source, String subject) {
+  static List<MistakeItem> _applyFilter(
+    List<MistakeItem> source,
+    String subject,
+  ) {
     if (subject == 'Tất cả') {
       return source;
     }

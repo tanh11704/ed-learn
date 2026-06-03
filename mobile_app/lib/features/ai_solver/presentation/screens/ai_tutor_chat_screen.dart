@@ -48,7 +48,9 @@ class AiTutorChatScreen extends StatelessWidget {
             Expanded(
               child: BlocBuilder<AiChatBloc, AiChatState>(
                 builder: (context, state) {
-                  final messages = state is AiChatLoaded ? state.messages : const <ChatMessage>[];
+                  final messages = state is AiChatLoaded
+                      ? state.messages
+                      : const <ChatMessage>[];
                   return ListView.builder(
                     padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
                     itemCount: messages.length,

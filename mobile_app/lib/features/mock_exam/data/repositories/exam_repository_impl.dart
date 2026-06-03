@@ -5,7 +5,7 @@ import 'exam_repository.dart';
 
 class ExamRepositoryImpl implements ExamRepository {
   ExamRepositoryImpl({ExamRemoteDataSource? remoteDataSource})
-      : _remote = remoteDataSource ?? ExamRemoteDataSourceImpl();
+    : _remote = remoteDataSource ?? ExamRemoteDataSourceImpl();
 
   final ExamRemoteDataSource _remote;
 
@@ -55,10 +55,7 @@ class ExamRepositoryImpl implements ExamRepository {
     required String sessionId,
     required List<({String questionId, String optionId})> answers,
   }) {
-    return _remote.submitSession(
-      sessionId: sessionId,
-      answers: answers,
-    );
+    return _remote.submitSession(sessionId: sessionId, answers: answers);
   }
 
   @override

@@ -16,7 +16,10 @@ class IntroAssessmentScreen extends StatelessWidget {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -25,7 +28,10 @@ class IntroAssessmentScreen extends StatelessWidget {
             }
           },
         ),
-        title: Text('EDTECH AI', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary)),
+        title: Text(
+          'EDTECH AI',
+          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.primary),
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -45,9 +51,7 @@ class IntroAssessmentScreen extends StatelessWidget {
                     Positioned(
                       top: 16,
                       left: 16,
-                      child: _BubbleIcon(
-                        icon: Icons.psychology,
-                      ),
+                      child: _BubbleIcon(icon: Icons.psychology),
                     ),
                     Positioned(
                       top: 20,
@@ -60,7 +64,11 @@ class IntroAssessmentScreen extends StatelessWidget {
                       child: _BubbleIcon(icon: Icons.menu_book_rounded),
                     ),
                     Center(
-                      child: Icon(Icons.school, size: 120, color: AppColors.primaryDark.withValues(alpha: 0.6)),
+                      child: Icon(
+                        Icons.school,
+                        size: 120,
+                        color: AppColors.primaryDark.withValues(alpha: 0.6),
+                      ),
                     ),
                   ],
                 ),
@@ -78,7 +86,10 @@ class IntroAssessmentScreen extends StatelessWidget {
                 children: [
                   _InfoChip(icon: Icons.timer_outlined, label: '15 phút'),
                   _InfoChip(icon: Icons.list_alt_outlined, label: '20 câu hỏi'),
-                  _InfoChip(icon: Icons.flash_on_outlined, label: 'Kết quả ngay'),
+                  _InfoChip(
+                    icon: Icons.flash_on_outlined,
+                    label: 'Kết quả ngay',
+                  ),
                 ],
               ),
               const SizedBox(height: 32),
@@ -88,7 +99,10 @@ class IntroAssessmentScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Center(
-                child: Text('Tham gia cùng hơn 10,000 học viên khác', style: AppTextStyles.caption),
+                child: Text(
+                  'Tham gia cùng hơn 10,000 học viên khác',
+                  style: AppTextStyles.caption,
+                ),
               ),
             ],
           ),
@@ -118,7 +132,10 @@ class _InfoChip extends StatelessWidget {
           child: Icon(icon, color: AppColors.primary),
         ),
         const SizedBox(height: 6),
-        Text(label, style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary)),
+        Text(
+          label,
+          style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
+        ),
       ],
     );
   }
@@ -142,7 +159,7 @@ class _BubbleIcon extends StatelessWidget {
             color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 8,
             offset: const Offset(0, 6),
-          )
+          ),
         ],
       ),
       child: Icon(icon, color: AppColors.primary),

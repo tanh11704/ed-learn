@@ -143,7 +143,9 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Ưu tiên crop còn đúng một câu hỏi rõ nét.'),
+                          content: Text(
+                            'Ưu tiên crop còn đúng một câu hỏi rõ nét.',
+                          ),
                         ),
                       );
                     },
@@ -164,10 +166,7 @@ class _ImageCropScreenState extends State<ImageCropScreen> {
                 text: 'Quét ngay',
                 onPressed: () => context.go(
                   '/camera/analyzing',
-                  extra: {
-                    'imagePath': widget.imagePath,
-                    'subject': _subject,
-                  },
+                  extra: {'imagePath': widget.imagePath, 'subject': _subject},
                 ),
               ),
             ),
@@ -183,15 +182,12 @@ class _SubjectPicker extends StatelessWidget {
   final String value;
   final ValueChanged<String> onChanged;
 
-  const _SubjectPicker({
-    required this.value,
-    required this.onChanged,
-  });
+  const _SubjectPicker({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: 'Môn học',
         isDense: true,
@@ -237,11 +233,7 @@ class _CropFrame extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           child,
-          IgnorePointer(
-            child: CustomPaint(
-              painter: _RuleOfThirdsPainter(),
-            ),
-          ),
+          IgnorePointer(child: CustomPaint(painter: _RuleOfThirdsPainter())),
         ],
       ),
     );

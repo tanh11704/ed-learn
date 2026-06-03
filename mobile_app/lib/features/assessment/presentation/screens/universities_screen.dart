@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -13,18 +13,26 @@ class UniversitiesScreen extends StatefulWidget {
 }
 
 class _UniversitiesScreenState extends State<UniversitiesScreen> {
-    late final Future<List<UniversityUi>> _universitiesFuture;
+  late final Future<List<UniversityUi>> _universitiesFuture;
 
   @override
   void initState() {
     super.initState();
-        _universitiesFuture = Future.value(const [
+    _universitiesFuture = Future.value(const [
       UniversityUi(id: 1, name: 'Đại học Bách Khoa Hà Nội', location: 'Hà Nội'),
       UniversityUi(id: 2, name: 'Đại học Quốc gia Hà Nội', location: 'Hà Nội'),
       UniversityUi(id: 3, name: 'Đại học Ngoại thương', location: 'Hà Nội'),
       UniversityUi(id: 4, name: 'Đại học Kinh tế Quốc dân', location: 'Hà Nội'),
-      UniversityUi(id: 5, name: 'Đại học Bách Khoa TP.HCM', location: 'TP. Hồ Chí Minh'),
-      UniversityUi(id: 6, name: 'Đại học Quốc gia TP.HCM', location: 'TP. Hồ Chí Minh'),
+      UniversityUi(
+        id: 5,
+        name: 'Đại học Bách Khoa TP.HCM',
+        location: 'TP. Hồ Chí Minh',
+      ),
+      UniversityUi(
+        id: 6,
+        name: 'Đại học Quốc gia TP.HCM',
+        location: 'TP. Hồ Chí Minh',
+      ),
       UniversityUi(id: 7, name: 'Đại học Sư phạm Hà Nội', location: 'Hà Nội'),
       UniversityUi(id: 8, name: 'Đại học Cần Thơ', location: 'Cần Thơ'),
     ]);
@@ -38,7 +46,10 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -60,14 +71,20 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
 
             if (snapshot.hasError) {
               return Center(
-                child: Text('Không tải được dữ liệu trường.', style: AppTextStyles.caption),
+                child: Text(
+                  'Không tải được dữ liệu trường.',
+                  style: AppTextStyles.caption,
+                ),
               );
             }
 
             final universities = snapshot.data ?? [];
             if (universities.isEmpty) {
               return Center(
-                child: Text('Chưa có dữ liệu trường.', style: AppTextStyles.caption),
+                child: Text(
+                  'Chưa có dữ liệu trường.',
+                  style: AppTextStyles.caption,
+                ),
               );
             }
 
@@ -93,14 +110,22 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                           color: AppColors.primaryLight,
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: const Icon(Icons.school, color: AppColors.primary),
+                        child: const Icon(
+                          Icons.school,
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(item.name, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+                            Text(
+                              item.name,
+                              style: AppTextStyles.bodyLarge.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(item.location, style: AppTextStyles.caption),
                           ],
@@ -108,7 +133,10 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
                       ),
                       IconButton(
                         onPressed: () {},
-                        icon: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                        icon: const Icon(
+                          Icons.chevron_right,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -121,4 +149,3 @@ class _UniversitiesScreenState extends State<UniversitiesScreen> {
     );
   }
 }
-

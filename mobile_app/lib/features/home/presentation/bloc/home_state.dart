@@ -52,21 +52,21 @@ class HomeLoaded extends HomeState {
 
   @override
   List<Object?> get props => [
-        tasks,
-        topCourses,
-        dailyProgress,
-        daysRemaining,
-        streak,
-        longestStreak,
-        lastActivityDay,
-        streakFreezeCount,
-        streakStatus,
-        userName,
-        userEmail,
-        userAvatar,
-        tasksFromApi,
-        topCoursesFromApi,
-      ];
+    tasks,
+    topCourses,
+    dailyProgress,
+    daysRemaining,
+    streak,
+    longestStreak,
+    lastActivityDay,
+    streakFreezeCount,
+    streakStatus,
+    userName,
+    userEmail,
+    userAvatar,
+    tasksFromApi,
+    topCoursesFromApi,
+  ];
 }
 
 class HomeEmpty extends HomeState {

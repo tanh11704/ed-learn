@@ -63,8 +63,10 @@ class _RedoQuestionScreenState extends State<RedoQuestionScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${widget.item.subject.toUpperCase()} - ${widget.item.tag.toUpperCase()}',
-                style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+            Text(
+              '${widget.item.subject.toUpperCase()} - ${widget.item.tag.toUpperCase()}',
+              style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+            ),
             const SizedBox(height: 16),
             Text(widget.item.title, style: AppTextStyles.heading2),
             const SizedBox(height: 24),
@@ -83,11 +85,13 @@ class _RedoQuestionScreenState extends State<RedoQuestionScreen> {
             const Spacer(),
             if (_submitted)
               _SuccessBanner(
-                text: _isCorrect ? 'Tuyệt vời! Bạn làm đúng.' : 'Chưa chính xác, hãy ôn lại.',
+                text: _isCorrect
+                    ? 'Tuyệt vời! Bạn làm đúng.'
+                    : 'Chưa chính xác, hãy ôn lại.',
                 subtitle: 'Đáp án đúng: ${widget.item.correctAnswer}',
                 onDone: () async {
                   await _submitReview();
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   context.pop();
                 },
               )
@@ -136,7 +140,11 @@ class _AnswerOption extends StatelessWidget {
     if (isCorrect) {
       borderColor = AppColors.success;
       fillColor = AppColors.success.withValues(alpha: 0.1);
-      trailing = const Icon(Icons.check_circle, color: AppColors.success, size: 20);
+      trailing = const Icon(
+        Icons.check_circle,
+        color: AppColors.success,
+        size: 20,
+      );
     }
 
     return GestureDetector(
@@ -156,7 +164,9 @@ class _AnswerOption extends StatelessWidget {
               backgroundColor: borderColor.withValues(alpha: 0.15),
               child: Text(
                 text.characters.first,
-                style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.caption.copyWith(
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -207,12 +217,14 @@ class _SuccessBanner extends StatelessWidget {
                   color: AppColors.success.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.auto_awesome, color: AppColors.success, size: 18),
+                child: const Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.success,
+                  size: 18,
+                ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: Text(text, style: AppTextStyles.bodyLarge),
-              ),
+              Expanded(child: Text(text, style: AppTextStyles.bodyLarge)),
             ],
           ),
           const SizedBox(height: 8),

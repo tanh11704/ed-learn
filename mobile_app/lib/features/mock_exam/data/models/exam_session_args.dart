@@ -14,8 +14,8 @@ class ExamSessionArgs {
   });
 
   bool get hasValidExamId => RegExp(
-        r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-      ).hasMatch(examId);
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  ).hasMatch(examId);
 
   factory ExamSessionArgs.fromExtra(Object? extra) {
     if (extra is ExamSessionArgs) return extra;
@@ -28,9 +28,6 @@ class ExamSessionArgs {
         className: extra['className']?.toString(),
       );
     }
-    return const ExamSessionArgs(
-      examId: '',
-      examTitle: 'Đề thi',
-    );
+    return const ExamSessionArgs(examId: '', examTitle: 'Đề thi');
   }
 }

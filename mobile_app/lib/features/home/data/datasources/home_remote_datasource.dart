@@ -12,7 +12,7 @@ abstract class HomeRemoteDataSource {
 
 class HomeRemoteDatasourceImpl implements HomeRemoteDataSource {
   HomeRemoteDatasourceImpl({ApiClient? apiClient})
-      : _client = apiClient ?? ApiClient();
+    : _client = apiClient ?? ApiClient();
 
   final ApiClient _client;
 

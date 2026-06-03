@@ -7,11 +7,11 @@ class TaskListItem extends StatefulWidget {
   final VoidCallback? onTap;
 
   const TaskListItem({
-    Key? key,
+    super.key,
     required this.task,
     required this.onCompleted,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   State<TaskListItem> createState() => _TaskListItemState();
@@ -34,10 +34,7 @@ class _TaskListItemState extends State<TaskListItem> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: isCompleted ? Colors.grey[50] : Colors.white,
-          border: Border.all(
-            color: Colors.grey[200]!,
-            width: 1,
-          ),
+          border: Border.all(color: Colors.grey[200]!, width: 1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Row(
@@ -62,11 +59,7 @@ class _TaskListItemState extends State<TaskListItem> {
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: isCompleted
-                    ? const Icon(
-                        Icons.check,
-                        color: Colors.white,
-                        size: 14,
-                      )
+                    ? const Icon(Icons.check, color: Colors.white, size: 14)
                     : null,
               ),
             ),
@@ -125,18 +118,12 @@ class _TaskListItemState extends State<TaskListItem> {
                       const SizedBox(width: 4),
                       Text(
                         _getDuration(),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
                       ),
                       const Spacer(),
                       Text(
                         _formatDate(widget.task.dueDate),
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[500],
-                        ),
+                        style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                       ),
                     ],
                   ),

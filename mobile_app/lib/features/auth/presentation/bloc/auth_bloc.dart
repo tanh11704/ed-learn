@@ -1,4 +1,4 @@
-﻿// đây là nơi nhận AuthEvent từ UI, xử lý logic xác thực (ví dụ: gọi API) và phát ra AuthState tương ứng để UI cập nhật giao diện
+// đây là nơi nhận AuthEvent từ UI, xử lý logic xác thực (ví dụ: gọi API) và phát ra AuthState tương ứng để UI cập nhật giao diện
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile_app/core/services/token_storage_service.dart';
@@ -10,8 +10,7 @@ import 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRemoteDataSource remoteDataSource;
 
-  AuthBloc(this.remoteDataSource)
-      : super(const AuthState.initial()) {
+  AuthBloc(this.remoteDataSource) : super(const AuthState.initial()) {
     on<LoginSubmitted>(_onLoginSubmitted);
     on<RegisterSubmitted>(_onRegisterSubmitted);
     on<LogoutRequested>(_onLogoutRequested);
@@ -28,26 +27,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final password = event.password.trim();
 
       if (email.isEmpty || password.isEmpty) {
-        emit(state.copyWith(
-          status: AuthStatus.failure,
-          message: 'Vui lòng nhập đầy đủ thông tin.',
-        ));
+        emit(
+          state.copyWith(
+            status: AuthStatus.failure,
+            message: 'Vui lòng nhập đầy đủ thông tin.',
+          ),
+        );
         return;
       }
 
       // Gọi API login
       final response = await remoteDataSource.login(email, password);
-      
+
       // Lưu token vào SharedPreferences
       final tokenStorage = TokenStorageService();
-      await tokenStorage.saveTokens(response.accessToken, response.refreshToken);
+      await tokenStorage.saveTokens(
+        response.accessToken,
+        response.refreshToken,
+      );
 
       emit(state.copyWith(status: AuthStatus.authenticated));
     } catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.failure,
-        message: e.toString().replaceAll('Exception: ', ''),
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          message: e.toString().replaceAll('Exception: ', ''),
+        ),
+      );
     }
   }
 
@@ -63,26 +69,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final password = event.password.trim();
 
       if (name.isEmpty || email.isEmpty || password.isEmpty) {
-        emit(state.copyWith(
-          status: AuthStatus.failure,
-          message: 'Vui lòng nhập đầy đủ thông tin.',
-        ));
+        emit(
+          state.copyWith(
+            status: AuthStatus.failure,
+            message: 'Vui lòng nhập đầy đủ thông tin.',
+          ),
+        );
         return;
       }
 
       // Gọi API register
       final response = await remoteDataSource.register(name, email, password);
-      
+
       // Lưu token vào SharedPreferences
       final tokenStorage = TokenStorageService();
-      await tokenStorage.saveTokens(response.accessToken, response.refreshToken);
+      await tokenStorage.saveTokens(
+        response.accessToken,
+        response.refreshToken,
+      );
 
       emit(state.copyWith(status: AuthStatus.authenticated));
     } catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.failure,
-        message: e.toString().replaceAll('Exception: ', ''),
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.failure,
+          message: e.toString().replaceAll('Exception: ', ''),
+        ),
+      );
     }
   }
 
@@ -91,7 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    
+
     try {
       final tokenStorage = TokenStorageService();
       final accessToken = await tokenStorage.getAccessToken();
@@ -108,12 +121,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       // Gọi API logout
       await remoteDataSource.logout(accessToken, refreshToken);
-      
+
       // Xóa token và email user hiện tại
       await tokenStorage.clearTokens();
       await tokenStorage.clearCurrentUserEmail();
       // Giữ assessment status để lần sau đăng nhập không phải làm lại
-      
+
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     } catch (e) {
       // Dù API logout fail, vẫn xóa token local

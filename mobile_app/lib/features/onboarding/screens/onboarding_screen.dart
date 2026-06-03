@@ -7,8 +7,6 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const OnboardingPageView(
-      pages: defaultOnboardingPages,
-    );
+    return const OnboardingPageView(pages: defaultOnboardingPages);
   }
 }

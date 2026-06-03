@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_app/features/mock_exam/data/models/exam_session_args.dart';
 
-
 class CameraCheckScreen extends StatefulWidget {
   const CameraCheckScreen({super.key});
 
@@ -41,7 +40,7 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
       );
 
       await _controller!.initialize();
-      
+
       if (mounted) {
         setState(() => _isInitialized = true);
       }
@@ -82,7 +81,7 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 28),
-            
+
             // --- KHU VỰC HIỂN THỊ CAMERA ---
             Center(
               child: Container(
@@ -103,20 +102,24 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
                         height: 290,
                         child: _isInitialized
                             ? AspectRatio(
-                                aspectRatio: 1, // Ép khung hình vuông để cắt tròn đẹp
+                                aspectRatio:
+                                    1, // Ép khung hình vuông để cắt tròn đẹp
                                 child: CameraPreview(_controller!),
                               )
-                            : _hasError 
-                                ? const Icon(Icons.videocam_off, color: Colors.red, size: 50)
-                                : const CircularProgressIndicator(strokeWidth: 2),
+                            : _hasError
+                            ? const Icon(
+                                Icons.videocam_off,
+                                color: Colors.red,
+                                size: 50,
+                              )
+                            : const CircularProgressIndicator(strokeWidth: 2),
                       ),
                     ),
-                    
                   ],
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 18),
             const Text(
               'Vui lòng giữ khuôn mặt của bạn\ntrong khung hình',
@@ -124,7 +127,7 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
               style: TextStyle(color: Colors.white70, fontSize: 13),
             ),
             const SizedBox(height: 44),
-            
+
             // --- THANH TRẠNG THÁI KIỂM TRA ---
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 30),
@@ -136,15 +139,23 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _CheckItem(label: 'ÁNH SÁNG', icon: Icons.wb_sunny, isActive: _isInitialized),
-                  _CheckItem(label: 'CAMERA', icon: Icons.videocam, isActive: _isInitialized),
+                  _CheckItem(
+                    label: 'ÁNH SÁNG',
+                    icon: Icons.wb_sunny,
+                    isActive: _isInitialized,
+                  ),
+                  _CheckItem(
+                    label: 'CAMERA',
+                    icon: Icons.videocam,
+                    isActive: _isInitialized,
+                  ),
                   _CheckItem(label: 'MICRO', icon: Icons.mic, isActive: true),
                 ],
               ),
             ),
-            
+
             const Spacer(),
-            
+
             // --- NÚT BẮT ĐẦU ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -162,17 +173,19 @@ class _CameraCheckScreenState extends State<CameraCheckScreen> {
                       : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF2563EB),
-                    disabledBackgroundColor: Colors.grey.withOpacity(0.3),
+                    disabledBackgroundColor: Colors.grey.withValues(alpha: 0.3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  
+
                   label: const Text(
                     'Bắt đầu làm bài',
-                    style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
-           
                 ),
               ),
             ),
@@ -188,7 +201,11 @@ class _CheckItem extends StatelessWidget {
   final IconData icon;
   final bool isActive;
 
-  const _CheckItem({required this.label, required this.icon, required this.isActive});
+  const _CheckItem({
+    required this.label,
+    required this.icon,
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -196,7 +213,9 @@ class _CheckItem extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 18,
-          backgroundColor: isActive ? const Color(0xFF16A34A) : Colors.grey.withOpacity(0.2),
+          backgroundColor: isActive
+              ? const Color(0xFF16A34A)
+              : Colors.grey.withValues(alpha: 0.2),
           child: Icon(icon, size: 18, color: Colors.white),
         ),
         const SizedBox(height: 6),

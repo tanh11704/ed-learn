@@ -35,19 +35,23 @@ class Flashcard {
     String? fallbackLessonId,
     String? fallbackModuleName,
   }) {
-    final rawDifficulty = (json['difficulty'] ?? 'medium').toString().toLowerCase();
-    final question = (json['question'] ??
-            json['prompt'] ??
-            json['front'] ??
-            json['term'] ??
-            '')
-        .toString();
-    final answer = (json['answer'] ??
-            json['back'] ??
-            json['definition'] ??
-            json['content'] ??
-            '')
-        .toString();
+    final rawDifficulty = (json['difficulty'] ?? 'medium')
+        .toString()
+        .toLowerCase();
+    final question =
+        (json['question'] ??
+                json['prompt'] ??
+                json['front'] ??
+                json['term'] ??
+                '')
+            .toString();
+    final answer =
+        (json['answer'] ??
+                json['back'] ??
+                json['definition'] ??
+                json['content'] ??
+                '')
+            .toString();
 
     return Flashcard(
       id: (json['id'] ?? json['itemId'] ?? '').toString(),
@@ -156,7 +160,8 @@ class FlashcardSet {
 
   // Factory constructor from JSON
   factory FlashcardSet.fromJson(Map<String, dynamic> json) {
-    final flashcards = (json['flashcards'] as List<dynamic>?)
+    final flashcards =
+        (json['flashcards'] as List<dynamic>?)
             ?.map((e) => Flashcard.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];
@@ -219,8 +224,9 @@ class FlashcardSet {
 
   // Helper getters
   int get totalFlashcards => flashcards.length;
-  int get masteredCount =>
-      flashcards.where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9).length;
+  int get masteredCount => flashcards
+      .where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9)
+      .length;
   int get reviewedCount =>
       flashcards.where((f) => f.lastReviewedAt != null).length;
   bool get isCompleted => masterScore >= 0.8;

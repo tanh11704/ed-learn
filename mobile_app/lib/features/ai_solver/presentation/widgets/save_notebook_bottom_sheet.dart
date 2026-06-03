@@ -45,10 +45,7 @@ class SaveNotebookBottomSheet extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    'Lưu vào sổ tay',
-                    style: AppTextStyles.heading2,
-                  ),
+                  child: Text('Lưu vào sổ tay', style: AppTextStyles.heading2),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).maybePop(),
@@ -107,10 +104,14 @@ class SaveNotebookBottomSheet extends StatelessWidget {
                     width: 110,
                     padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primaryLight : AppColors.white,
+                      color: isSelected
+                          ? AppColors.primaryLight
+                          : AppColors.white,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : AppColors.border,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.border,
                         width: isSelected ? 1.4 : 1,
                       ),
                     ),
@@ -128,7 +129,9 @@ class SaveNotebookBottomSheet extends StatelessWidget {
                           ),
                           child: Icon(
                             Icons.menu_book,
-                            color: isSelected ? AppColors.white : AppColors.primary,
+                            color: isSelected
+                                ? AppColors.white
+                                : AppColors.primary,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -139,7 +142,9 @@ class SaveNotebookBottomSheet extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: AppColors.textPrimary,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w600
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),

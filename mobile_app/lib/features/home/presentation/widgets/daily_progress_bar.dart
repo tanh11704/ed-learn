@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class DailyProgressBar extends StatelessWidget {
   final int progress; // 0-100
   final String message;
-  
+
   const DailyProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     required this.message,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +17,7 @@ class DailyProgressBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.grey[200]!,
-          width: 1,
-        )
+        border: Border.all(color: Colors.grey[200]!, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,14 +25,22 @@ class DailyProgressBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Tiến độ hàng ngày', style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),),
-              Text('$progress%',
-              style: const TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              const Text(
+                'Tiến độ hàng ngày',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-              )
+              Text(
+                '$progress%',
+                style: const TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),
@@ -60,7 +65,6 @@ class DailyProgressBar extends StatelessWidget {
               fontStyle: FontStyle.italic,
             ),
           ),
-
         ],
       ),
     );

@@ -20,14 +20,14 @@ class ApiException implements Exception {
 /// HTTP client dùng chung: gắn Bearer token và tự refresh khi 401.
 class ApiClient {
   ApiClient({TokenStorageService? tokenStorage})
-      : _tokenStorage = tokenStorage ?? TokenStorageService();
+    : _tokenStorage = tokenStorage ?? TokenStorageService();
 
   final TokenStorageService _tokenStorage;
 
   Map<String, String> get _jsonHeaders => const {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 
   Future<http.Response> get(
     String path, {
@@ -35,19 +35,12 @@ class ApiClient {
     Map<String, String>? queryParameters,
   }) {
     return _send(
-      (headers) => http.get(
-        _uri(path, queryParameters),
-        headers: headers,
-      ),
+      (headers) => http.get(_uri(path, queryParameters), headers: headers),
       auth: auth,
     );
   }
 
-  Future<http.Response> post(
-    String path, {
-    bool auth = true,
-    Object? body,
-  }) {
+  Future<http.Response> post(String path, {bool auth = true, Object? body}) {
     return _send(
       (headers) => http.post(
         _uri(path),
@@ -58,11 +51,7 @@ class ApiClient {
     );
   }
 
-  Future<http.Response> put(
-    String path, {
-    bool auth = true,
-    Object? body,
-  }) {
+  Future<http.Response> put(String path, {bool auth = true, Object? body}) {
     return _send(
       (headers) => http.put(
         _uri(path),
@@ -73,11 +62,7 @@ class ApiClient {
     );
   }
 
-  Future<http.Response> patch(
-    String path, {
-    bool auth = true,
-    Object? body,
-  }) {
+  Future<http.Response> patch(String path, {bool auth = true, Object? body}) {
     return _send(
       (headers) => http.patch(
         _uri(path),
@@ -90,8 +75,9 @@ class ApiClient {
 
   Uri _uri(String path, [Map<String, String>? queryParameters]) {
     final normalized = path.startsWith('/') ? path : '/$path';
-    return Uri.parse('${ApiConfig.baseUrl}$normalized')
-        .replace(queryParameters: queryParameters);
+    return Uri.parse(
+      '${ApiConfig.baseUrl}$normalized',
+    ).replace(queryParameters: queryParameters);
   }
 
   Future<http.Response> _send(

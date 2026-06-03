@@ -18,11 +18,7 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
     emit(
       AiChatLoaded(
         messages: [
-          ChatMessage(
-            message: intro,
-            isUser: false,
-            timeLabel: '10:02 AM',
-          ),
+          ChatMessage(message: intro, isUser: false, timeLabel: '10:02 AM'),
           if (answer != null && answer.isNotEmpty)
             ChatMessage(
               message: 'Đáp án hiện tại là: $answer',
@@ -40,11 +36,7 @@ class AiChatBloc extends Bloc<AiChatEvent, AiChatState> {
         : <ChatMessage>[];
 
     currentMessages.add(
-      ChatMessage(
-        message: event.message,
-        isUser: true,
-        timeLabel: _nowLabel(),
-      ),
+      ChatMessage(message: event.message, isUser: true, timeLabel: _nowLabel()),
     );
 
     emit(AiChatLoaded(messages: currentMessages));

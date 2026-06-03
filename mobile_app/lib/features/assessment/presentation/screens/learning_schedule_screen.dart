@@ -27,7 +27,10 @@ class _LearningScheduleScreenState extends State<LearningScheduleScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -45,14 +48,22 @@ class _LearningScheduleScreenState extends State<LearningScheduleScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Bạn có thể học vào lúc nào?', style: AppTextStyles.heading1),
+              Text(
+                'Bạn có thể học vào lúc nào?',
+                style: AppTextStyles.heading1,
+              ),
               const SizedBox(height: 8),
               Text(
                 'Thiết lập thời gian để AI tối ưu hoá kết quả học tập của bạn.',
                 style: AppTextStyles.bodyMedium,
               ),
               const SizedBox(height: 24),
-              Text('CHỌN NGÀY TRONG TUẦN', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                'CHỌN NGÀY TRONG TUẦN',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -74,7 +85,12 @@ class _LearningScheduleScreenState extends State<LearningScheduleScreen> {
                     .toList(),
               ),
               const SizedBox(height: 24),
-              Text('THỜI GIAN HỌC MỖI NGÀY', style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w700)),
+              Text(
+                'THỜI GIAN HỌC MỖI NGÀY',
+                style: AppTextStyles.caption.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
               const SizedBox(height: 12),
               Container(
                 height: 160,
@@ -96,7 +112,10 @@ class _LearningScheduleScreenState extends State<LearningScheduleScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text('Bạn đã chọn học 1 giờ vào 5 ngày mỗi tuần. Tổng cộng 5 giờ/tuần.', style: AppTextStyles.caption),
+              Text(
+                'Bạn đã chọn học 1 giờ vào 5 ngày mỗi tuần. Tổng cộng 5 giờ/tuần.',
+                style: AppTextStyles.caption,
+              ),
               const SizedBox(height: 24),
               PrimaryButton(
                 text: '✨ Tạo lộ trình AI',
@@ -117,7 +136,11 @@ class _LearningScheduleScreenState extends State<LearningScheduleScreen> {
 }
 
 class _DayChip extends StatelessWidget {
-  const _DayChip({required this.label, this.selected = false, required this.onTap});
+  const _DayChip({
+    required this.label,
+    this.selected = false,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -133,11 +156,16 @@ class _DayChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : AppColors.white,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? AppColors.primary : AppColors.border),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Text(
           label,
-          style: AppTextStyles.caption.copyWith(color: selected ? AppColors.white : AppColors.textPrimary, fontWeight: FontWeight.w600),
+          style: AppTextStyles.caption.copyWith(
+            color: selected ? AppColors.white : AppColors.textPrimary,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );
@@ -145,7 +173,11 @@ class _DayChip extends StatelessWidget {
 }
 
 class _TimeOption extends StatelessWidget {
-  const _TimeOption({required this.label, this.selected = false, required this.onTap});
+  const _TimeOption({
+    required this.label,
+    this.selected = false,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -167,7 +199,9 @@ class _TimeOption extends StatelessWidget {
         child: Center(
           child: Text(
             label,
-            style: AppTextStyles.bodyMedium.copyWith(color: selected ? AppColors.primary : AppColors.textSecondary),
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: selected ? AppColors.primary : AppColors.textSecondary,
+            ),
           ),
         ),
       ),

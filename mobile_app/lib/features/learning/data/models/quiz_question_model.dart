@@ -16,8 +16,10 @@ class QuizQuestion {
   // Factory constructor from JSON
   factory QuizQuestion.fromJson(Map<String, dynamic> json, {int? fallbackId}) {
     final options = _parseOptions(json);
-    final rawAnswer = (json['correctAnswer'] ?? json['answer'] ?? '').toString();
-    final correctOption = (json['correctOption'] ?? json['correctAnswerKey'] ?? '').toString();
+    final rawAnswer = (json['correctAnswer'] ?? json['answer'] ?? '')
+        .toString();
+    final correctOption =
+        (json['correctOption'] ?? json['correctAnswerKey'] ?? '').toString();
     final correctAnswer = _normalizeCorrectAnswer(
       options: options,
       rawAnswer: rawAnswer,
@@ -55,15 +57,11 @@ class QuizQuestion {
           .toList();
     }
 
-    final directOptions = [
-      json['optionA'],
-      json['optionB'],
-      json['optionC'],
-      json['optionD'],
-    ]
-        .map((item) => item?.toString() ?? '')
-        .where((item) => item.trim().isNotEmpty)
-        .toList();
+    final directOptions =
+        [json['optionA'], json['optionB'], json['optionC'], json['optionD']]
+            .map((item) => item?.toString() ?? '')
+            .where((item) => item.trim().isNotEmpty)
+            .toList();
     if (directOptions.isNotEmpty) return directOptions;
 
     if (rawOptions is String) {
@@ -72,7 +70,9 @@ class QuizQuestion {
         return trimmed
             .substring(1, trimmed.length - 1)
             .split(',')
-            .map((item) => item.replaceAll(RegExp(r'''^["'\s]+|["'\s]+$'''), ''))
+            .map(
+              (item) => item.replaceAll(RegExp(r'''^["'\s]+|["'\s]+$'''), ''),
+            )
             .where((item) => item.trim().isNotEmpty)
             .toList();
       }

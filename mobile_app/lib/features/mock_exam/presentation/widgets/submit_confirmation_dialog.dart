@@ -17,8 +17,14 @@ class SubmitConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final unanswered = (totalQuestions - answeredCount).clamp(0, totalQuestions);
-    final unansweredIndexes = List<int>.generate(unanswered, (index) => index + 1).take(5).toList();
+    final unanswered = (totalQuestions - answeredCount).clamp(
+      0,
+      totalQuestions,
+    );
+    final unansweredIndexes = List<int>.generate(
+      unanswered,
+      (index) => index + 1,
+    ).take(5).toList();
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
@@ -79,7 +85,11 @@ class SubmitConfirmationDialog extends StatelessWidget {
               SizedBox(width: 6),
               Text(
                 'Câu hỏi chưa hoàn thành',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFEF4444)),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFFEF4444),
+                ),
               ),
             ],
           ),
@@ -88,9 +98,7 @@ class SubmitConfirmationDialog extends StatelessWidget {
             spacing: 8,
             runSpacing: 8,
             children: unansweredIndexes
-                .map(
-                  (index) => _UnansweredChip(label: index.toString()),
-                )
+                .map((index) => _UnansweredChip(label: index.toString()))
                 .toList(),
           ),
           const SizedBox(height: 20),
@@ -98,14 +106,27 @@ class SubmitConfirmationDialog extends StatelessWidget {
             width: double.infinity,
             height: 44,
             child: ElevatedButton(
-              onPressed: onSubmit ?? () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ExamResultScreen())),
+              onPressed:
+                  onSubmit ??
+                  () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ExamResultScreen(),
+                    ),
+                  ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF2E6BFF),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Nộp bài ngay', style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+              child: const Text(
+                'Nộp bài ngay',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -121,7 +142,10 @@ class SubmitConfirmationDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Quay lại kiểm tra', style: TextStyle(fontWeight: FontWeight.w600)),
+              child: const Text(
+                'Quay lại kiểm tra',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ),
         ],
@@ -156,12 +180,20 @@ class _InfoChip extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black54),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: Colors.black54,
+              ),
             ),
             const SizedBox(height: 6),
             Text(
               value,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: color),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: color,
+              ),
             ),
           ],
         ),
@@ -186,7 +218,10 @@ class _UnansweredChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFFEF4444)),
+        style: const TextStyle(
+          fontWeight: FontWeight.w600,
+          color: Color(0xFFEF4444),
+        ),
       ),
     );
   }

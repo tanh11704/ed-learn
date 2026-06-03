@@ -13,12 +13,12 @@ class AiDoneScreen extends StatelessWidget {
     // Lấy email user hiện tại
     final tokenStorage = TokenStorageService();
     final userEmail = await tokenStorage.getCurrentUserEmail();
-    
+
     if (userEmail != null) {
       // Lưu flag đã hoàn thành assessment cho user này
       await tokenStorage.setAssessmentCompleted(userEmail, true);
     }
-    
+
     // Điều hướng tới home
     if (context.mounted) {
       context.goNamed('home');
@@ -33,7 +33,10 @@ class AiDoneScreen extends StatelessWidget {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -60,11 +63,19 @@ class AiDoneScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: AppColors.primaryLight,
                   ),
-                  child: const Icon(Icons.check_circle, size: 88, color: AppColors.primary),
+                  child: const Icon(
+                    Icons.check_circle,
+                    size: 88,
+                    color: AppColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
-              Text('AI đã tạo xong lộ trình\ncho bạn!', style: AppTextStyles.heading1, textAlign: TextAlign.center),
+              Text(
+                'AI đã tạo xong lộ trình\ncho bạn!',
+                style: AppTextStyles.heading1,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
               Text(
                 'Lộ trình được cá nhân hoá theo mục tiêu, năng lực và thời gian học của bạn.',
@@ -81,11 +92,22 @@ class AiDoneScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Gợi ý tiếp theo', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      'Gợi ý tiếp theo',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text('• Học 5 ngày/tuần, mỗi ngày 1 giờ', style: AppTextStyles.bodyMedium),
+                    Text(
+                      '• Học 5 ngày/tuần, mỗi ngày 1 giờ',
+                      style: AppTextStyles.bodyMedium,
+                    ),
                     const SizedBox(height: 4),
-                    Text('• Ưu tiên các môn theo khối thi đã chọn', style: AppTextStyles.bodyMedium),
+                    Text(
+                      '• Ưu tiên các môn theo khối thi đã chọn',
+                      style: AppTextStyles.bodyMedium,
+                    ),
                   ],
                 ),
               ),

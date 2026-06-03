@@ -10,7 +10,7 @@ abstract class StatisticsRemoteDataSource {
 
 class StatisticsRemoteDataSourceImpl implements StatisticsRemoteDataSource {
   StatisticsRemoteDataSourceImpl({ApiClient? apiClient})
-      : _client = apiClient ?? ApiClient();
+    : _client = apiClient ?? ApiClient();
 
   final ApiClient _client;
 

@@ -5,10 +5,10 @@ class CountdownCard extends StatelessWidget {
   final VoidCallback? onViewSchedule;
 
   const CountdownCard({
-    Key? key,
+    super.key,
     required this.daysRemaining,
     this.onViewSchedule,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class CountdownCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.blue.withOpacity(0.2),
+            color: Colors.blue.withValues(alpha: 0.2),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -36,17 +36,13 @@ class CountdownCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.25),
+              color: Colors.white.withValues(alpha: 0.25),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.lock,
-                  color: Colors.white,
-                  size: 13,
-                ),
+                const Icon(Icons.lock, color: Colors.white, size: 13),
                 const SizedBox(width: 5),
                 const Text(
                   'KỲ THI THPT QUỐC GIA 2026',
@@ -112,10 +108,10 @@ class CountdownCard extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.blue[200]?.withOpacity(0.5),
+                          color: Colors.blue[200]?.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -138,10 +134,10 @@ class CountdownCard extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.blue[200]?.withOpacity(0.5),
+                          color: Colors.blue[200]?.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -164,10 +160,10 @@ class CountdownCard extends StatelessWidget {
                         width: 32,
                         height: 32,
                         decoration: BoxDecoration(
-                          color: Colors.blue[200]?.withOpacity(0.5),
+                          color: Colors.blue[200]?.withValues(alpha: 0.5),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.3),
+                            color: Colors.white.withValues(alpha: 0.3),
                             width: 1,
                           ),
                         ),
@@ -190,12 +186,15 @@ class CountdownCard extends StatelessWidget {
               GestureDetector(
                 onTap: onViewSchedule,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.25),
+                    color: Colors.white.withValues(alpha: 0.25),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
                   ),
                   child: const Text(

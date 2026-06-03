@@ -8,17 +8,17 @@ class FlashcardCompletedScreen extends StatelessWidget {
   final double finalScore;
 
   const FlashcardCompletedScreen({
-    Key? key,
+    super.key,
     required this.lessonId,
     required this.moduleName,
     required this.totalFlashcards,
     required this.masteredCount,
     required this.finalScore,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-  final percent = (finalScore * 100).clamp(0, 100).toDouble();
+    final percent = (finalScore * 100).clamp(0, 100).toDouble();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -113,9 +113,9 @@ class FlashcardCompletedScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.2)),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [

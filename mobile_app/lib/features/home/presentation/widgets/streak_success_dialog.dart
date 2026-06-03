@@ -5,10 +5,10 @@ class StreakSuccessDialog extends StatefulWidget {
   final VoidCallback onClose;
 
   const StreakSuccessDialog({
-    Key? key,
+    super.key,
     required this.streak,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   State<StreakSuccessDialog> createState() => _StreakSuccessDialogState();
@@ -77,10 +77,7 @@ class _StreakSuccessDialogState extends State<StreakSuccessDialog>
                     ),
                   ),
                   child: Center(
-                    child: const Text(
-                      '🔥',
-                      style: TextStyle(fontSize: 80),
-                    ),
+                    child: const Text('🔥', style: TextStyle(fontSize: 80)),
                   ),
                 ),
 
@@ -161,10 +158,7 @@ class _StreakSuccessDialogState extends State<StreakSuccessDialog>
                             // Reward column
                             Column(
                               children: [
-                                const Text(
-                                  '⭐',
-                                  style: TextStyle(fontSize: 36),
-                                ),
+                                const Text('⭐', style: TextStyle(fontSize: 36)),
                                 const SizedBox(height: 8),
                                 Text(
                                   '+50 XP',

@@ -88,8 +88,7 @@ class ExamWaitingRoomScreen extends StatelessWidget {
             const _RuleItem(
               icon: Icons.menu_book_outlined,
               title: 'Không sử dụng tài liệu',
-              subtitle:
-                  'Tuyệt đối không sử dụng tài liệu dưới mọi hình thức.',
+              subtitle: 'Tuyệt đối không sử dụng tài liệu dưới mọi hình thức.',
               iconColor: Color(0xFFFF8A65),
             ),
             const SizedBox(height: 26),

@@ -8,10 +8,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
 
 class OnboardingPageView extends StatefulWidget {
-  const OnboardingPageView({
-    super.key,
-    required this.pages,
-  });
+  const OnboardingPageView({super.key, required this.pages});
 
   final List<Widget> pages;
 
@@ -91,7 +88,10 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               child: Column(
                 children: [
-                  _DotsIndicator(length: widget.pages.length, index: _pageIndex),
+                  _DotsIndicator(
+                    length: widget.pages.length,
+                    index: _pageIndex,
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -118,7 +118,9 @@ class _OnboardingPageViewState extends State<OnboardingPageView> {
                                   ? 'Bắt đầu ngay'
                                   : 'Next',
                               style: AppTextStyles.buttonText,
-                              key: ValueKey(_pageIndex == widget.pages.length - 1),
+                              key: ValueKey(
+                                _pageIndex == widget.pages.length - 1,
+                              ),
                             ),
                           ),
                         ),

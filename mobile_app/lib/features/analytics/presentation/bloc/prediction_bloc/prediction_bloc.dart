@@ -4,13 +4,13 @@ import 'prediction_state.dart';
 
 class PredictionBloc extends Bloc<PredictionEvent, PredictionState> {
   PredictionBloc()
-      : super(
-          PredictionState(
-            isLoading: true,
-            prediction: _mockPrediction(),
-            stages: _mockStages(),
-          ),
-        ) {
+    : super(
+        PredictionState(
+          isLoading: true,
+          prediction: _mockPrediction(),
+          stages: _mockStages(),
+        ),
+      ) {
     on<LoadPredictionData>((event, emit) async {
       emit(
         PredictionState(
@@ -54,15 +54,15 @@ class PredictionBloc extends Bloc<PredictionEvent, PredictionState> {
       LearningStage(
         index: 2,
         title: 'Giai đoạn 2: Tăng tốc giải đề Hóa Học',
-        description:
-            'Làm 5 đề thi Hóa học để bám sát cấu trúc đề minh hoạ.',
+        description: 'Làm 5 đề thi Hóa học để bám sát cấu trúc đề minh hoạ.',
         isLocked: true,
         actionLabel: 'Chưa mở',
       ),
       LearningStage(
         index: 3,
         title: 'Giai đoạn 3: Tối ưu thời gian làm bài Toán',
-        description: 'Tập trung kỹ năng sử dụng máy tính cầm tay và các mẹo giải nhanh.',
+        description:
+            'Tập trung kỹ năng sử dụng máy tính cầm tay và các mẹo giải nhanh.',
         isLocked: true,
         actionLabel: 'Chưa mở',
       ),

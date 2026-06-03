@@ -18,8 +18,7 @@ class UserTaskModel {
       id: (json['id'] ?? json['taskId'] ?? '').toString(),
       title: (json['title'] ?? json['name'] ?? '').toString(),
       description: (json['description'] ?? json['note'] ?? '').toString(),
-      isCompleted:
-          json['isCompleted'] == true || json['completed'] == true,
+      isCompleted: json['isCompleted'] == true || json['completed'] == true,
       dueDate: _parseDate(
         json['dueDate'] ?? json['dueAt'] ?? json['scheduledAt'],
       ),

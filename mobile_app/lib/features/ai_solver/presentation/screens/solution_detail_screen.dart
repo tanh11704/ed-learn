@@ -37,7 +37,10 @@ class SolutionDetailScreen extends StatelessWidget {
         title: Text('Lời giải chi tiết', style: AppTextStyles.heading2),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share_outlined, color: AppColors.textPrimary),
+            icon: const Icon(
+              Icons.share_outlined,
+              color: AppColors.textPrimary,
+            ),
             onPressed: () => context.go('/camera/notebook'),
           ),
         ],
@@ -56,16 +59,15 @@ class SolutionDetailScreen extends StatelessWidget {
               _WarningsBox(warnings: solution.warnings),
             ],
             const SizedBox(height: 14),
-            _AnswerCard(
-              answer: answer,
-              needsRetake: needsRetake,
-            ),
+            _AnswerCard(answer: answer, needsRetake: needsRetake),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _MetaChip(label: 'Tin cậy ${(solution.confidence * 100).round()}%'),
+                _MetaChip(
+                  label: 'Tin cậy ${(solution.confidence * 100).round()}%',
+                ),
                 if (solution.model.isNotEmpty) _MetaChip(label: solution.model),
                 ...solution.topicTags.map((tag) => _MetaChip(label: tag)),
               ],
@@ -73,18 +75,20 @@ class SolutionDetailScreen extends StatelessWidget {
             const SizedBox(height: 18),
             Text(
               'Các bước giải chi tiết',
-              style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700),
+              style: AppTextStyles.bodyLarge.copyWith(
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 10),
             if (solution.steps.isEmpty)
               _EmptyStepsCard(needsRetake: needsRetake)
             else
               ...solution.steps.asMap().entries.map(
-                    (entry) => _SolutionStepCard(
-                      stepNumber: entry.key + 1,
-                      step: entry.value,
-                    ),
-                  ),
+                (entry) => _SolutionStepCard(
+                  stepNumber: entry.key + 1,
+                  step: entry.value,
+                ),
+              ),
             const SizedBox(height: 12),
             if (needsRetake)
               PrimaryButton(
@@ -217,7 +221,9 @@ class _ImagePreview extends StatelessWidget {
             return Center(
               child: Text(
                 'Không thể hiển thị ảnh',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
             );
           },
@@ -231,14 +237,13 @@ class _AnswerCard extends StatelessWidget {
   final String answer;
   final bool needsRetake;
 
-  const _AnswerCard({
-    required this.answer,
-    required this.needsRetake,
-  });
+  const _AnswerCard({required this.answer, required this.needsRetake});
 
   @override
   Widget build(BuildContext context) {
-    final color = needsRetake ? const Color(0xFFFFF7ED) : AppColors.primaryLight;
+    final color = needsRetake
+        ? const Color(0xFFFFF7ED)
+        : AppColors.primaryLight;
     final accent = needsRetake ? Colors.orange : AppColors.primary;
 
     return Container(
@@ -246,7 +251,11 @@ class _AnswerCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: needsRetake ? const Color(0xFFFED7AA) : const Color(0xFFBAE6FD)),
+        border: Border.all(
+          color: needsRetake
+              ? const Color(0xFFFED7AA)
+              : const Color(0xFFBAE6FD),
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,7 +276,9 @@ class _AnswerCard extends StatelessWidget {
                   text: answer,
                   style: AppTextStyles.bodyLarge.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: needsRetake ? Colors.orange[900] : AppColors.primaryDark,
+                    color: needsRetake
+                        ? Colors.orange[900]
+                        : AppColors.primaryDark,
                     height: 1.35,
                   ),
                 ),
@@ -298,10 +309,7 @@ class _SolutionStepCard extends StatelessWidget {
   final int stepNumber;
   final AiSolverStep step;
 
-  const _SolutionStepCard({
-    required this.stepNumber,
-    required this.step,
-  });
+  const _SolutionStepCard({required this.stepNumber, required this.step});
 
   @override
   Widget build(BuildContext context) {
@@ -358,10 +366,7 @@ class _SolutionStepCard extends StatelessWidget {
           ),
           if (step.explanation.trim().isNotEmpty) ...[
             const SizedBox(height: 12),
-            _TextBox(
-              text: step.explanation,
-              dense: true,
-            ),
+            _TextBox(text: step.explanation, dense: true),
           ],
           if ((step.latex ?? '').trim().isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -377,10 +382,7 @@ class _TextBox extends StatelessWidget {
   final String text;
   final bool dense;
 
-  const _TextBox({
-    required this.text,
-    this.dense = false,
-  });
+  const _TextBox({required this.text, this.dense = false});
 
   @override
   Widget build(BuildContext context) {
@@ -462,21 +464,18 @@ class _SafeMathText extends StatelessWidget {
   final String text;
   final TextStyle style;
 
-  const _SafeMathText({
-    required this.text,
-    required this.style,
-  });
+  const _SafeMathText({required this.text, required this.style});
 
   @override
   Widget build(BuildContext context) {
     final normalized = _cleanLatex(text);
-    final isShortFormula = _looksLikeFormula(normalized) && !normalized.contains('\n') && normalized.length < 90;
+    final isShortFormula =
+        _looksLikeFormula(normalized) &&
+        !normalized.contains('\n') &&
+        normalized.length < 90;
 
     if (!isShortFormula) {
-      return SelectableText(
-        _cleanVisibleText(text),
-        style: style,
-      );
+      return SelectableText(_cleanVisibleText(text), style: style);
     }
 
     return SingleChildScrollView(
@@ -486,10 +485,8 @@ class _SafeMathText extends StatelessWidget {
         textStyle: style,
         mathStyle: MathStyle.text,
         textScaleFactor: 1,
-        onErrorFallback: (error) => SelectableText(
-          _cleanVisibleText(text),
-          style: style,
-        ),
+        onErrorFallback: (error) =>
+            SelectableText(_cleanVisibleText(text), style: style),
       ),
     );
   }
@@ -542,12 +539,18 @@ class _WarningsBox extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.info_outline, size: 16, color: Colors.orange),
+                    const Icon(
+                      Icons.info_outline,
+                      size: 16,
+                      color: Colors.orange,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         _cleanVisibleText(warning),
-                        style: AppTextStyles.caption.copyWith(color: Colors.orange[900]),
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.orange[900],
+                        ),
                       ),
                     ),
                   ],

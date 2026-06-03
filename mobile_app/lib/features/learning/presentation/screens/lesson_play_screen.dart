@@ -19,14 +19,14 @@ class LessonPlayScreen extends StatefulWidget {
   final String? initialPdfUrl;
 
   const LessonPlayScreen({
-    Key? key,
+    super.key,
     this.lessonId = '1',
     this.lessonName = 'Advanced Calculus: Partial Derivatives & Chain Rule',
     this.moduleName = 'Mathematics',
     this.courseId,
     this.initialVideoUrl,
     this.initialPdfUrl,
-  }) : super(key: key);
+  });
 
   @override
   State<LessonPlayScreen> createState() => _LessonPlayScreenState();
@@ -34,8 +34,9 @@ class LessonPlayScreen extends StatefulWidget {
 
 class _LessonPlayScreenState extends State<LessonPlayScreen> {
   int _selectedTabIndex = 0; // 0: Theory, 1: Attachments, 2: Discussion
-  final LearningRepositoryImpl _repository =
-      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  final LearningRepositoryImpl _repository = LearningRepositoryImpl(
+    LearningRemoteDataSourceImpl(),
+  );
   final LearningCacheService _cacheService = LearningCacheService();
   bool _isLoading = true;
   String? _errorMessage;
@@ -55,8 +56,9 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
   Future<void> _loadCompletionState() async {
     if (widget.courseId == null || widget.courseId!.isEmpty) return;
-    final completedLessonIds =
-        await _cacheService.getCompletedLessonIds(widget.courseId!);
+    final completedLessonIds = await _cacheService.getCompletedLessonIds(
+      widget.courseId!,
+    );
     if (!mounted) return;
     setState(() {
       _isCompleted = completedLessonIds.contains(widget.lessonId);
@@ -90,8 +92,8 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
     try {
       final lesson = await _repository.playLesson(widget.lessonId);
-      final completedLessonIds = widget.courseId == null ||
-              widget.courseId!.isEmpty
+      final completedLessonIds =
+          widget.courseId == null || widget.courseId!.isEmpty
           ? <String>{}
           : await _cacheService.getCompletedLessonIds(widget.courseId!);
       setState(() {
@@ -154,20 +156,14 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
     required Color backgroundColor,
   }) async {
     if (widget.courseId != null && widget.courseId!.isNotEmpty) {
-      await _cacheService.addCompletedLesson(
-        widget.courseId!,
-        widget.lessonId,
-      );
+      await _cacheService.addCompletedLesson(widget.courseId!, widget.lessonId);
     }
     if (!mounted) return;
     setState(() {
       _isCompleted = true;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: backgroundColor,
-      ),
+      SnackBar(content: Text(message), backgroundColor: backgroundColor),
     );
   }
 
@@ -198,16 +194,19 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.share_rounded, color: AppColors.textPrimary),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Chia sẻ bài học')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Chia sẻ bài học')));
             },
           ),
         ],
@@ -216,34 +215,34 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : _errorMessage != null
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('Lỗi: $_errorMessage'),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: _loadLesson,
-                          child: const Text('Thử lại'),
-                        ),
-                      ],
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Lỗi: $_errorMessage'),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: _loadLesson,
+                      child: const Text('Thử lại'),
                     ),
-                  )
-                : SingleChildScrollView(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).padding.bottom + 96,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildVideoPlayer(),
-                        _buildLessonInfo(),
-                        _buildTabNavigation(),
-                        _buildTabContent(),
-                        _buildCompleteButton(),
-                      ],
-                    ),
-                  ),
+                  ],
+                ),
+              )
+            : SingleChildScrollView(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom + 96,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _buildVideoPlayer(),
+                    _buildLessonInfo(),
+                    _buildTabNavigation(),
+                    _buildTabContent(),
+                    _buildCompleteButton(),
+                  ],
+                ),
+              ),
       ),
     );
   }
@@ -286,12 +285,15 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
       return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
     }
 
-    if (uri.host.contains('youtube.com') || uri.host.contains('youtube-nocookie.com')) {
+    if (uri.host.contains('youtube.com') ||
+        uri.host.contains('youtube-nocookie.com')) {
       final watchId = uri.queryParameters['v'];
       if (watchId != null && watchId.isNotEmpty) return watchId;
 
       final segments = uri.pathSegments;
-      final embedIndex = segments.indexWhere((segment) => segment == 'embed' || segment == 'shorts');
+      final embedIndex = segments.indexWhere(
+        (segment) => segment == 'embed' || segment == 'shorts',
+      );
       if (embedIndex >= 0 && segments.length > embedIndex + 1) {
         return segments[embedIndex + 1];
       }
@@ -309,7 +311,9 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   void _openAiTutor() {
     if (widget.courseId == null || widget.courseId!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Không tìm thấy course_id cho bài học này.')),
+        const SnackBar(
+          content: Text('Không tìm thấy course_id cho bài học này.'),
+        ),
       );
       return;
     }
@@ -331,8 +335,8 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
 
   // ==================== VIDEO PLAYER ====================
   Widget _buildVideoPlayer() {
-    final hasVideo = _lessonDetail?.videoUrl != null &&
-        _lessonDetail!.videoUrl!.isNotEmpty;
+    final hasVideo =
+        _lessonDetail?.videoUrl != null && _lessonDetail!.videoUrl!.isNotEmpty;
     final durationLabel = _formatDuration(_lessonDetail?.durationMinutes);
     final youtubeController = _youtubeController;
 
@@ -343,7 +347,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -368,7 +372,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.3),
+                          color: AppColors.primary.withValues(alpha: 0.3),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -389,7 +393,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.68),
+                          color: Colors.black.withValues(alpha: 0.68),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -410,7 +414,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: Colors.black.withValues(alpha: 0.7),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -425,157 +429,6 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                     ),
                 ],
               ),
-      ),
-    );
-
-    return Container(
-      height: 240,
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF1a1f3a),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-            child: youtubeController != null
-                ? YoutubePlayer(
-                    controller: youtubeController,
-                    aspectRatio: 16 / 9,
-                    autoFullScreen: true,
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF1a1f3a),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Center(
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.3),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          hasVideo
-                              ? Icons.play_arrow_rounded
-                              : Icons.videocam_off_outlined,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-
-          if (hasVideo && youtubeController == null)
-            Positioned(
-              bottom: 14,
-              left: 14,
-              right: 14,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.68),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Link video không phải YouTube hoặc chưa hỗ trợ phát trực tiếp.',
-                  style: AppTextStyles.caption.copyWith(color: Colors.white),
-                ),
-              ),
-            ),
-
-          // Video URL badge (top left)
-          if (hasVideo)
-            Positioned(
-              top: 12,
-              left: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.85),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.videocam, color: Colors.white, size: 12),
-                    SizedBox(width: 4),
-                    Text(
-                      'VIDEO',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Duration badge (bottom right)
-          if (durationLabel.isNotEmpty && youtubeController == null)
-            Positioned(
-              bottom: 12,
-              right: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.7),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  durationLabel,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-
-          // Completed overlay
-          if (_isCompleted && youtubeController == null)
-            Positioned(
-              bottom: 12,
-              left: 12,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.white, size: 12),
-                    SizedBox(width: 4),
-                    Text(
-                      'Đã hoàn thành',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-        ],
       ),
     );
   }
@@ -596,7 +449,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.1),
+              color: AppColors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Text(
@@ -626,7 +479,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           // Instructor info
           Row(
             children: [
-              const Icon(Icons.person_rounded, size: 14, color: AppColors.textSecondary),
+              const Icon(
+                Icons.person_rounded,
+                size: 14,
+                color: AppColors.textSecondary,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -652,8 +509,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.schedule_rounded,
-                          size: 14, color: AppColors.textSecondary),
+                      const Icon(
+                        Icons.schedule_rounded,
+                        size: 14,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         _formatDuration(_lessonDetail!.durationMinutes),
@@ -670,8 +530,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                 Expanded(
                   child: Row(
                     children: [
-                      const Icon(Icons.lock_open_rounded,
-                          size: 14, color: Color(0xFF34D399)),
+                      const Icon(
+                        Icons.lock_open_rounded,
+                        size: 14,
+                        color: Color(0xFF34D399),
+                      ),
                       const SizedBox(width: 6),
                       Text(
                         'Xem thử miễn phí',
@@ -695,9 +558,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[300]!, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
       ),
       child: Row(
         children: List.generate(tabs.length, (index) {
@@ -713,8 +574,12 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                       tabs[index],
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                        color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? AppColors.primary
+                            : AppColors.textSecondary,
                       ),
                     ),
                   ),
@@ -752,8 +617,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
   // ==================== THEORY TAB ====================
   Widget _buildTheoryTab() {
     final description = _lessonDetail?.description;
-    final hasDescription =
-        description != null && description.trim().isNotEmpty;
+    final hasDescription = description != null && description.trim().isNotEmpty;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -789,8 +653,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.info_outline,
-                      size: 18, color: Colors.grey[400]),
+                  Icon(Icons.info_outline, size: 18, color: Colors.grey[400]),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
@@ -812,15 +675,19 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.05),
+                color: AppColors.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                    color: AppColors.primary.withOpacity(0.2)),
+                  color: AppColors.primary.withValues(alpha: 0.2),
+                ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.play_circle_outline,
-                      color: AppColors.primary, size: 20),
+                  const Icon(
+                    Icons.play_circle_outline,
+                    color: AppColors.primary,
+                    size: 20,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -873,7 +740,9 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Text(
           'Chưa có tài liệu đính kèm.',
-          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textSecondary,
+          ),
         ),
       );
     }
@@ -905,7 +774,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: (file['color'] as Color).withOpacity(0.1),
+                        color: (file['color'] as Color).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -943,7 +812,7 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -971,9 +840,9 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.green.withOpacity(0.1),
+            color: Colors.green.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.withOpacity(0.35)),
+            border: Border.all(color: Colors.green.withValues(alpha: 0.35)),
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -999,13 +868,12 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         onPressed: _isCompleting ? null : _completeLesson,
         icon: const Icon(Icons.check_circle_outline),
         style: ElevatedButton.styleFrom(
-          backgroundColor:
-              _isCompleted ? Colors.green : AppColors.primary,
+          backgroundColor: _isCompleted ? Colors.green : AppColors.primary,
           foregroundColor: Colors.white,
-          disabledBackgroundColor:
-              _isCompleted ? Colors.green.withOpacity(0.8) : null,
-          disabledForegroundColor:
-              _isCompleted ? Colors.white : null,
+          disabledBackgroundColor: _isCompleted
+              ? Colors.green.withValues(alpha: 0.8)
+              : null,
+          disabledForegroundColor: _isCompleted ? Colors.white : null,
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -1015,8 +883,8 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           _isCompleting
               ? 'Đang cập nhật...'
               : _isCompleted
-                  ? 'Đã hoàn thành'
-                  : 'Hoàn thành bài học',
+              ? 'Đã hoàn thành'
+              : 'Hoàn thành bài học',
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
@@ -1039,7 +907,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
             ),
             child: Row(
               children: [
-                const Icon(Icons.account_circle, color: AppColors.primary, size: 36),
+                const Icon(
+                  Icons.account_circle,
+                  color: AppColors.primary,
+                  size: 36,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextField(
@@ -1053,7 +925,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.send_rounded, color: AppColors.primary, size: 20),
+                const Icon(
+                  Icons.send_rounded,
+                  color: AppColors.primary,
+                  size: 20,
+                ),
               ],
             ),
           ),
@@ -1063,7 +939,8 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           _buildCommentItem(
             name: 'Sarah Johnson',
             time: '2 giờ trước',
-            comment: 'Bài giảng này rất hay! Nhưng em không hiểu phần chain rule, có thể giải thích lại được không?',
+            comment:
+                'Bài giảng này rất hay! Nhưng em không hiểu phần chain rule, có thể giải thích lại được không?',
             likes: 12,
             replies: 3,
           ),
@@ -1071,7 +948,8 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
           _buildCommentItem(
             name: 'Prof. Alan Turing',
             time: '1 giờ trước',
-            comment: 'Chain rule là áp dụng quy tắc tích phân cho các hàm hợp. Em xem lại slide 15 sẽ rõ hơn.',
+            comment:
+                'Chain rule là áp dụng quy tắc tích phân cho các hàm hợp. Em xem lại slide 15 sẽ rõ hơn.',
             likes: 24,
             replies: 1,
             isInstructor: true,
@@ -1094,10 +972,14 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isInstructor ? AppColors.primary.withOpacity(0.05) : AppColors.background,
+        color: isInstructor
+            ? AppColors.primary.withValues(alpha: 0.05)
+            : AppColors.background,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: isInstructor ? AppColors.primary.withOpacity(0.2) : Colors.grey[300]!,
+          color: isInstructor
+              ? AppColors.primary.withValues(alpha: 0.2)
+              : Colors.grey[300]!,
         ),
       ),
       child: Column(
@@ -1105,7 +987,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.account_circle, color: AppColors.primary, size: 32),
+              const Icon(
+                Icons.account_circle,
+                color: AppColors.primary,
+                size: 32,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -1123,7 +1009,10 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                         if (isInstructor) ...[
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.primary,
                               borderRadius: BorderRadius.circular(4),
@@ -1172,7 +1061,11 @@ class _LessonPlayScreenState extends State<LessonPlayScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              Icon(Icons.chat_bubble_outline, size: 16, color: Colors.grey[500]),
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 16,
+                color: Colors.grey[500],
+              ),
               const SizedBox(width: 4),
               Text(
                 '$replies trả lời',
@@ -1223,7 +1116,9 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
     if (question.isEmpty || _isLoading) return;
 
     final history = _messages
-        .where((message) => message.role == 'user' || message.role == 'assistant')
+        .where(
+          (message) => message.role == 'user' || message.role == 'assistant',
+        )
         .toList();
 
     setState(() {
@@ -1239,7 +1134,9 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
         courseId: widget.courseId,
         lessonId: widget.lessonId,
         question: question,
-        chatHistory: history.length > 6 ? history.sublist(history.length - 6) : history,
+        chatHistory: history.length > 6
+            ? history.sublist(history.length - 6)
+            : history,
       );
       if (!mounted) return;
       setState(() {
@@ -1344,10 +1241,13 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: AppColors.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.auto_awesome_rounded, color: AppColors.primary),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1396,7 +1296,7 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
               width: 64,
               height: 64,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -1457,14 +1357,17 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
               text: message.content,
               color: isUser ? Colors.white : AppColors.textPrimary,
             ),
-            if (!isUser && (message.usedFallback || message.confidence != null)) ...[
+            if (!isUser &&
+                (message.usedFallback || message.confidence != null)) ...[
               const SizedBox(height: 8),
               Wrap(
                 spacing: 6,
                 runSpacing: 6,
                 children: [
                   if (message.confidence != null)
-                    _buildMetaChip('Độ tin cậy ${message.confidence!.toStringAsFixed(2)}'),
+                    _buildMetaChip(
+                      'Độ tin cậy ${message.confidence!.toStringAsFixed(2)}',
+                    ),
                   if (message.usedFallback) _buildMetaChip('Fallback'),
                 ],
               ),
@@ -1541,7 +1444,9 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
           const SizedBox(height: 4),
           Text(
             '${source.sectionType.isEmpty ? 'section' : source.sectionType} · score ${source.score.toStringAsFixed(2)}',
-            style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.textSecondary,
+            ),
           ),
           if (source.text.isNotEmpty) ...[
             const SizedBox(height: 8),
@@ -1659,7 +1564,11 @@ class _LessonAiTutorSheetState extends State<_LessonAiTutorSheet> {
             ),
             child: IconButton(
               onPressed: _isLoading ? null : _send,
-              icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
+              icon: const Icon(
+                Icons.send_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
             ),
           ),
         ],
@@ -1672,10 +1581,7 @@ class _LessonAiFormattedText extends StatelessWidget {
   final String text;
   final Color color;
 
-  const _LessonAiFormattedText({
-    required this.text,
-    required this.color,
-  });
+  const _LessonAiFormattedText({required this.text, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -1738,27 +1644,18 @@ class _LessonAiFormattedText extends StatelessWidget {
     if (value.isEmpty) return const SizedBox.shrink();
     return Text(
       value,
-      style: AppTextStyles.bodyMedium.copyWith(
-        color: color,
-        height: 1.45,
-      ),
+      style: AppTextStyles.bodyMedium.copyWith(color: color, height: 1.45),
     );
   }
 
   Widget _mathText(String expression) {
     return Math.tex(
       expression,
-      textStyle: AppTextStyles.bodyMedium.copyWith(
-        color: color,
-        height: 1.45,
-      ),
+      textStyle: AppTextStyles.bodyMedium.copyWith(color: color, height: 1.45),
       mathStyle: MathStyle.text,
       onErrorFallback: (error) => Text(
         expression,
-        style: AppTextStyles.bodyMedium.copyWith(
-          color: color,
-          height: 1.45,
-        ),
+        style: AppTextStyles.bodyMedium.copyWith(color: color, height: 1.45),
       ),
     );
   }

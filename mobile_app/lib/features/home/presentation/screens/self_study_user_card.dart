@@ -10,9 +10,7 @@ class SelfStudyUserCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
-        color: Colors.transparent,
-      ),
+      decoration: const BoxDecoration(color: Colors.transparent),
       child: Container(
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
@@ -25,7 +23,10 @@ class SelfStudyUserCard extends StatelessWidget {
             CircleAvatar(
               radius: 32,
               backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              child: const Text('LV', style: TextStyle(color: AppColors.primary)),
+              child: const Text(
+                'LV',
+                style: TextStyle(color: AppColors.primary),
+              ),
             ),
             const SizedBox(height: 8),
             Text('Tuấn', style: AppTextStyles.heading2),
@@ -52,7 +53,12 @@ class SelfStudyUserCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('Huy hiệu nổi bật', style: AppTextStyles.bodyMedium),
-                Text('Xem tất cả', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                Text(
+                  'Xem tất cả',
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.primary,
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -61,7 +67,10 @@ class SelfStudyUserCard extends StatelessWidget {
               children: const [
                 _BadgeIcon(icon: Icons.emoji_events, color: Color(0xFFFFD666)),
                 _BadgeIcon(icon: Icons.menu_book, color: Color(0xFFD6E4FF)),
-                _BadgeIcon(icon: Icons.local_fire_department, color: Color(0xFFFFCCC7)),
+                _BadgeIcon(
+                  icon: Icons.local_fire_department,
+                  color: Color(0xFFFFCCC7),
+                ),
                 _BadgeIcon(icon: Icons.mic, color: Color(0xFFD9F7BE)),
               ],
             ),
@@ -79,7 +88,9 @@ class SelfStudyUserCard extends StatelessWidget {
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
                     ),
                     child: const Text('Gửi lời chào'),
                   ),

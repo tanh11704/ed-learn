@@ -40,12 +40,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     context.read<AuthBloc>().add(
-          RegisterSubmitted(
-            name: _nameController.text,
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
+      RegisterSubmitted(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 
   @override
@@ -56,9 +56,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state.status == AuthStatus.failure && state.message != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message!)));
           }
 
           if (state.status == AuthStatus.authenticated) {
@@ -116,7 +116,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     size: 18,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
                 validator: (value) {
                   final trimmed = value?.trim() ?? '';
@@ -140,7 +141,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _obscureConfirm ? Icons.visibility_off : Icons.visibility,
                     size: 18,
                   ),
-                  onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  onPressed: () =>
+                      setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
                 validator: (value) {
                   final trimmed = value?.trim() ?? '';
@@ -170,7 +172,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Text('Đã có tài khoản? ', style: AppTextStyles.bodyMedium),
                   TextButton(
                     onPressed: () => context.go('/login'),
-                    child: Text('Đăng nhập', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary)),
+                    child: Text(
+                      'Đăng nhập',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
                 ],
               ),

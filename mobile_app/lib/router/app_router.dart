@@ -39,7 +39,7 @@ import 'package:mobile_app/features/analytics/presentation/screens/learning_prog
 import 'package:mobile_app/features/analytics/presentation/screens/time_management_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/screens/score_prediction_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/screens/learning_path_screen.dart'
-  as analytics;
+    as analytics;
 import 'package:mobile_app/features/analytics/presentation/screens/mistake_bank_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/screens/mistake_detail_screen.dart';
 import 'package:mobile_app/features/analytics/presentation/screens/redo_question_screen.dart';
@@ -74,7 +74,7 @@ import '../features/assessment/presentation/screens/ai_processing_screen.dart';
 import '../features/assessment/presentation/screens/ai_done_screen.dart';
 import '../features/assessment/presentation/screens/universities_screen.dart';
 
-// Khởi tạo trực tiếp GoRouter 
+// Khởi tạo trực tiếp GoRouter
 final appRouter = GoRouter(
   initialLocation: '/onboarding',
   routes: [
@@ -83,17 +83,14 @@ final appRouter = GoRouter(
         return AppShell(navigationShell: navigationShell);
       },
       branches: [
-        StatefulShellBranch( 
+        StatefulShellBranch(
           routes: [
             GoRoute(
               name: 'home',
               path: '/home',
               builder: (context, state) => BlocProvider(
-                create: (context) => HomeBloc(
-                  HomeRepositoryImpl(
-                    HomeRemoteDatasourceImpl(),
-                  ),
-                ),
+                create: (context) =>
+                    HomeBloc(HomeRepositoryImpl(HomeRemoteDatasourceImpl())),
                 child: const HomeScreen(),
               ),
               routes: [
@@ -101,9 +98,7 @@ final appRouter = GoRouter(
                   path: 'schedule',
                   builder: (context, state) => BlocProvider(
                     create: (context) => HomeBloc(
-                      HomeRepositoryImpl(
-                        HomeRemoteDatasourceImpl(),
-                      ),
+                      HomeRepositoryImpl(HomeRemoteDatasourceImpl()),
                     ),
                     child: const ScheduleScreen(),
                   ),
@@ -114,7 +109,8 @@ final appRouter = GoRouter(
                   routes: [
                     GoRoute(
                       path: 'session',
-                      builder: (context, state) => const SelfStudySessionScreen(),
+                      builder: (context, state) =>
+                          const SelfStudySessionScreen(),
                     ),
                   ],
                 ),
@@ -197,7 +193,8 @@ final appRouter = GoRouter(
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     return BlocProvider(
-                      create: (context) => FlashcardBloc(LearningRemoteDataSourceImpl()),
+                      create: (context) =>
+                          FlashcardBloc(LearningRemoteDataSourceImpl()),
                       child: FlashcardScreen(
                         lessonId: extra?['lessonId'] ?? 'lesson-1',
                         lessonName: extra?['lessonName'] ?? 'Flashcard',
@@ -210,89 +207,112 @@ final appRouter = GoRouter(
             ),
           ],
         ),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/exam', builder: (context, state) => const ExamLibraryScreen(),
-             routes: [
-                GoRoute(path: 'exam-waiting-room',
-                builder:(context, state) {
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/exam',
+              builder: (context, state) => const ExamLibraryScreen(),
+              routes: [
+                GoRoute(
+                  path: 'exam-waiting-room',
+                  builder: (context, state) {
                     return ExamWaitingRoomScreen();
-                },
+                  },
                 ),
-                GoRoute(path: 'camera-check',
-                builder:(context, state) {
+                GoRoute(
+                  path: 'camera-check',
+                  builder: (context, state) {
                     return CameraCheckScreen();
-                },
+                  },
                 ),
                 GoRoute(
                   path: 'exam-session',
                   builder: (context, state) => const ExamTakingScreen(),
                 ),
-           GoRoute(path: 'exam-result',
-           builder:(context, state) {
-              return const ExamResultScreen();
-           }
-           ),
-             ]
-          )],
-          ),
-        StatefulShellBranch(routes: [
-          GoRoute(
-            path: '/statistical',
-            builder: (context, state) => const AnalyticsShell(child: AnalyticsDashboardScreen()),
-            routes: [
-              GoRoute(
-                path: 'capability',
-                builder: (context, state) => const AnalyticsShell(child: CapabilityAnalysisScreen()),
-              ),
-              GoRoute(
-                path: 'progress',
-                builder: (context, state) => const AnalyticsShell(child: LearningProgressScreen()),
-              ),
-              GoRoute(
-                path: 'time',
-                builder: (context, state) => const AnalyticsShell(child: TimeManagementScreen()),
-              ),
-              GoRoute(
-                path: 'prediction',
-                builder: (context, state) => const AnalyticsShell(child: ScorePredictionScreen()),
-              ),
-              GoRoute(
-                path: 'learning-path',
-                builder: (context, state) => const AnalyticsShell(
-                  child: analytics.LearningPathScreen(),
+                GoRoute(
+                  path: 'exam-result',
+                  builder: (context, state) {
+                    return const ExamResultScreen();
+                  },
                 ),
-              ),
-              GoRoute(
-                path: 'mistakes',
-                builder: (context, state) => const AnalyticsShell(child: MistakeBankScreen()),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (context, state) {
-                      final item = state.extra as MistakeItem?;
-                      if (item == null) {
-                        return const AnalyticsShell(child: MistakeBankScreen());
-                      }
-                      return AnalyticsShell(child: MistakeDetailScreen(item: item));
-                    },
-                    routes: [
-                      GoRoute(
-                        path: 'redo',
-                        builder: (context, state) {
-                          final item = state.extra as MistakeItem?;
-                          if (item == null) {
-                            return const AnalyticsShell(child: MistakeBankScreen());
-                          }
-                          return AnalyticsShell(child: RedoQuestionScreen(item: item));
-                        },
-                      ),
-                    ],
+              ],
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/statistical',
+              builder: (context, state) =>
+                  const AnalyticsShell(child: AnalyticsDashboardScreen()),
+              routes: [
+                GoRoute(
+                  path: 'capability',
+                  builder: (context, state) =>
+                      const AnalyticsShell(child: CapabilityAnalysisScreen()),
+                ),
+                GoRoute(
+                  path: 'progress',
+                  builder: (context, state) =>
+                      const AnalyticsShell(child: LearningProgressScreen()),
+                ),
+                GoRoute(
+                  path: 'time',
+                  builder: (context, state) =>
+                      const AnalyticsShell(child: TimeManagementScreen()),
+                ),
+                GoRoute(
+                  path: 'prediction',
+                  builder: (context, state) =>
+                      const AnalyticsShell(child: ScorePredictionScreen()),
+                ),
+                GoRoute(
+                  path: 'learning-path',
+                  builder: (context, state) => const AnalyticsShell(
+                    child: analytics.LearningPathScreen(),
                   ),
-                ],
-              ),
-            ],
-          )
-        ]),
+                ),
+                GoRoute(
+                  path: 'mistakes',
+                  builder: (context, state) =>
+                      const AnalyticsShell(child: MistakeBankScreen()),
+                  routes: [
+                    GoRoute(
+                      path: ':id',
+                      builder: (context, state) {
+                        final item = state.extra as MistakeItem?;
+                        if (item == null) {
+                          return const AnalyticsShell(
+                            child: MistakeBankScreen(),
+                          );
+                        }
+                        return AnalyticsShell(
+                          child: MistakeDetailScreen(item: item),
+                        );
+                      },
+                      routes: [
+                        GoRoute(
+                          path: 'redo',
+                          builder: (context, state) {
+                            final item = state.extra as MistakeItem?;
+                            if (item == null) {
+                              return const AnalyticsShell(
+                                child: MistakeBankScreen(),
+                              );
+                            }
+                            return AnalyticsShell(
+                              child: RedoQuestionScreen(item: item),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
         StatefulShellBranch(
           routes: [
             GoRoute(
@@ -321,7 +341,8 @@ final appRouter = GoRouter(
                   routes: [
                     GoRoute(
                       path: 'notifications',
-                      builder: (context, state) => const NotificationSettingsScreen(),
+                      builder: (context, state) =>
+                          const NotificationSettingsScreen(),
                     ),
                   ],
                 ),
@@ -348,7 +369,7 @@ final appRouter = GoRouter(
               ],
             ),
           ],
-        )
+        ),
       ],
     ),
     GoRoute(
@@ -412,10 +433,7 @@ final appRouter = GoRouter(
         child: const NotebookScreen(),
       ),
     ),
-    GoRoute(
-      path: '/login',
-      builder: (context, state) => const LoginScreen(),
-    ),
+    GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
@@ -424,10 +442,7 @@ final appRouter = GoRouter(
       path: '/forgot-password',
       builder: (context, state) => const ForgotPasswordScreen(),
     ),
-    GoRoute(
-      path: '/otp',
-      builder: (context, state) => const OtpScreen(),
-    ),
+    GoRoute(path: '/otp', builder: (context, state) => const OtpScreen()),
     GoRoute(
       path: '/reset-password',
       builder: (context, state) => const ResetPasswordScreen(),

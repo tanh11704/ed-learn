@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,17 +19,22 @@ class TestingScreen extends StatefulWidget {
 }
 
 class _TestingScreenState extends State<TestingScreen> {
-    late final Future<List<AssessmentQuestionUi>> _questionsFuture;
+  late final Future<List<AssessmentQuestionUi>> _questionsFuture;
   int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-        _questionsFuture = Future.value(const [
+    _questionsFuture = Future.value(const [
       AssessmentQuestionUi(
         id: 1,
         content: 'Khi làm bài thi, bạn thường bắt đầu từ phần nào?',
-        options: ['Dễ trước khó sau', 'Làm tuần tự từ đầu', 'Phần mình tự tin nhất', 'Làm ngẫu nhiên'],
+        options: [
+          'Dễ trước khó sau',
+          'Làm tuần tự từ đầu',
+          'Phần mình tự tin nhất',
+          'Làm ngẫu nhiên',
+        ],
       ),
       AssessmentQuestionUi(
         id: 2,
@@ -44,7 +49,12 @@ class _TestingScreenState extends State<TestingScreen> {
       AssessmentQuestionUi(
         id: 4,
         content: 'Bạn thích hình thức học nào?',
-        options: ['Video ngắn', 'Tài liệu đọc', 'Lớp học trực tiếp', 'Bài tập thực hành'],
+        options: [
+          'Video ngắn',
+          'Tài liệu đọc',
+          'Lớp học trực tiếp',
+          'Bài tập thực hành',
+        ],
       ),
     ]);
   }
@@ -81,11 +91,18 @@ class _TestingScreenState extends State<TestingScreen> {
             builder: (context, snapshot) {
               final total = snapshot.data?.length ?? 0;
               if (total == 0) {
-                return Text('Câu 0/0', style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary));
+                return Text(
+                  'Câu 0/0',
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                );
               }
               return Text(
                 'Câu ${_currentIndex + 1}/$total',
-                style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
               );
             },
           ),
@@ -99,9 +116,18 @@ class _TestingScreenState extends State<TestingScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.timer_outlined, size: 16, color: AppColors.primary),
+                  const Icon(
+                    Icons.timer_outlined,
+                    size: 16,
+                    color: AppColors.primary,
+                  ),
                   const SizedBox(width: 4),
-                  Text('08:45', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                  Text(
+                    '08:45',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -119,14 +145,20 @@ class _TestingScreenState extends State<TestingScreen> {
 
                 if (snapshot.hasError) {
                   return Center(
-                    child: Text('Không tải được câu hỏi.', style: AppTextStyles.caption),
+                    child: Text(
+                      'Không tải được câu hỏi.',
+                      style: AppTextStyles.caption,
+                    ),
                   );
                 }
 
                 final questions = snapshot.data ?? [];
                 if (questions.isEmpty) {
                   return Center(
-                    child: Text('Chưa có dữ liệu câu hỏi.', style: AppTextStyles.caption),
+                    child: Text(
+                      'Chưa có dữ liệu câu hỏi.',
+                      style: AppTextStyles.caption,
+                    ),
                   );
                 }
 
@@ -149,14 +181,18 @@ class _TestingScreenState extends State<TestingScreen> {
                               minHeight: 6,
                               value: progress,
                               backgroundColor: AppColors.border,
-                              valueColor: const AlwaysStoppedAnimation(AppColors.primary),
+                              valueColor: const AlwaysStoppedAnimation(
+                                AppColors.primary,
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         Text(
                           'TIẾN ĐỘ: ${(progress * 100).round()}%',
-                          style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                          style: AppTextStyles.caption.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -170,8 +206,11 @@ class _TestingScreenState extends State<TestingScreen> {
                             selectedIndex: state.answers[_currentIndex],
                             onSelect: (index) {
                               context.read<AssessmentBloc>().add(
-                                    AnswerSelected(questionIndex: _currentIndex, optionIndex: index),
-                                  );
+                                AnswerSelected(
+                                  questionIndex: _currentIndex,
+                                  optionIndex: index,
+                                ),
+                              );
                             },
                           );
                         },
@@ -194,4 +233,3 @@ class _TestingScreenState extends State<TestingScreen> {
     );
   }
 }
-

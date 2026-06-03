@@ -12,18 +12,19 @@ class LearningPathScreen extends StatefulWidget {
   final String courseName;
 
   const LearningPathScreen({
-    Key? key,
+    super.key,
     this.courseId = 'data-science',
     this.courseName = 'Data Science',
-  }) : super(key: key);
+  });
 
   @override
   State<LearningPathScreen> createState() => _LearningPathScreenState();
 }
 
 class _LearningPathScreenState extends State<LearningPathScreen> {
-  final LearningRepositoryImpl _repository =
-      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  final LearningRepositoryImpl _repository = LearningRepositoryImpl(
+    LearningRemoteDataSourceImpl(),
+  );
   final LearningCacheService _cacheService = LearningCacheService();
   List<_LessonItem> lessons = [];
   CourseSummary? _selectedCourse;
@@ -60,13 +61,17 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
       CourseSummary? selected = myCourses.firstWhere(
         (course) => course.id == widget.courseId,
-        orElse: () => myCourses.isNotEmpty ? myCourses.first : CourseSummary(id: '', title: ''),
+        orElse: () => myCourses.isNotEmpty
+            ? myCourses.first
+            : CourseSummary(id: '', title: ''),
       );
 
       if (selected.id.isEmpty) {
         selected = publicCourses.firstWhere(
           (course) => course.id == widget.courseId,
-          orElse: () => publicCourses.isNotEmpty ? publicCourses.first : CourseSummary(id: '', title: ''),
+          orElse: () => publicCourses.isNotEmpty
+              ? publicCourses.first
+              : CourseSummary(id: '', title: ''),
         );
       }
 
@@ -89,13 +94,19 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     }
   }
 
-  Future<void> _loadCourseDetail(String courseId, {bool forceRefresh = false}) async {
+  Future<void> _loadCourseDetail(
+    String courseId, {
+    bool forceRefresh = false,
+  }) async {
     try {
-      final detail = await _repository.getCourseDetail(courseId, forceRefresh: forceRefresh);
-      final completedLessonIds =
-          await _cacheService.getCompletedLessonIds(courseId);
-      final chapters = detail.chapters.toList()
-        ..sort(_compareChaptersForPath);
+      final detail = await _repository.getCourseDetail(
+        courseId,
+        forceRefresh: forceRefresh,
+      );
+      final completedLessonIds = await _cacheService.getCompletedLessonIds(
+        courseId,
+      );
+      final chapters = detail.chapters.toList()..sort(_compareChaptersForPath);
 
       final updatedLessons = <_LessonItem>[];
       int totalLessons = 0;
@@ -113,9 +124,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
 
         LessonNodeStatus status;
         String? note;
-        if (chapterLessons.isNotEmpty && completedInChapter == chapterLessons.length) {
+        if (chapterLessons.isNotEmpty &&
+            completedInChapter == chapterLessons.length) {
           status = LessonNodeStatus.mastered;
-          note = 'Hoàn thành ${chapterLessons.length}/${chapterLessons.length} bài học';
+          note =
+              'Hoàn thành ${chapterLessons.length}/${chapterLessons.length} bài học';
         } else if (!currentAssigned) {
           status = LessonNodeStatus.current;
           currentAssigned = true;
@@ -161,9 +174,8 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       enableDrag: true,
-      builder: (context) => CourseSelectionBottomSheet(
-        selectedCourseId: _selectedCourse?.id,
-      ),
+      builder: (context) =>
+          CourseSelectionBottomSheet(selectedCourseId: _selectedCourse?.id),
     );
 
     if (selected != null && selected.id != _selectedCourse?.id) {
@@ -207,40 +219,37 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('Lỗi: $_errorMessage'),
-                      const SizedBox(height: 12),
-                      ElevatedButton(
-                        onPressed: () => _loadInitialData(forceRefresh: true),
-                        child: const Text('Thử lại'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Lỗi: $_errorMessage'),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => _loadInitialData(forceRefresh: true),
+                    child: const Text('Thử lại'),
                   ),
-                )
-              : Stack(
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: () => _loadInitialData(forceRefresh: true),
-                      child: ListView(
-                        padding: const EdgeInsets.only(bottom: 120),
-                        children: [
-                          _buildProgressCard(),
-                          _buildTimeline(),
-                        ],
-                      ),
-                    ),
-                    if (lessons.isNotEmpty)
-                      Positioned(
-                        bottom: 24,
-                        left: 16,
-                        right: 16,
-                        child: _buildNextUpCard(),
-                      ),
-                  ],
+                ],
+              ),
+            )
+          : Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: () => _loadInitialData(forceRefresh: true),
+                  child: ListView(
+                    padding: const EdgeInsets.only(bottom: 120),
+                    children: [_buildProgressCard(), _buildTimeline()],
+                  ),
                 ),
+                if (lessons.isNotEmpty)
+                  Positioned(
+                    bottom: 24,
+                    left: 16,
+                    right: 16,
+                    child: _buildNextUpCard(),
+                  ),
+              ],
+            ),
     );
   }
 
@@ -334,9 +343,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       );
     }
 
-  int completedCount = _completedLessonsCount;
-  int totalCount = _totalLessonsCount;
-  double progress = totalCount == 0 ? 0 : completedCount / totalCount;
+    int completedCount = _completedLessonsCount;
+    int totalCount = _totalLessonsCount;
+    double progress = totalCount == 0 ? 0 : completedCount / totalCount;
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -347,7 +356,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         border: Border.all(color: const Color(0xFFF1F5F9), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -397,7 +406,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                     value: progress,
                     minHeight: 10,
                     backgroundColor: const Color(0xFFE2E8F0),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2563EB)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF2563EB),
+                    ),
                   ),
                 ),
               ),
@@ -420,17 +431,16 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         Positioned(
           top: 40,
           bottom: 40,
-          child: Container(
-            width: 2,
-            color: const Color(0xFFE2E8F0),
-          ),
+          child: Container(width: 2, color: const Color(0xFFE2E8F0)),
         ),
-        
+
         // Danh sách các node
         Column(
           children: List.generate(lessons.length, (index) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 48), // Khoảng cách giữa các node
+              padding: const EdgeInsets.only(
+                bottom: 48,
+              ), // Khoảng cách giữa các node
               child: _buildTimelineNode(lessons[index], index),
             );
           }),
@@ -443,7 +453,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
     // Xử lý node Mastered (Hoàn thành) - Zíc zắc trái/phải
     if (lesson.status == LessonNodeStatus.mastered) {
       bool isLeft = index % 2 == 0;
-      
+
       Widget nodeCircle = Container(
         width: 60,
         height: 60,
@@ -455,7 +465,9 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       );
 
       Widget textContent = Column(
-        crossAxisAlignment: isLeft ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+        crossAxisAlignment: isLeft
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.end,
         children: [
           Text(
             lesson.name,
@@ -480,23 +492,25 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(
-          mainAxisAlignment: isLeft ? MainAxisAlignment.start : MainAxisAlignment.end,
-          children: isLeft 
-            ? [
-                SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-                nodeCircle, 
-                const SizedBox(width: 16), 
-                textContent,
-              ]
-            : [
-                textContent, 
-                const SizedBox(width: 16), 
-                nodeCircle,
-                SizedBox(width: MediaQuery.of(context).size.width * 0.1),
-              ],
+          mainAxisAlignment: isLeft
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.end,
+          children: isLeft
+              ? [
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                  nodeCircle,
+                  const SizedBox(width: 16),
+                  textContent,
+                ]
+              : [
+                  textContent,
+                  const SizedBox(width: 16),
+                  nodeCircle,
+                  SizedBox(width: MediaQuery.of(context).size.width * 0.1),
+                ],
         ),
       );
-    } 
+    }
     // Xử lý node Current (Đang học) - Chính giữa, to và phát sáng
     else if (lesson.status == LessonNodeStatus.current) {
       return GestureDetector(
@@ -520,13 +534,17 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF2563EB).withOpacity(0.3),
+                    color: const Color(0xFF2563EB).withValues(alpha: 0.3),
                     blurRadius: 24,
                     spreadRadius: 8,
                   ),
                 ],
               ),
-              child: const Icon(Icons.rocket_launch, color: Colors.white, size: 36),
+              child: const Icon(
+                Icons.rocket_launch,
+                color: Colors.white,
+                size: 36,
+              ),
             ),
             const SizedBox(height: 16),
             Text(
@@ -557,7 +575,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
           ],
         ),
       );
-    } 
+    }
     // Xử lý node Locked (Khóa) - Chính giữa, màu xám
     else {
       return Opacity(
@@ -572,7 +590,11 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
                 shape: BoxShape.circle,
                 border: Border.all(color: const Color(0xFFE2E8F0), width: 2),
               ),
-              child: const Icon(Icons.lock_outline, color: Color(0xFF94A3B8), size: 24),
+              child: const Icon(
+                Icons.lock_outline,
+                color: Color(0xFF94A3B8),
+                size: 24,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -611,7 +633,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
         border: Border.all(color: const Color(0xFFE2E8F0), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -627,10 +649,14 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
               color: Color(0xFFEFF6FF),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.play_arrow_rounded, color: Color(0xFF2563EB), size: 28),
+            child: const Icon(
+              Icons.play_arrow_rounded,
+              color: Color(0xFF2563EB),
+              size: 28,
+            ),
           ),
           const SizedBox(width: 16),
-          
+
           // Texts
           Expanded(
             child: Column(
@@ -666,7 +692,7 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
             ),
           ),
           const SizedBox(width: 8),
-          
+
           // Start Button
           ElevatedButton(
             onPressed: () {
@@ -706,7 +732,6 @@ class _LearningPathScreenState extends State<LearningPathScreen> {
       ),
     );
   }
-
 }
 
 class _LessonItem {

@@ -64,8 +64,8 @@ class NotebookScreen extends StatelessWidget {
                   context.go('/home');
                 },
                 onCreateNew: () => context.read<NotebookBloc>().add(
-                      const CreateNotebook('Sổ tay mới'),
-                    ),
+                  const CreateNotebook('Sổ tay mới'),
+                ),
               );
             },
           ),

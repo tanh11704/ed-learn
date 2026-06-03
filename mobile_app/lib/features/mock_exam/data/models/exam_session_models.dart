@@ -23,14 +23,16 @@ class ExamSessionModel {
         ? json['exam'] as Map<String, dynamic>
         : const <String, dynamic>{};
 
-    final sessionId = (json['sessionId'] ??
-            json['id'] ??
-            json['examSessionId'] ??
-            attemptJson['id'] ??
-            '')
-        .toString();
+    final sessionId =
+        (json['sessionId'] ??
+                json['id'] ??
+                json['examSessionId'] ??
+                attemptJson['id'] ??
+                '')
+            .toString();
 
-    final duration = (json['durationMinutes'] as num?)?.toInt() ??
+    final duration =
+        (json['durationMinutes'] as num?)?.toInt() ??
         (examJson['durationMinutes'] as num?)?.toInt() ??
         (json['remainingMinutes'] as num?)?.toInt() ??
         fallbackDurationMinutes;
@@ -151,7 +153,8 @@ class ExamSubmissionResult {
     return ExamSubmissionResult(
       submissionId: json['submissionId']?.toString() ?? json['id']?.toString(),
       examId: json['examId']?.toString(),
-      score: (json['score'] as num?)?.toDouble() ??
+      score:
+          (json['score'] as num?)?.toDouble() ??
           (json['totalScore'] as num?)?.toDouble(),
       maxScore: (json['maxScore'] as num?)?.toDouble(),
       status: json['status']?.toString(),

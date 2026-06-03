@@ -40,10 +40,7 @@ class PrimaryButton extends StatelessWidget {
                   strokeWidth: 2.5,
                 ),
               )
-            : Text(
-                text,
-                style: AppTextStyles.buttonText,
-              ),
+            : Text(text, style: AppTextStyles.buttonText),
       ),
     );
   }

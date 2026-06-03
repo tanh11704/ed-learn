@@ -10,8 +10,8 @@ import 'exam_taking_state.dart';
 
 class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
   ExamTakingBloc({ExamRepository? repository})
-      : _repository = repository ?? ExamRepositoryImpl(),
-        super(const ExamTakingLoading()) {
+    : _repository = repository ?? ExamRepositoryImpl(),
+      super(const ExamTakingLoading()) {
     on<LoadExamTaking>(_onLoadExamTaking);
     on<SelectAnswer>(_onSelectAnswer);
     on<GoToQuestion>(_onGoToQuestion);
@@ -73,10 +73,7 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
     updated[event.questionIndex] = event.optionId;
 
     emit(
-      currentState.copyWith(
-        selectedAnswers: updated,
-        clearSubmitError: true,
-      ),
+      currentState.copyWith(selectedAnswers: updated, clearSubmitError: true),
     );
 
     final question = currentState.questions[event.questionIndex];
@@ -90,10 +87,12 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
   void _onGoToQuestion(GoToQuestion event, Emitter<ExamTakingState> emit) {
     if (state is! ExamTakingLoaded) return;
     final currentState = state as ExamTakingLoaded;
-    emit(currentState.copyWith(
-      currentIndex: event.questionIndex,
-      clearSubmitError: true,
-    ));
+    emit(
+      currentState.copyWith(
+        currentIndex: event.questionIndex,
+        clearSubmitError: true,
+      ),
+    );
   }
 
   void _onTickTimer(TickTimer event, Emitter<ExamTakingState> emit) {
@@ -123,10 +122,8 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
 
     final answers = currentState.selectedAnswers.entries
         .map(
-          (e) => (
-            questionId: currentState.questions[e.key].id,
-            optionId: e.value,
-          ),
+          (e) =>
+              (questionId: currentState.questions[e.key].id, optionId: e.value),
         )
         .toList();
 
@@ -135,10 +132,9 @@ class ExamTakingBloc extends Bloc<ExamTakingEvent, ExamTakingState> {
         sessionId: currentState.sessionId,
         answers: answers,
       );
-      emit(ExamTakingFinished(
-        result: result,
-        examTitle: currentState.examTitle,
-      ));
+      emit(
+        ExamTakingFinished(result: result, examTitle: currentState.examTitle),
+      );
     } catch (e) {
       emit(
         currentState.copyWith(

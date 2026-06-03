@@ -87,7 +87,12 @@ class AuthTextField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
+        Text(
+          label,
+          style: AppTextStyles.bodyMedium.copyWith(
+            color: AppColors.textPrimary,
+          ),
+        ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -100,7 +105,10 @@ class AuthTextField extends StatelessWidget {
             filled: true,
             fillColor: AppColors.background,
             suffixIcon: suffix,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.border),
@@ -134,7 +142,11 @@ class AuthSectionDivider extends StatelessWidget {
             children: [
               const Divider(color: AppColors.border),
               const SizedBox(height: 8),
-              Text(text, style: AppTextStyles.caption, textAlign: TextAlign.center),
+              Text(
+                text,
+                style: AppTextStyles.caption,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 8),
               const Divider(color: AppColors.border),
             ],
@@ -172,12 +184,11 @@ class AuthSocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return OutlinedButton.icon(
       onPressed: onPressed,
-      icon: SvgPicture.asset(
-        svgAsset,
-        height: 18,
-        width: 18,
+      icon: SvgPicture.asset(svgAsset, height: 18, width: 18),
+      label: Text(
+        label,
+        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
       ),
-      label: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12),
         side: const BorderSide(color: AppColors.border),

@@ -21,7 +21,10 @@ class MistakeBankScreen extends StatelessWidget {
         elevation: 0,
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_alt_outlined)),
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.filter_alt_outlined),
+          ),
         ],
       ),
       body: BlocBuilder<MistakeBankBloc, MistakeBankState>(
@@ -40,20 +43,28 @@ class MistakeBankScreen extends StatelessWidget {
                     children: state.subjects.map((subject) {
                       final isSelected = subject == state.selectedSubject;
                       return GestureDetector(
-                        onTap: () =>
-                            context.read<MistakeBankBloc>().add(FilterMistakesBySubject(subject)),
+                        onTap: () => context.read<MistakeBankBloc>().add(
+                          FilterMistakesBySubject(subject),
+                        ),
                         child: Container(
                           margin: const EdgeInsets.only(right: 12),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary : AppColors.white,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.white,
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(color: AppColors.border),
                           ),
                           child: Text(
                             subject,
                             style: AppTextStyles.bodyMedium.copyWith(
-                              color: isSelected ? AppColors.white : AppColors.textSecondary,
+                              color: isSelected
+                                  ? AppColors.white
+                                  : AppColors.textSecondary,
                             ),
                           ),
                         ),
@@ -67,7 +78,10 @@ class MistakeBankScreen extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 12),
                     child: MistakeListTile(
                       item: item,
-                      onTap: () => context.go('/statistical/mistakes/${item.id}', extra: item),
+                      onTap: () => context.go(
+                        '/statistical/mistakes/${item.id}',
+                        extra: item,
+                      ),
                     ),
                   ),
                 ),

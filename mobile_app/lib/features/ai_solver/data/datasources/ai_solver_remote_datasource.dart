@@ -12,7 +12,7 @@ class AiSolverRemoteDataSource {
   final http.Client _client;
 
   AiSolverRemoteDataSource({http.Client? client})
-      : _client = client ?? http.Client();
+    : _client = client ?? http.Client();
 
   Future<AiSolverSolution> solveImage({
     required File image,
@@ -38,7 +38,8 @@ class AiSolverRemoteDataSource {
       if (lessonId != null && lessonId.isNotEmpty) 'lesson_id': lessonId,
     });
 
-    final mimeType = lookupMimeType(image.path) ?? _fallbackMimeType(image.path);
+    final mimeType =
+        lookupMimeType(image.path) ?? _fallbackMimeType(image.path);
     request.files.add(
       await http.MultipartFile.fromPath(
         'image',
