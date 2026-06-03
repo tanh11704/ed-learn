@@ -24,8 +24,9 @@ class CourseSelectionBottomSheet extends StatefulWidget {
 class _CourseSelectionBottomSheetState
     extends State<CourseSelectionBottomSheet> {
   late String selectedCourseId;
-  final LearningRepositoryImpl _repository =
-      LearningRepositoryImpl(LearningRemoteDataSourceImpl());
+  final LearningRepositoryImpl _repository = LearningRepositoryImpl(
+    LearningRemoteDataSourceImpl(),
+  );
 
   bool _isLoading = true;
   bool _isEnrolling = false;
@@ -68,7 +69,8 @@ class _CourseSelectionBottomSheetState
         forceRefresh: forceRefresh,
       );
 
-      final selected = widget.selectedCourseId ??
+      final selected =
+          widget.selectedCourseId ??
           (myCourses.isNotEmpty ? myCourses.first.id : selectedCourseId);
 
       if (!mounted) return;
@@ -99,9 +101,9 @@ class _CourseSelectionBottomSheetState
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể đăng ký: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Không thể đăng ký: $e')));
     } finally {
       if (mounted) setState(() => _isEnrolling = false);
     }
@@ -159,14 +161,18 @@ class _CourseSelectionBottomSheetState
     VoidCallback? onTap,
     Widget? trailing,
   }) {
-    final bgColor =
-        isSelected ? const Color(0xFFF4F8FF) : const Color(0xFFF3F4F6);
-    final borderColor =
-        isSelected ? const Color(0xFF2563EB) : Colors.transparent;
-    final iconBgColor =
-        isSelected ? const Color(0xFFDBEAFE) : const Color(0xFFE5E7EB);
-    final iconColor =
-        isSelected ? const Color(0xFF2563EB) : const Color(0xFF6B7280);
+    final bgColor = isSelected
+        ? const Color(0xFFF4F8FF)
+        : const Color(0xFFF3F4F6);
+    final borderColor = isSelected
+        ? const Color(0xFF2563EB)
+        : Colors.transparent;
+    final iconBgColor = isSelected
+        ? const Color(0xFFDBEAFE)
+        : const Color(0xFFE5E7EB);
+    final iconColor = isSelected
+        ? const Color(0xFF2563EB)
+        : const Color(0xFF6B7280);
     final titleColor = isSelected ? const Color(0xFF2563EB) : Colors.black87;
 
     return GestureDetector(
@@ -220,7 +226,7 @@ class _CourseSelectionBottomSheetState
                     ],
                   ),
                 ),
-                if (trailing != null) trailing,
+                ?trailing,
               ],
             ),
           ),
@@ -343,8 +349,10 @@ class _CourseSelectionBottomSheetState
                 ),
               ),
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -394,8 +402,10 @@ class _CourseSelectionBottomSheetState
                 )
               else if (_errorMessage != null)
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
                   child: Column(
                     children: [
                       Text(
@@ -419,9 +429,7 @@ class _CourseSelectionBottomSheetState
                     children: [
                       _buildSectionHeader('Khóa học của tôi'),
                       if (_myCourses.isEmpty)
-                        _buildEmptyMessage(
-                          'Bạn chưa đăng ký khóa học nào.',
-                        )
+                        _buildEmptyMessage('Bạn chưa đăng ký khóa học nào.')
                       else
                         ..._myCourses.map(
                           (course) => _buildCourseTile(
@@ -432,7 +440,9 @@ class _CourseSelectionBottomSheetState
                               Future.delayed(
                                 const Duration(milliseconds: 250),
                                 () {
-                                  if (mounted) Navigator.pop(context, course);
+                                  if (context.mounted) {
+                                    Navigator.pop(context, course);
+                                  }
                                 },
                               );
                             },

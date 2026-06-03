@@ -13,7 +13,10 @@ abstract class LearningRemoteDataSource {
   Future<List<CourseSummary>> getMyCourses();
   Future<LessonDetail> playLesson(String lessonId);
   Future<void> completeLesson(String lessonId);
-  Future<List<Flashcard>> getLessonFlashcards(String lessonId, String moduleName);
+  Future<List<Flashcard>> getLessonFlashcards(
+    String lessonId,
+    String moduleName,
+  );
   Future<List<QuizQuestion>> getLessonExercises(String lessonId);
 }
 
@@ -21,7 +24,11 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
   final String baseUrl = ApiConfig.baseUrl;
 
   @override
-  Future<List<CourseSummary>> getCourses({String? subject, int page = 0, int size = 10}) async {
+  Future<List<CourseSummary>> getCourses({
+    String? subject,
+    int page = 0,
+    int size = 10,
+  }) async {
     final subjectQuery = (subject != null && subject.trim().isNotEmpty)
         ? '&subject=${Uri.encodeComponent(subject.trim())}'
         : '';
@@ -43,7 +50,10 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
       final jsonResponse = jsonDecode(response.body) as Map<String, dynamic>;
       final content = jsonResponse['content'] as List? ?? [];
       return content
-          .map((item) => CourseSummary.fromCourseJson(item as Map<String, dynamic>))
+          .map(
+            (item) =>
+                CourseSummary.fromCourseJson(item as Map<String, dynamic>),
+          )
           .toList();
     }
 
@@ -125,7 +135,10 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(response.body) as List<dynamic>;
       return jsonResponse
-          .map((item) => CourseSummary.fromEnrolledJson(item as Map<String, dynamic>))
+          .map(
+            (item) =>
+                CourseSummary.fromEnrolledJson(item as Map<String, dynamic>),
+          )
           .toList();
     }
 
@@ -189,7 +202,10 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
   }
 
   @override
-  Future<List<Flashcard>> getLessonFlashcards(String lessonId, String moduleName) async {
+  Future<List<Flashcard>> getLessonFlashcards(
+    String lessonId,
+    String moduleName,
+  ) async {
     final tokenStorage = TokenStorageService();
     final accessToken = await tokenStorage.getAccessToken();
     final headers = {
@@ -218,7 +234,11 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
           final decoded = jsonDecode(response.body);
           final items = _extractContentItems(decoded);
           final flashcards = items
-              .where((item) => (item['type'] ?? 'FLASHCARD').toString().toUpperCase() == 'FLASHCARD')
+              .where(
+                (item) =>
+                    (item['type'] ?? 'FLASHCARD').toString().toUpperCase() ==
+                    'FLASHCARD',
+              )
               .map(
                 (item) => Flashcard.fromJson(
                   item,
@@ -226,7 +246,11 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
                   fallbackModuleName: moduleName,
                 ),
               )
-              .where((card) => card.question.trim().isNotEmpty && card.answer.trim().isNotEmpty)
+              .where(
+                (card) =>
+                    card.question.trim().isNotEmpty &&
+                    card.answer.trim().isNotEmpty,
+              )
               .toList();
           if (flashcards.isNotEmpty) {
             return flashcards;
@@ -278,8 +302,14 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
           final items = _extractContentItems(decoded);
           var fallbackId = 1;
           final questions = items
-              .where((item) => (item['type'] ?? 'EXERCISE').toString().toUpperCase() == 'EXERCISE')
-              .map((item) => QuizQuestion.fromJson(item, fallbackId: fallbackId++))
+              .where(
+                (item) =>
+                    (item['type'] ?? 'EXERCISE').toString().toUpperCase() ==
+                    'EXERCISE',
+              )
+              .map(
+                (item) => QuizQuestion.fromJson(item, fallbackId: fallbackId++),
+              )
               .where(
                 (question) =>
                     question.question.trim().isNotEmpty &&
@@ -308,7 +338,11 @@ class LearningRemoteDataSourceImpl implements LearningRemoteDataSource {
 
   List<Map<String, dynamic>> _extractContentItems(dynamic decoded) {
     final dynamic source = decoded is Map<String, dynamic>
-        ? (decoded['content'] ?? decoded['items'] ?? decoded['data'] ?? decoded['flashcards'] ?? decoded)
+        ? (decoded['content'] ??
+              decoded['items'] ??
+              decoded['data'] ??
+              decoded['flashcards'] ??
+              decoded)
         : decoded;
 
     if (source is List) {

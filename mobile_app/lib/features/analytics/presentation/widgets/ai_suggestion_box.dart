@@ -32,7 +32,11 @@ class AiSuggestionBox extends StatelessWidget {
               color: AppColors.primary.withValues(alpha: 0.18),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.auto_awesome, color: AppColors.primary, size: 18),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: AppColors.primary,
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -41,10 +45,15 @@ class AiSuggestionBox extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: 6),
-                Text(message, style: AppTextStyles.bodyMedium.copyWith(height: 1.4)),
+                Text(
+                  message,
+                  style: AppTextStyles.bodyMedium.copyWith(height: 1.4),
+                ),
               ],
             ),
           ),

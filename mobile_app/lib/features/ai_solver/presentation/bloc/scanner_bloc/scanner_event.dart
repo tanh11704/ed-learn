@@ -28,9 +28,7 @@ class UpdateScanProgress extends ScannerEvent {
 class ReportBlurError extends ScannerEvent {
   final String message;
 
-  const ReportBlurError({
-    this.message = 'Ảnh hơi mờ, vui lòng quét lại!',
-  });
+  const ReportBlurError({this.message = 'Ảnh hơi mờ, vui lòng quét lại!'});
 
   @override
   List<Object?> get props => [message];

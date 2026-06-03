@@ -12,7 +12,10 @@ class UserBadgeRemoteDataSourceImpl implements UserBadgeRemoteDataSource {
   final String baseUrl = ApiConfig.baseUrl;
 
   @override
-  Future<PageUserBadgeResponse> getMyBadges({int page = 0, int size = 10}) async {
+  Future<PageUserBadgeResponse> getMyBadges({
+    int page = 0,
+    int size = 10,
+  }) async {
     try {
       final tokenStorage = TokenStorageService();
       final accessToken = await tokenStorage.getAccessToken();

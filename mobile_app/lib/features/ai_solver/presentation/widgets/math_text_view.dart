@@ -18,7 +18,8 @@ class MathTextView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedStyle = style ?? AppTextStyles.bodyLarge.copyWith(height: 1.4);
+    final resolvedStyle =
+        style ?? AppTextStyles.bodyLarge.copyWith(height: 1.4);
     final latex = _normalizeLatex(text);
 
     return Math.tex(
@@ -35,7 +36,9 @@ class MathTextView extends StatelessWidget {
       return trimmed.substring(1, trimmed.length - 1);
     }
 
-    final hasLatexSymbols = RegExp(r'[\\^_=+*/]|\\sqrt|\\frac').hasMatch(trimmed);
+    final hasLatexSymbols = RegExp(
+      r'[\\^_=+*/]|\\sqrt|\\frac',
+    ).hasMatch(trimmed);
     if (hasLatexSymbols) {
       return trimmed;
     }

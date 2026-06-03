@@ -64,11 +64,17 @@ class TimeManagementScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          _LegendDot(color: AppColors.primary.withValues(alpha: 0.2), label: 'Chuẩn'),
+                          _LegendDot(
+                            color: AppColors.primary.withValues(alpha: 0.2),
+                            label: 'Chuẩn',
+                          ),
                           const SizedBox(width: 12),
-                          _LegendDot(color: AppColors.primary, label: 'Của bạn'),
+                          _LegendDot(
+                            color: AppColors.primary,
+                            label: 'Của bạn',
+                          ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ),
@@ -95,7 +101,10 @@ class TimeManagementScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Phân tích quan trọng', style: AppTextStyles.bodyLarge),
+                            Text(
+                              'Phân tích quan trọng',
+                              style: AppTextStyles.bodyLarge,
+                            ),
                             const SizedBox(height: 4),
                             Text(
                               'Bạn đang tập trung nhiều thời gian cho phần Đọc hiểu.',
@@ -103,16 +112,22 @@ class TimeManagementScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
                 Text('Gợi ý cho bạn', style: AppTextStyles.heading2),
                 const SizedBox(height: 12),
-                _SuggestionRow(icon: Icons.lightbulb_outline, text: 'Luyện tập kỹ thuật Skimming & Scanning'),
+                _SuggestionRow(
+                  icon: Icons.lightbulb_outline,
+                  text: 'Luyện tập kỹ thuật Skimming & Scanning',
+                ),
                 const SizedBox(height: 8),
-                _SuggestionRow(icon: Icons.timer_outlined, text: 'Đặt giới hạn 15 phút cho mỗi bài đọc'),
+                _SuggestionRow(
+                  icon: Icons.timer_outlined,
+                  text: 'Đặt giới hạn 15 phút cho mỗi bài đọc',
+                ),
               ],
             ),
           );
@@ -132,7 +147,11 @@ class _LegendDot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(height: 8, width: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          height: 8,
+          width: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 6),
         Text(label, style: AppTextStyles.caption),
       ],

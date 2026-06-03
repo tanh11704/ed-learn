@@ -69,28 +69,32 @@ class FlashcardLoaded extends FlashcardState {
 
   /// Get flashcard hiện tại (nullable) - UI should handle empty state
   Flashcard? get currentFlashcard =>
-    filteredFlashcards.isNotEmpty && currentIndex >= 0 && currentIndex < filteredFlashcards.length
+      filteredFlashcards.isNotEmpty &&
+          currentIndex >= 0 &&
+          currentIndex < filteredFlashcards.length
       ? filteredFlashcards[currentIndex]
       : null;
 
   /// Check xem có flashcard kế tiếp không
-  bool get hasNext => filteredFlashcards.isNotEmpty && currentIndex < filteredFlashcards.length - 1;
+  bool get hasNext =>
+      filteredFlashcards.isNotEmpty &&
+      currentIndex < filteredFlashcards.length - 1;
 
   /// Check xem có flashcard trước không
   bool get hasPrevious => filteredFlashcards.isNotEmpty && currentIndex > 0;
 
   @override
   List<Object?> get props => [
-        flashcardSet,
-        filteredFlashcards,
-        currentIndex,
-        isFlipped,
-        filterDifficulty,
-        filterStatus,
-        progress,
-        masteredCount,
-        reviewedCount,
-      ];
+    flashcardSet,
+    filteredFlashcards,
+    currentIndex,
+    isFlipped,
+    filterDifficulty,
+    filterStatus,
+    progress,
+    masteredCount,
+    reviewedCount,
+  ];
 }
 
 /// Error khi load flashcards
@@ -121,10 +125,10 @@ class FlashcardCompleted extends FlashcardState {
 
   @override
   List<Object?> get props => [
-        flashcardSet,
-        totalFlashcards,
-        masteredCount,
-        finalScore,
-        totalReviewTime,
-      ];
+    flashcardSet,
+    totalFlashcards,
+    masteredCount,
+    finalScore,
+    totalReviewTime,
+  ];
 }

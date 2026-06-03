@@ -30,7 +30,7 @@ abstract class ExamRemoteDataSource {
 
 class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
   ExamRemoteDataSourceImpl({ApiClient? apiClient})
-      : _client = apiClient ?? ApiClient();
+    : _client = apiClient ?? ApiClient();
 
   final ApiClient _client;
 
@@ -81,10 +81,7 @@ class ExamRemoteDataSourceImpl implements ExamRemoteDataSource {
       body['className'] = className.trim();
     }
 
-    final response = await _client.post(
-      '/exams/$examId/attempts',
-      body: body,
-    );
+    final response = await _client.post('/exams/$examId/attempts', body: body);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final json = jsonDecode(response.body) as Map<String, dynamic>;

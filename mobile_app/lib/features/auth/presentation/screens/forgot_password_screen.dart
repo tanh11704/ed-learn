@@ -23,7 +23,11 @@ class ForgotPasswordScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(24),
             ),
             alignment: Alignment.center,
-            child: const Icon(Icons.mail_outline, size: 64, color: Color(0xFF1890FF)),
+            child: const Icon(
+              Icons.mail_outline,
+              size: 64,
+              color: Color(0xFF1890FF),
+            ),
           ),
           const SizedBox(height: 24),
           const AuthTextField(

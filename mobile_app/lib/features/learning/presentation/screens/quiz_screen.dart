@@ -12,19 +12,20 @@ class QuizScreen extends StatefulWidget {
   final String? courseId;
 
   const QuizScreen({
-    Key? key,
+    super.key,
     this.lessonId = '',
     this.quizName = 'Bai tap',
     this.moduleName = 'Module',
     this.courseId,
-  }) : super(key: key);
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
 class _QuizScreenState extends State<QuizScreen> {
-  final LearningRemoteDataSource _remoteDataSource = LearningRemoteDataSourceImpl();
+  final LearningRemoteDataSource _remoteDataSource =
+      LearningRemoteDataSourceImpl();
   List<QuizQuestion> questions = [];
   int currentQuestionIndex = 0;
   Map<int, String> userAnswers = {};
@@ -54,7 +55,9 @@ class _QuizScreenState extends State<QuizScreen> {
     });
 
     try {
-      final loadedQuestions = await _remoteDataSource.getLessonExercises(lessonId);
+      final loadedQuestions = await _remoteDataSource.getLessonExercises(
+        lessonId,
+      );
       if (!mounted) return;
       setState(() {
         questions = loadedQuestions;
@@ -85,7 +88,8 @@ class _QuizScreenState extends State<QuizScreen> {
     final course = await _remoteDataSource.getCourseDetail(courseId);
     for (final chapter in course.chapters) {
       for (final lesson in chapter.lessons) {
-        if (lesson.title.trim().toLowerCase() == widget.quizName.trim().toLowerCase()) {
+        if (lesson.title.trim().toLowerCase() ==
+            widget.quizName.trim().toLowerCase()) {
           return lesson.id;
         }
       }
@@ -197,7 +201,9 @@ class _QuizScreenState extends State<QuizScreen> {
                     child: Text(
                       '${index + 1}',
                       style: TextStyle(
-                        color: isCurrent || isAnswered ? Colors.white : Colors.grey[600],
+                        color: isCurrent || isAnswered
+                            ? Colors.white
+                            : Colors.grey[600],
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -216,7 +222,9 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return _buildScaffoldBody(const Center(child: CircularProgressIndicator()));
+      return _buildScaffoldBody(
+        const Center(child: CircularProgressIndicator()),
+      );
     }
 
     if (_errorMessage != null) {
@@ -230,7 +238,9 @@ class _QuizScreenState extends State<QuizScreen> {
                 Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
@@ -252,7 +262,9 @@ class _QuizScreenState extends State<QuizScreen> {
             child: Text(
               'Bài học này chưa có câu hỏi bài tập.',
               textAlign: TextAlign.center,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
             ),
           ),
         ),
@@ -283,7 +295,9 @@ class _QuizScreenState extends State<QuizScreen> {
                 value: (currentQuestionIndex + 1) / questions.length,
                 minHeight: 6,
                 backgroundColor: Colors.grey[200],
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.primary,
+                ),
               ),
             ),
             const SizedBox(height: 32),
@@ -309,10 +323,14 @@ class _QuizScreenState extends State<QuizScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white,
+                      color: isSelected
+                          ? AppColors.primary.withValues(alpha: 0.1)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: isSelected ? AppColors.primary : Colors.grey[300]!,
+                        color: isSelected
+                            ? AppColors.primary
+                            : Colors.grey[300]!,
                         width: isSelected ? 2 : 1.5,
                       ),
                     ),
@@ -322,14 +340,18 @@ class _QuizScreenState extends State<QuizScreen> {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary : Colors.grey[200],
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.grey[200],
                             shape: BoxShape.circle,
                           ),
                           child: Center(
                             child: Text(
                               optionLabel,
                               style: TextStyle(
-                                color: isSelected ? Colors.white : Colors.grey[600],
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[600],
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
                               ),
@@ -342,7 +364,9 @@ class _QuizScreenState extends State<QuizScreen> {
                             option,
                             style: AppTextStyles.bodyMedium.copyWith(
                               color: AppColors.textPrimary,
-                              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                              fontWeight: isSelected
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
                             ),
                           ),
                         ),
@@ -356,7 +380,9 @@ class _QuizScreenState extends State<QuizScreen> {
             ElevatedButton(
               onPressed: hasAnswered ? _nextQuestion : null,
               style: ElevatedButton.styleFrom(
-                backgroundColor: hasAnswered ? AppColors.primary : Colors.grey[300],
+                backgroundColor: hasAnswered
+                    ? AppColors.primary
+                    : Colors.grey[300],
                 disabledBackgroundColor: Colors.grey[300],
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(

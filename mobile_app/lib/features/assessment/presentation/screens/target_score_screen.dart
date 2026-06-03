@@ -41,7 +41,9 @@ class _TargetScoreScreenState extends State<TargetScoreScreen> {
 
   @override
   void dispose() {
-    AssessmentSelectionStore.selectedExamBlock.removeListener(_handleBlockChange);
+    AssessmentSelectionStore.selectedExamBlock.removeListener(
+      _handleBlockChange,
+    );
     for (final controller in _controllers) {
       controller.dispose();
     }
@@ -96,7 +98,10 @@ class _TargetScoreScreenState extends State<TargetScoreScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -114,11 +119,27 @@ class _TargetScoreScreenState extends State<TargetScoreScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(_targetScore.toStringAsFixed(0), style: AppTextStyles.heading1.copyWith(fontSize: 44, color: AppColors.primary), textAlign: TextAlign.center),
+              Text(
+                _targetScore.toStringAsFixed(0),
+                style: AppTextStyles.heading1.copyWith(
+                  fontSize: 44,
+                  color: AppColors.primary,
+                ),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 4),
-              Text('Tổng điểm mục tiêu', style: AppTextStyles.caption, textAlign: TextAlign.center),
+              Text(
+                'Tổng điểm mục tiêu',
+                style: AppTextStyles.caption,
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 24),
-              Text('Điều chỉnh điểm', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                'Điều chỉnh điểm',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,14 +165,26 @@ class _TargetScoreScreenState extends State<TargetScoreScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Điểm mục tiêu từng môn', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
-                  Text(_examBlock, style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                  Text(
+                    'Điểm mục tiêu từng môn',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  Text(
+                    _examBlock,
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
               ...List.generate(_subjects.length, (index) {
                 return Padding(
-                  padding: EdgeInsets.only(bottom: index == _subjects.length - 1 ? 0 : 12),
+                  padding: EdgeInsets.only(
+                    bottom: index == _subjects.length - 1 ? 0 : 12,
+                  ),
                   child: _ScoreInput(
                     label: _subjects[index],
                     controller: _controllers[index],
@@ -173,7 +206,11 @@ class _TargetScoreScreenState extends State<TargetScoreScreen> {
 }
 
 class _ScoreInput extends StatelessWidget {
-  const _ScoreInput({required this.label, required this.controller, required this.onChanged});
+  const _ScoreInput({
+    required this.label,
+    required this.controller,
+    required this.onChanged,
+  });
 
   final String label;
   final TextEditingController controller;
@@ -190,12 +227,21 @@ class _ScoreInput extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary))),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ),
           SizedBox(
             width: 72,
             child: TextField(
               controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               textAlign: TextAlign.right,
               onChanged: onChanged,
               decoration: const InputDecoration(
@@ -203,7 +249,10 @@ class _ScoreInput extends StatelessWidget {
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.zero,
               ),
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           const SizedBox(width: 6),

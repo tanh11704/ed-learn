@@ -6,6 +6,7 @@ abstract class AuthEvent extends Equatable {
   @override
   List<Object?> get props => [];
 }
+
 // người dùng đăng nhập với email và password
 class LoginSubmitted extends AuthEvent {
   const LoginSubmitted({required this.email, required this.password});
@@ -31,6 +32,7 @@ class RegisterSubmitted extends AuthEvent {
   @override
   List<Object?> get props => [name, email, password];
 }
+
 // người dùng đăng xuất khỏi ứng dụng
 class LogoutRequested extends AuthEvent {
   const LogoutRequested();

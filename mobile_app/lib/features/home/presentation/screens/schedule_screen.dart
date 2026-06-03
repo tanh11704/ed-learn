@@ -6,7 +6,7 @@ import '../bloc/home_state.dart';
 import '../widgets/task_list_item.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({Key? key}) : super(key: key);
+  const ScheduleScreen({super.key});
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
@@ -27,17 +27,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
-        child: AppBar(
-          elevation: 0,
-          backgroundColor: Colors.white,
-        ),
+        child: AppBar(elevation: 0, backgroundColor: Colors.white),
       ),
       body: BlocBuilder<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state is HomeEmpty) {
@@ -45,18 +40,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.calendar_today,
-                    size: 64,
-                    color: Colors.grey[400],
-                  ),
+                  Icon(Icons.calendar_today, size: 64, color: Colors.grey[400]),
                   const SizedBox(height: 16),
                   Text(
                     'Không có lịch học',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -64,25 +52,27 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           }
 
           if (state is HomeError) {
-            return Center(
-              child: Text('Lỗi: ${state.message}'),
-            );
+            return Center(child: Text('Lỗi: ${state.message}'));
           }
 
           if (state is HomeLoaded) {
             // Get tasks for selected date
             final tasksForDate = state.tasks
-                .where((task) =>
-                    task.dueDate.year == selectedDate.year &&
-                    task.dueDate.month == selectedDate.month &&
-                    task.dueDate.day == selectedDate.day)
+                .where(
+                  (task) =>
+                      task.dueDate.year == selectedDate.year &&
+                      task.dueDate.month == selectedDate.month &&
+                      task.dueDate.day == selectedDate.day,
+                )
                 .toList();
 
             // Group tasks by status
-            final completedTasks =
-                tasksForDate.where((t) => t.isCompleted).toList();
-            final pendingTasks =
-                tasksForDate.where((t) => !t.isCompleted).toList();
+            final completedTasks = tasksForDate
+                .where((t) => t.isCompleted)
+                .toList();
+            final pendingTasks = tasksForDate
+                .where((t) => !t.isCompleted)
+                .toList();
 
             return SingleChildScrollView(
               child: Column(
@@ -152,8 +142,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                                   index: index,
                                   onComplete: () {
                                     context.read<HomeBloc>().add(
-                                          MarkTaskCompleted(task.id),
-                                        );
+                                      MarkTaskCompleted(task.id),
+                                    );
                                   },
                                 ),
                               );
@@ -180,13 +170,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          ...completedTasks.map((task) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: TaskListItem(
-                                  task: task,
-                                  onCompleted: () {},
-                                ),
-                              )),
+                          ...completedTasks.map(
+                            (task) => Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: TaskListItem(
+                                task: task,
+                                onCompleted: () {},
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -214,10 +206,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       child: Row(
         children: List.generate(7, (index) {
           final date = startDate.add(Duration(days: index));
-          final isSelected = date.year == selectedDate.year &&
+          final isSelected =
+              date.year == selectedDate.year &&
               date.month == selectedDate.month &&
               date.day == selectedDate.day;
-          final isToday = date.year == now.year &&
+          final isToday =
+              date.year == now.year &&
               date.month == now.month &&
               date.day == now.day;
 
@@ -259,8 +253,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           color: isSelected
                               ? Colors.white
                               : isToday
-                                  ? Colors.blue[600]
-                                  : Colors.black87,
+                              ? Colors.blue[600]
+                              : Colors.black87,
                         ),
                       ),
                     ),
@@ -341,10 +335,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 children: [
                   Text(
                     task.description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                   Text(
                     '09:00 AM',

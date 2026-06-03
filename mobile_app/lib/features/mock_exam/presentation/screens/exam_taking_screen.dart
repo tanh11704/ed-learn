@@ -31,7 +31,8 @@ class ExamTakingScreen extends StatelessWidget {
         ),
       child: BlocListener<ExamTakingBloc, ExamTakingState>(
         listenWhen: (prev, curr) {
-          final hasSubmitError = curr is ExamTakingLoaded &&
+          final hasSubmitError =
+              curr is ExamTakingLoaded &&
               curr.submitError != null &&
               (prev is! ExamTakingLoaded ||
                   prev.submitError != curr.submitError);
@@ -43,14 +44,13 @@ class ExamTakingScreen extends StatelessWidget {
           if (state is ExamTakingFinished) {
             context.go('/exam/exam-result', extra: state);
           } else if (state is ExamTakingError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          } else if (state is ExamTakingLoaded &&
-              state.submitError != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.submitError!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          } else if (state is ExamTakingLoaded && state.submitError != null) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.submitError!)));
           }
         },
         child: Scaffold(
@@ -61,8 +61,9 @@ class ExamTakingScreen extends StatelessWidget {
             leading: const SizedBox(width: 4),
             title: BlocBuilder<ExamTakingBloc, ExamTakingState>(
               builder: (context, state) {
-                final remaining =
-                    state is ExamTakingLoaded ? state.remainingSeconds : 0;
+                final remaining = state is ExamTakingLoaded
+                    ? state.remainingSeconds
+                    : 0;
                 final minutes = (remaining ~/ 60).toString().padLeft(2, '0');
                 final seconds = (remaining % 60).toString().padLeft(2, '0');
                 return Row(
@@ -119,9 +120,9 @@ class ExamTakingScreen extends StatelessWidget {
                                   answeredCount: state.selectedAnswers.length,
                                   onSubmit: () {
                                     Navigator.of(ctx).pop();
-                                    context
-                                        .read<ExamTakingBloc>()
-                                        .add(const SubmitExam());
+                                    context.read<ExamTakingBloc>().add(
+                                      const SubmitExam(),
+                                    );
                                   },
                                   onReview: () => Navigator.of(ctx).pop(),
                                 ),
@@ -168,10 +169,7 @@ class ExamTakingScreen extends StatelessWidget {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(
-                        state.message,
-                        textAlign: TextAlign.center,
-                      ),
+                      child: Text(state.message, textAlign: TextAlign.center),
                     ),
                   );
                 }
@@ -232,7 +230,7 @@ class ExamTakingScreen extends StatelessWidget {
                                         child: Image.network(
                                           question.imageUrl!,
                                           fit: BoxFit.contain,
-                                          errorBuilder: (_, __, ___) =>
+                                          errorBuilder: (_, _, _) =>
                                               const SizedBox.shrink(),
                                         ),
                                       ),
@@ -251,13 +249,13 @@ class ExamTakingScreen extends StatelessWidget {
                               text: option.text,
                               selected:
                                   state.selectedAnswers[state.currentIndex] ==
-                                      option.id,
+                                  option.id,
                               onTap: () => context.read<ExamTakingBloc>().add(
-                                    SelectAnswer(
-                                      questionIndex: state.currentIndex,
-                                      optionId: option.id,
-                                    ),
-                                  ),
+                                SelectAnswer(
+                                  questionIndex: state.currentIndex,
+                                  optionId: option.id,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -397,10 +395,7 @@ class _ExamFormattedText extends StatelessWidget {
   final String text;
   final TextStyle style;
 
-  const _ExamFormattedText(
-    this.text, {
-    required this.style,
-  });
+  const _ExamFormattedText(this.text, {required this.style});
 
   @override
   Widget build(BuildContext context) {
@@ -461,10 +456,7 @@ List<_TextPart> _splitMath(String value) {
 }
 
 String _normalizeText(String value) {
-  return value
-      .replaceAll(r'\n', '\n')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
+  return value.replaceAll(r'\n', '\n').replaceAll(RegExp(r'\s+'), ' ').trim();
 }
 
 String _stripOptionLabel(String value) {

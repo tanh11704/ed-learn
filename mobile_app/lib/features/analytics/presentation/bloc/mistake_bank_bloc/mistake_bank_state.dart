@@ -44,15 +44,15 @@ class MistakeItem extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        subject,
-        tag,
-        title,
-        question,
-        dateLabel,
-        attemptsLabel,
-        hint,
-        wrongAnswer,
-        correctAnswer,
-      ];
+    id,
+    subject,
+    tag,
+    title,
+    question,
+    dateLabel,
+    attemptsLabel,
+    hint,
+    wrongAnswer,
+    correctAnswer,
+  ];
 }

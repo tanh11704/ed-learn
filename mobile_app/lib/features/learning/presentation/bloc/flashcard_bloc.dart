@@ -41,10 +41,12 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         flashcards: flashcards,
       );
 
-      emit(FlashcardLoaded(
-        flashcardSet: flashcardSet,
-        filteredFlashcards: flashcards,
-      ));
+      emit(
+        FlashcardLoaded(
+          flashcardSet: flashcardSet,
+          filteredFlashcards: flashcards,
+        ),
+      );
     } catch (e) {
       emit(FlashcardError(message: 'Lỗi load flashcard: ${e.toString()}'));
     }
@@ -58,10 +60,12 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     if (state is FlashcardLoaded) {
       final currentState = state as FlashcardLoaded;
       if (currentState.hasNext) {
-        emit(currentState.copyWith(
-          currentIndex: currentState.currentIndex + 1,
-          isFlipped: false, // Reset flip khi sang card mới
-        ));
+        emit(
+          currentState.copyWith(
+            currentIndex: currentState.currentIndex + 1,
+            isFlipped: false, // Reset flip khi sang card mới
+          ),
+        );
       } else {
         // Đã tới card cuối cùng, hoàn thành
         _emitCompletionState(currentState, emit);
@@ -77,26 +81,30 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     if (state is FlashcardLoaded) {
       final currentState = state as FlashcardLoaded;
       if (currentState.hasPrevious) {
-        emit(currentState.copyWith(
-          currentIndex: currentState.currentIndex - 1,
-          isFlipped: false,
-        ));
+        emit(
+          currentState.copyWith(
+            currentIndex: currentState.currentIndex - 1,
+            isFlipped: false,
+          ),
+        );
       }
     }
   }
 
   /// Flip card (lật giữa mặt trước và mặt sau)
-  Future<void> _onFlipCard(
-    FlipCard event,
-    Emitter<FlashcardState> emit,
-  ) async {
+  Future<void> _onFlipCard(FlipCard event, Emitter<FlashcardState> emit) async {
     if (state is FlashcardLoaded) {
       final currentState = state as FlashcardLoaded;
       final nowFlipped = !currentState.isFlipped;
       // If user flips to the back side, count as a review
       final reviewedCount = currentState.reviewedCount + (nowFlipped ? 1 : 0);
 
-      emit(currentState.copyWith(isFlipped: nowFlipped, reviewedCount: reviewedCount));
+      emit(
+        currentState.copyWith(
+          isFlipped: nowFlipped,
+          reviewedCount: reviewedCount,
+        ),
+      );
     }
   }
 
@@ -132,26 +140,33 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lastReviewedAt: DateTime.now(),
       );
 
-      final updatedFlashcards = List<Flashcard>.from(currentState.filteredFlashcards);
+      final updatedFlashcards = List<Flashcard>.from(
+        currentState.filteredFlashcards,
+      );
       updatedFlashcards[currentState.currentIndex] = updatedFlashcard;
 
-      final masteredCount =
-          updatedFlashcards.where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9).length;
-      final progress = updatedFlashcards.isNotEmpty ? masteredCount / updatedFlashcards.length : 0.0;
+      final masteredCount = updatedFlashcards
+          .where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9)
+          .length;
+      final progress = updatedFlashcards.isNotEmpty
+          ? masteredCount / updatedFlashcards.length
+          : 0.0;
 
       // Increase reviewedCount metric
       final reviewedCount = currentState.reviewedCount + 1;
 
       // Auto-advance: nếu còn card tiếp theo -> next; nếu không -> complete
       if (currentState.hasNext) {
-        emit(currentState.copyWith(
-          filteredFlashcards: updatedFlashcards,
-          progress: progress,
-          masteredCount: masteredCount,
-          reviewedCount: reviewedCount,
-          currentIndex: currentState.currentIndex + 1,
-          isFlipped: false,
-        ));
+        emit(
+          currentState.copyWith(
+            filteredFlashcards: updatedFlashcards,
+            progress: progress,
+            masteredCount: masteredCount,
+            reviewedCount: reviewedCount,
+            currentIndex: currentState.currentIndex + 1,
+            isFlipped: false,
+          ),
+        );
       } else {
         // complete set
         final completionState = currentState.copyWith(
@@ -165,9 +180,6 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     }
   }
 
-
-
-
   /// Shuffle các flashcard
   Future<void> _onShuffleFlashcards(
     ShuffleFlashcards event,
@@ -175,13 +187,17 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   ) async {
     if (state is FlashcardLoaded) {
       final currentState = state as FlashcardLoaded;
-      final shuffledFlashcards = List<Flashcard>.from(currentState.filteredFlashcards)..shuffle();
+      final shuffledFlashcards = List<Flashcard>.from(
+        currentState.filteredFlashcards,
+      )..shuffle();
 
-      emit(currentState.copyWith(
-        filteredFlashcards: shuffledFlashcards,
-        currentIndex: 0,
-        isFlipped: false,
-      ));
+      emit(
+        currentState.copyWith(
+          filteredFlashcards: shuffledFlashcards,
+          currentIndex: 0,
+          isFlipped: false,
+        ),
+      );
     }
   }
 
@@ -204,21 +220,25 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
     if (state is FlashcardLoaded) {
       final currentState = state as FlashcardLoaded;
       final resetFlashcards = currentState.filteredFlashcards
-          .map((f) => f.copyWith(
-                confidenceScore: null,
-                reviewCount: 0,
-                lastReviewedAt: null,
-              ))
+          .map(
+            (f) => f.copyWith(
+              confidenceScore: null,
+              reviewCount: 0,
+              lastReviewedAt: null,
+            ),
+          )
           .toList();
 
-      emit(currentState.copyWith(
-        filteredFlashcards: resetFlashcards,
-        currentIndex: 0,
-        isFlipped: false,
-        progress: 0.0,
-        masteredCount: 0,
-        reviewedCount: 0,
-      ));
+      emit(
+        currentState.copyWith(
+          filteredFlashcards: resetFlashcards,
+          currentIndex: 0,
+          isFlipped: false,
+          progress: 0.0,
+          masteredCount: 0,
+          reviewedCount: 0,
+        ),
+      );
     }
   }
 
@@ -233,7 +253,12 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
 
       List<Flashcard> filtered = allFlashcards;
       if (event.difficulty != 'all') {
-        filtered = allFlashcards.where((f) => f.difficulty.toString().split('.').last == event.difficulty).toList();
+        filtered = allFlashcards
+            .where(
+              (f) =>
+                  f.difficulty.toString().split('.').last == event.difficulty,
+            )
+            .toList();
       }
 
       // Apply status filter nếu đã filter
@@ -241,12 +266,14 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         filtered = _applyStatusFilter(filtered, currentState.filterStatus);
       }
 
-      emit(currentState.copyWith(
-        filteredFlashcards: filtered,
-        filterDifficulty: event.difficulty,
-        currentIndex: 0,
-        isFlipped: false,
-      ));
+      emit(
+        currentState.copyWith(
+          filteredFlashcards: filtered,
+          filterDifficulty: event.difficulty,
+          currentIndex: 0,
+          isFlipped: false,
+        ),
+      );
     }
   }
 
@@ -259,44 +286,63 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
       final currentState = state as FlashcardLoaded;
       final allFlashcards = currentState.flashcardSet.flashcards;
 
-      List<Flashcard> filtered = _applyStatusFilter(allFlashcards, event.status);
+      List<Flashcard> filtered = _applyStatusFilter(
+        allFlashcards,
+        event.status,
+      );
 
       // Apply difficulty filter nếu đã filter
       if (currentState.filterDifficulty != 'all') {
         filtered = filtered
-            .where((f) => f.difficulty.toString().split('.').last == currentState.filterDifficulty)
+            .where(
+              (f) =>
+                  f.difficulty.toString().split('.').last ==
+                  currentState.filterDifficulty,
+            )
             .toList();
       }
 
-      emit(currentState.copyWith(
-        filteredFlashcards: filtered,
-        filterStatus: event.status,
-        currentIndex: 0,
-        isFlipped: false,
-      ));
+      emit(
+        currentState.copyWith(
+          filteredFlashcards: filtered,
+          filterStatus: event.status,
+          currentIndex: 0,
+          isFlipped: false,
+        ),
+      );
     }
   }
 
   /// Helper: Tính toán state hoàn thành
-  void _emitCompletionState(FlashcardLoaded currentState, Emitter<FlashcardState> emit) {
+  void _emitCompletionState(
+    FlashcardLoaded currentState,
+    Emitter<FlashcardState> emit,
+  ) {
     final totalFlashcards = currentState.filteredFlashcards.length;
     final masteredCount = currentState.filteredFlashcards
         .where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9)
         .length;
     final finalScore = masteredCount / totalFlashcards;
 
-    emit(FlashcardCompleted(
-      flashcardSet: currentState.flashcardSet,
-      totalFlashcards: totalFlashcards,
-      masteredCount: masteredCount,
-      finalScore: finalScore,
-    ));
+    emit(
+      FlashcardCompleted(
+        flashcardSet: currentState.flashcardSet,
+        totalFlashcards: totalFlashcards,
+        masteredCount: masteredCount,
+        finalScore: finalScore,
+      ),
+    );
   }
 
   /// Helper: Apply status filter
-  List<Flashcard> _applyStatusFilter(List<Flashcard> flashcards, String status) {
+  List<Flashcard> _applyStatusFilter(
+    List<Flashcard> flashcards,
+    String status,
+  ) {
     if (status == 'mastered') {
-      return flashcards.where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9).toList();
+      return flashcards
+          .where((f) => f.confidenceScore != null && f.confidenceScore! >= 0.9)
+          .toList();
     } else if (status == 'needsReview') {
       return flashcards.where((f) => f.needsReview).toList();
     }
@@ -304,7 +350,7 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
   }
 
   /// Mock data - Thay bằng API sau
-  List<Flashcard> _mockFlashcards(String lessonId, String moduleName) {
+  List<Flashcard> mockFlashcards(String lessonId, String moduleName) {
     return [
       Flashcard(
         id: '1',
@@ -313,7 +359,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lessonId: lessonId,
         moduleName: moduleName,
         difficulty: FlashcardDifficulty.easy,
-        explanation: 'Paris is the capital and most populous city of France. It is located in the north-central part of the country.',
+        explanation:
+            'Paris is the capital and most populous city of France. It is located in the north-central part of the country.',
       ),
       Flashcard(
         id: '2',
@@ -322,7 +369,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lessonId: lessonId,
         moduleName: moduleName,
         difficulty: FlashcardDifficulty.easy,
-        explanation: 'Jupiter is the largest planet in our solar system with a mass of 1.898 × 10^27 kg.',
+        explanation:
+            'Jupiter is the largest planet in our solar system with a mass of 1.898 × 10^27 kg.',
       ),
       Flashcard(
         id: '3',
@@ -331,7 +379,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lessonId: lessonId,
         moduleName: moduleName,
         difficulty: FlashcardDifficulty.medium,
-        explanation: 'William Shakespeare wrote Romeo and Juliet, one of his most famous tragedies, around 1594-1596.',
+        explanation:
+            'William Shakespeare wrote Romeo and Juliet, one of his most famous tragedies, around 1594-1596.',
       ),
       Flashcard(
         id: '4',
@@ -340,7 +389,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lessonId: lessonId,
         moduleName: moduleName,
         difficulty: FlashcardDifficulty.hard,
-        explanation: '2 is the only even prime number and the smallest prime number in mathematics.',
+        explanation:
+            '2 is the only even prime number and the smallest prime number in mathematics.',
       ),
       Flashcard(
         id: '5',
@@ -349,7 +399,8 @@ class FlashcardBloc extends Bloc<FlashcardEvent, FlashcardState> {
         lessonId: lessonId,
         moduleName: moduleName,
         difficulty: FlashcardDifficulty.medium,
-        explanation: 'Gold (Au) comes from the Latin word "aurum" and is a precious metal.',
+        explanation:
+            'Gold (Au) comes from the Latin word "aurum" and is a precious metal.',
       ),
     ];
   }

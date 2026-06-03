@@ -10,13 +10,13 @@ class LessonListTile extends StatelessWidget {
   final VoidCallback? onTap;
 
   const LessonListTile({
-    Key? key,
+    super.key,
     required this.lessonName,
     required this.duration,
     required this.status,
     this.progress,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,13 +60,9 @@ class LessonListTile extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha: 0.1),
               ),
-              child: Icon(
-                iconData,
-                color: iconColor,
-                size: 24,
-              ),
+              child: Icon(iconData, color: iconColor, size: 24),
             ),
             const SizedBox(width: 12),
             // Lesson info
@@ -95,10 +91,7 @@ class LessonListTile extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         duration,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                       if (progress != null) ...[
                         const SizedBox(width: 8),
@@ -116,11 +109,7 @@ class LessonListTile extends StatelessWidget {
               ),
             ),
             // Arrow icon for available lessons
-            if (!isLocked)
-              Icon(
-                Icons.chevron_right,
-                color: Colors.grey[400],
-              ),
+            if (!isLocked) Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],
         ),
       ),

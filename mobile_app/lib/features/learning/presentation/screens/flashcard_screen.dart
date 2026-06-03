@@ -12,11 +12,11 @@ class FlashcardScreen extends StatefulWidget {
   final String moduleName;
 
   const FlashcardScreen({
-    Key? key,
+    super.key,
     required this.lessonId,
     this.lessonName = 'Flashcard',
     required this.moduleName,
-  }) : super(key: key);
+  });
 
   @override
   State<FlashcardScreen> createState() => _FlashcardScreenState();
@@ -28,11 +28,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     super.initState();
     // Load flashcards khi screen load
     context.read<FlashcardBloc>().add(
-          LoadFlashcards(
-            lessonId: widget.lessonId,
-            moduleName: widget.moduleName,
-          ),
-        );
+      LoadFlashcards(lessonId: widget.lessonId, moduleName: widget.moduleName),
+    );
   }
 
   @override
@@ -53,28 +50,34 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
             ),
           );
 
+          if (!context.mounted) return;
+
           if (result == 'retry') {
             context.read<FlashcardBloc>().add(ResetProgress());
             context.read<FlashcardBloc>().add(
-                  LoadFlashcards(
-                    lessonId: widget.lessonId,
-                    moduleName: widget.moduleName,
-                  ),
-                );
+              LoadFlashcards(
+                lessonId: widget.lessonId,
+                moduleName: widget.moduleName,
+              ),
+            );
           } else if (result == 'back' || result == null) {
             Navigator.pop(context);
           }
         }
         if (state is FlashcardError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: WillPopScope(
-        onWillPop: () async {
-          // Xác nhận trước khi quay lại
-          return await _showExitConfirmation(context) ?? false;
+      child: PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, result) async {
+          if (didPop) return;
+          final shouldPop = await _showExitConfirmation(context) ?? false;
+          if (shouldPop && context.mounted) {
+            Navigator.pop(context);
+          }
         },
         child: Scaffold(
           backgroundColor: Colors.grey[100],
@@ -90,9 +93,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               }
 
               if (state is FlashcardError) {
-                return Center(
-                  child: Text(state.message),
-                );
+                return Center(child: Text(state.message));
               }
 
               return const SizedBox.shrink();
@@ -270,7 +271,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -364,7 +365,8 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                                     ),
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'EXAMPLE',
@@ -407,7 +409,11 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    flashcard.difficulty.toString().split('.').last.toUpperCase(),
+                    flashcard.difficulty
+                        .toString()
+                        .split('.')
+                        .last
+                        .toUpperCase(),
                     style: TextStyle(
                       color: _getDifficultyColor(flashcard.difficulty)[700],
                       fontSize: 11,
@@ -428,17 +434,10 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
                 children: [
                   const Text(
                     'Tap to flip card',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
-                  Icon(
-                    Icons.flip,
-                    color: Colors.grey[400],
-                    size: 20,
-                  ),
+                  Icon(Icons.flip, color: Colors.grey[400], size: 20),
                 ],
               ),
             ),
@@ -498,14 +497,16 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
     return GestureDetector(
       onTap: () {
         // Use difficulty label only; bloc will map to confidence and auto-advance
-        context.read<FlashcardBloc>().add(RateFlashcard(difficulty: label.toLowerCase()));
+        context.read<FlashcardBloc>().add(
+          RateFlashcard(difficulty: label.toLowerCase()),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           children: [
@@ -558,7 +559,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         GestureDetector(
           onTap: () {
             // Mark as need review -> treat as 'Hard'
-            context.read<FlashcardBloc>().add(RateFlashcard(difficulty: 'hard'));
+            context.read<FlashcardBloc>().add(
+              RateFlashcard(difficulty: 'hard'),
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -566,11 +569,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child: Icon(
-              Icons.refresh,
-              size: 20,
-              color: Colors.grey[500],
-            ),
+            child: Icon(Icons.refresh, size: 20, color: Colors.grey[500]),
           ),
         ),
 
@@ -580,7 +579,9 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
         GestureDetector(
           onTap: () {
             // Mark as mastered/bookmark -> treat as 'Easy'
-            context.read<FlashcardBloc>().add(RateFlashcard(difficulty: 'easy'));
+            context.read<FlashcardBloc>().add(
+              RateFlashcard(difficulty: 'easy'),
+            );
           },
           child: Container(
             padding: const EdgeInsets.all(12),
@@ -588,11 +589,7 @@ class _FlashcardScreenState extends State<FlashcardScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child: Icon(
-              Icons.star_outline,
-              size: 20,
-              color: Colors.grey[500],
-            ),
+            child: Icon(Icons.star_outline, size: 20, color: Colors.grey[500]),
           ),
         ),
 

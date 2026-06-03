@@ -87,20 +87,20 @@ class _ExamSolutionDetailScreenState extends State<ExamSolutionDetailScreen> {
             }
 
             final hasCorrectAnswer = questions.any(
-              (question) => question.options.any(
-                (option) => option.isCorrect != null,
-              ),
+              (question) =>
+                  question.options.any((option) => option.isCorrect != null),
             );
 
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               itemCount: questions.length + (hasCorrectAnswer ? 0 : 1),
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 if (!hasCorrectAnswer && index == 0) {
                   return const _ReviewNotice();
                 }
-                final question = questions[hasCorrectAnswer ? index : index - 1];
+                final question =
+                    questions[hasCorrectAnswer ? index : index - 1];
                 return _ReviewQuestionCard(
                   number: hasCorrectAnswer ? index + 1 : index,
                   total: questions.length,
@@ -318,10 +318,7 @@ List<_TextPart> _splitMath(String value) {
 }
 
 String _normalizeText(String value) {
-  return value
-      .replaceAll(r'\n', '\n')
-      .replaceAll(RegExp(r'\s+'), ' ')
-      .trim();
+  return value.replaceAll(r'\n', '\n').replaceAll(RegExp(r'\s+'), ' ').trim();
 }
 
 String _stripOptionLabel(String value) {

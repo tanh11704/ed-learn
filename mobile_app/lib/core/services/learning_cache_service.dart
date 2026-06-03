@@ -44,7 +44,10 @@ class LearningCacheService {
 
   Future<void> cacheCourseDetail(CourseDetail detail) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_courseDetailKey(detail.id), jsonEncode(detail.toJson()));
+    await prefs.setString(
+      _courseDetailKey(detail.id),
+      jsonEncode(detail.toJson()),
+    );
     await prefs.setInt(
       _courseDetailTimeKey(detail.id),
       DateTime.now().millisecondsSinceEpoch,
@@ -114,6 +117,7 @@ class LearningCacheService {
   }
 
   String _courseDetailKey(String courseId) => 'cached_course_detail_$courseId';
-  String _courseDetailTimeKey(String courseId) => 'cached_course_detail_time_$courseId';
+  String _courseDetailTimeKey(String courseId) =>
+      'cached_course_detail_time_$courseId';
   String _completedLessonsKey(String courseId) => 'completed_lessons_$courseId';
 }

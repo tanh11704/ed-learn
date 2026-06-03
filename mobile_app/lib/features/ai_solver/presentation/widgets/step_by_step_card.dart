@@ -67,10 +67,7 @@ class StepByStepCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            description,
-            style: AppTextStyles.bodyMedium,
-          ),
+          Text(description, style: AppTextStyles.bodyMedium),
           if (formula != null) ...[
             const SizedBox(height: 10),
             MathTextView(

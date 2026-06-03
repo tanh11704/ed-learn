@@ -44,15 +44,25 @@ class TaskProgressCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: isClaimable ? AppColors.primary : AppColors.primary.withValues(alpha: 0.08),
+                  color: isClaimable
+                      ? AppColors.primary
+                      : AppColors.primary.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: isClaimable ? Colors.transparent : AppColors.primary, width: 1.4),
+                  border: Border.all(
+                    color: isClaimable ? Colors.transparent : AppColors.primary,
+                    width: 1.4,
+                  ),
                 ),
                 child: Text(
                   buttonText,
@@ -78,7 +88,9 @@ class TaskProgressCard extends StatelessWidget {
             child: Text(
               progressText,
               style: AppTextStyles.caption.copyWith(
-                color: progress >= 1 ? Colors.green.shade700 : AppColors.textPrimary,
+                color: progress >= 1
+                    ? Colors.green.shade700
+                    : AppColors.textPrimary,
                 fontWeight: FontWeight.w600,
               ),
             ),

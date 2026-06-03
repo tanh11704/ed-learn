@@ -11,7 +11,7 @@ abstract class TaskRemoteDataSource {
 
 class TaskRemoteDataSourceImpl implements TaskRemoteDataSource {
   TaskRemoteDataSourceImpl({ApiClient? apiClient})
-      : _client = apiClient ?? ApiClient();
+    : _client = apiClient ?? ApiClient();
 
   final ApiClient _client;
 

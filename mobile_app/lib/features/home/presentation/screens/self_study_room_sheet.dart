@@ -50,7 +50,12 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
                     Navigator.pop(context);
                     router.go('/home/self-study/session');
                   },
-                  child: Text('Tạo', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary)),
+                  child: Text(
+                    'Tạo',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.primary,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -86,7 +91,11 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
                       color: AppColors.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.calculate, color: AppColors.primary, size: 16),
+                    child: const Icon(
+                      Icons.calculate,
+                      color: AppColors.primary,
+                      size: 16,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -95,7 +104,9 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
                         value: _selectedSubject,
                         isExpanded: true,
                         icon: const Icon(Icons.keyboard_arrow_down),
-                        style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textPrimary),
+                        style: AppTextStyles.bodyLarge.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                         items: _subjects
                             .map(
                               (subject) => DropdownMenuItem(
@@ -121,7 +132,8 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
               children: [
                 _ControlButton(
                   icon: Icons.remove,
-                  onTap: () => setState(() => _capacity = (_capacity - 1).clamp(5, 30)),
+                  onTap: () =>
+                      setState(() => _capacity = (_capacity - 1).clamp(5, 30)),
                 ),
                 const SizedBox(width: 12),
                 Column(
@@ -133,7 +145,8 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
                 const SizedBox(width: 12),
                 _ControlButton(
                   icon: Icons.add,
-                  onTap: () => setState(() => _capacity = (_capacity + 1).clamp(5, 30)),
+                  onTap: () =>
+                      setState(() => _capacity = (_capacity + 1).clamp(5, 30)),
                 ),
               ],
             ),
@@ -168,7 +181,10 @@ class _SelfStudyRoomSheetState extends State<SelfStudyRoomSheet> {
                       children: [
                         Text('Chế độ riêng tư', style: AppTextStyles.bodyLarge),
                         const SizedBox(height: 4),
-                        Text('Yêu cầu mật khẩu để vào phòng', style: AppTextStyles.caption),
+                        Text(
+                          'Yêu cầu mật khẩu để vào phòng',
+                          style: AppTextStyles.caption,
+                        ),
                       ],
                     ),
                   ),
@@ -239,7 +255,9 @@ class _CycleOption extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : AppColors.white,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.1)
+              : AppColors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,

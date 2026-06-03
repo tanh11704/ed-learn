@@ -37,9 +37,7 @@ class LearningPathScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 Text('Lộ trình tăng điểm', style: AppTextStyles.heading2),
                 const SizedBox(height: 12),
-                ...state.stages.map(
-                  (stage) => _StageCard(stage: stage),
-                ),
+                ...state.stages.map((stage) => _StageCard(stage: stage)),
               ],
             ),
           );
@@ -79,12 +77,16 @@ class _GoalHeader extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Hiện tại: ${prediction.score.toStringAsFixed(1)} điểm',
-            style: AppTextStyles.caption.copyWith(color: AppColors.white.withValues(alpha: 0.85)),
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.white.withValues(alpha: 0.85),
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             'Mục tiêu: ${(prediction.score + prediction.remainingScore).toStringAsFixed(1)} điểm',
-            style: AppTextStyles.caption.copyWith(color: AppColors.white.withValues(alpha: 0.85)),
+            style: AppTextStyles.caption.copyWith(
+              color: AppColors.white.withValues(alpha: 0.85),
+            ),
           ),
           const SizedBox(height: 12),
           LinearProgressIndicator(
@@ -135,12 +137,21 @@ class _StageCard extends StatelessWidget {
                 ),
                 child: Center(
                   child: isLocked
-                      ? const Icon(Icons.lock, size: 18, color: AppColors.textSecondary)
-                      : Text(stage.index.toString(), style: AppTextStyles.bodyMedium),
+                      ? const Icon(
+                          Icons.lock,
+                          size: 18,
+                          color: AppColors.textSecondary,
+                        )
+                      : Text(
+                          stage.index.toString(),
+                          style: AppTextStyles.bodyMedium,
+                        ),
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(child: Text(stage.title, style: AppTextStyles.bodyLarge)),
+              Expanded(
+                child: Text(stage.title, style: AppTextStyles.bodyLarge),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -150,7 +161,10 @@ class _StageCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: accentColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -158,18 +172,16 @@ class _StageCard extends StatelessWidget {
                   child: Text(
                     stage.actionLabel,
                     style: AppTextStyles.caption.copyWith(
-                      color: isLocked ? AppColors.textSecondary : AppColors.primary,
+                      color: isLocked
+                          ? AppColors.textSecondary
+                          : AppColors.primary,
                     ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               if (!isLocked)
-                PrimaryButton(
-                  text: 'Bắt đầu',
-                  width: 110,
-                  onPressed: () {},
-                ),
+                PrimaryButton(text: 'Bắt đầu', width: 110, onPressed: () {}),
             ],
           ),
         ],

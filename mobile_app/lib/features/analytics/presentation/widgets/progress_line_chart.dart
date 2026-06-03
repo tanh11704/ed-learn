@@ -6,10 +6,7 @@ import '../bloc/performance_bloc/performance_state.dart';
 class ProgressLineChart extends StatelessWidget {
   final List<ChartPoint> points;
 
-  const ProgressLineChart({
-    super.key,
-    required this.points,
-  });
+  const ProgressLineChart({super.key, required this.points});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,10 @@ class ProgressLineChart extends StatelessWidget {
                 .map(
                   (point) => Text(
                     point.label,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 )
                 .toList(),
@@ -93,5 +93,6 @@ class _LineChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _LineChartPainter oldDelegate) => oldDelegate.points != points;
+  bool shouldRepaint(covariant _LineChartPainter oldDelegate) =>
+      oldDelegate.points != points;
 }

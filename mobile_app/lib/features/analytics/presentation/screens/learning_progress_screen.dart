@@ -58,16 +58,24 @@ class LearningProgressScreen extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('Tăng trưởng theo tuần', style: AppTextStyles.bodyLarge),
+                          Text(
+                            'Tăng trưởng theo tuần',
+                            style: AppTextStyles.bodyLarge,
+                          ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.success.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               '+${progress.weeklyGrowth.toStringAsFixed(0)}%',
-                              style: AppTextStyles.caption.copyWith(color: AppColors.success),
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.success,
+                              ),
                             ),
                           ),
                         ],
@@ -75,7 +83,9 @@ class LearningProgressScreen extends StatelessWidget {
                       const SizedBox(height: 10),
                       Text(
                         '${progress.weeklyScore.toStringAsFixed(0)}/100',
-                        style: AppTextStyles.heading2.copyWith(color: AppColors.primary),
+                        style: AppTextStyles.heading2.copyWith(
+                          color: AppColors.primary,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       ProgressLineChart(points: progress.chartPoints),
@@ -87,7 +97,12 @@ class LearningProgressScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Lịch sử bài kiểm tra', style: AppTextStyles.heading2),
-                    Text('Tất cả', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                    Text(
+                      'Tất cả',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -108,7 +123,10 @@ class LearningProgressScreen extends StatelessWidget {
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.menu_book, color: AppColors.primary),
+                          child: const Icon(
+                            Icons.menu_book,
+                            color: AppColors.primary,
+                          ),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -117,15 +135,26 @@ class LearningProgressScreen extends StatelessWidget {
                             children: [
                               Text(item.title, style: AppTextStyles.bodyLarge),
                               const SizedBox(height: 4),
-                              Text(item.dateLabel, style: AppTextStyles.caption),
+                              Text(
+                                item.dateLabel,
+                                style: AppTextStyles.caption,
+                              ),
                             ],
                           ),
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(item.score.toStringAsFixed(1), style: AppTextStyles.bodyLarge),
-                            Text(item.status, style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+                            Text(
+                              item.score.toStringAsFixed(1),
+                              style: AppTextStyles.bodyLarge,
+                            ),
+                            Text(
+                              item.status,
+                              style: AppTextStyles.caption.copyWith(
+                                color: AppColors.success,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -169,7 +198,10 @@ class _SummaryBox extends StatelessWidget {
             children: [
               Text(value, style: AppTextStyles.heading2),
               const SizedBox(width: 6),
-              Text(change, style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+              Text(
+                change,
+                style: AppTextStyles.caption.copyWith(color: AppColors.success),
+              ),
             ],
           ),
         ],

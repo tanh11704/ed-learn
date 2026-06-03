@@ -30,7 +30,10 @@ class SettingsTile extends StatelessWidget {
         ),
         child: Icon(icon, size: 16, color: AppColors.primary),
       ),
-      title: Text(title, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary)),
+      title: Text(
+        title,
+        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+      ),
       trailing: trailingText != null
           ? Text(trailingText!, style: AppTextStyles.caption)
           : const Icon(Icons.chevron_right, color: AppColors.textSecondary),

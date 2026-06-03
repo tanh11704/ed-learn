@@ -16,13 +16,8 @@ class CropOverlayPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final rect = cropRect ??
-        Rect.fromLTWH(
-          24,
-          24,
-          size.width - 48,
-          size.height - 48,
-        );
+    final rect =
+        cropRect ?? Rect.fromLTWH(24, 24, size.width - 48, size.height - 48);
 
     final borderPaint = Paint()
       ..color = borderColor

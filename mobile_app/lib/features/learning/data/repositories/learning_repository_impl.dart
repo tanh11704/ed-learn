@@ -40,7 +40,10 @@ class LearningRepositoryImpl implements LearningRepository {
   }
 
   @override
-  Future<CourseDetail> getCourseDetail(String courseId, {bool forceRefresh = false}) async {
+  Future<CourseDetail> getCourseDetail(
+    String courseId, {
+    bool forceRefresh = false,
+  }) async {
     if (!forceRefresh) {
       final cached = await cacheService.getCachedCourseDetail(courseId);
       if (cached != null) {

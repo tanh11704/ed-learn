@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -15,9 +15,16 @@ class TargetUniversityScreen extends StatefulWidget {
 }
 
 class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
-    late final Future<List<UniversityUi>> _universitiesFuture;
+  late final Future<List<UniversityUi>> _universitiesFuture;
 
-  final List<String> _examBlocks = const ['A00', 'A01', 'D01', 'B00', 'C00', 'D07'];
+  final List<String> _examBlocks = const [
+    'A00',
+    'A01',
+    'D01',
+    'B00',
+    'C00',
+    'D07',
+  ];
 
   int _selectedUniversity = 0;
   String _selectedExamBlock = 'A00';
@@ -25,14 +32,23 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
   @override
   void initState() {
     super.initState();
-        _universitiesFuture = Future.value(const [
+    _universitiesFuture = Future.value(const [
       UniversityUi(id: 1, name: 'Đại học Bách Khoa Hà Nội', location: 'Hà Nội'),
       UniversityUi(id: 2, name: 'Đại học Quốc gia Hà Nội', location: 'Hà Nội'),
       UniversityUi(id: 3, name: 'Đại học Ngoại thương', location: 'Hà Nội'),
       UniversityUi(id: 4, name: 'Đại học Kinh tế Quốc dân', location: 'Hà Nội'),
-      UniversityUi(id: 5, name: 'Đại học Bách Khoa TP.HCM', location: 'TP. Hồ Chí Minh'),
-      UniversityUi(id: 6, name: 'Đại học Quốc gia TP.HCM', location: 'TP. Hồ Chí Minh'),
-    ]);    AssessmentSelectionStore.selectedExamBlock.value = _selectedExamBlock;
+      UniversityUi(
+        id: 5,
+        name: 'Đại học Bách Khoa TP.HCM',
+        location: 'TP. Hồ Chí Minh',
+      ),
+      UniversityUi(
+        id: 6,
+        name: 'Đại học Quốc gia TP.HCM',
+        location: 'TP. Hồ Chí Minh',
+      ),
+    ]);
+    AssessmentSelectionStore.selectedExamBlock.value = _selectedExamBlock;
   }
 
   @override
@@ -43,7 +59,10 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -52,7 +71,10 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
             }
           },
         ),
-        title: Text('Chọn trường Đại học mục tiêu', style: AppTextStyles.heading2),
+        title: Text(
+          'Chọn trường Đại học mục tiêu',
+          style: AppTextStyles.heading2,
+        ),
         centerTitle: true,
       ),
       body: SafeArea(
@@ -80,10 +102,20 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Trường đại học phổ biến', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    'Trường đại học phổ biến',
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   TextButton(
                     onPressed: () => context.push('/assessment/universities'),
-                    child: Text('Xem tất cả', style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                    child: Text(
+                      'Xem tất cả',
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -99,14 +131,20 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
 
                     if (snapshot.hasError) {
                       return Center(
-                        child: Text('Không tải được dữ liệu trường.', style: AppTextStyles.caption),
+                        child: Text(
+                          'Không tải được dữ liệu trường.',
+                          style: AppTextStyles.caption,
+                        ),
                       );
                     }
 
                     final universities = snapshot.data ?? [];
                     if (universities.isEmpty) {
                       return Center(
-                        child: Text('Chưa có dữ liệu trường.', style: AppTextStyles.caption),
+                        child: Text(
+                          'Chưa có dữ liệu trường.',
+                          style: AppTextStyles.caption,
+                        ),
                       );
                     }
 
@@ -122,18 +160,28 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
                           name: item.name,
                           location: item.location,
                           selected: _selectedUniversity == index,
-                          onTap: () => setState(() => _selectedUniversity = index),
+                          onTap: () =>
+                              setState(() => _selectedUniversity = index),
                         );
                       },
-                      separatorBuilder: (context, index) => const SizedBox(width: 12),
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 12),
                       itemCount: universities.length,
                     );
                   },
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Chọn Khối Thi', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
-              Text('Chọn Tổ Hợp Môn Phù Hợp Với Trường Của Bạn', style: AppTextStyles.caption),
+              Text(
+                'Chọn Khối Thi',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                'Chọn Tổ Hợp Môn Phù Hợp Với Trường Của Bạn',
+                style: AppTextStyles.caption,
+              ),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
@@ -145,7 +193,8 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
                         selected: _selectedExamBlock == item,
                         onTap: () {
                           setState(() => _selectedExamBlock = item);
-                          AssessmentSelectionStore.selectedExamBlock.value = item;
+                          AssessmentSelectionStore.selectedExamBlock.value =
+                              item;
                         },
                       ),
                     )
@@ -165,7 +214,9 @@ class _TargetUniversityScreenState extends State<TargetUniversityScreen> {
                     Expanded(
                       child: Text(
                         'Hệ thống sẽ dựa trên khối thi và mục tiêu trường của bạn để đề xuất lộ trình ôn tập cá nhân hóa.',
-                        style: AppTextStyles.caption.copyWith(color: AppColors.textPrimary),
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ],
@@ -208,7 +259,9 @@ class _UniversityCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.primaryLight : AppColors.white,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: selected ? AppColors.primary : AppColors.border),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,14 +274,19 @@ class _UniversityCard extends StatelessWidget {
                 color: AppColors.primaryLight,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(Icons.school, color: selected ? AppColors.primaryDark : AppColors.primary),
+              child: Icon(
+                Icons.school,
+                color: selected ? AppColors.primaryDark : AppColors.primary,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               name,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+              style: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 4),
             Text(location, style: AppTextStyles.caption),
@@ -240,7 +298,11 @@ class _UniversityCard extends StatelessWidget {
 }
 
 class _ExamChip extends StatelessWidget {
-  const _ExamChip({required this.label, this.selected = false, required this.onTap});
+  const _ExamChip({
+    required this.label,
+    this.selected = false,
+    required this.onTap,
+  });
 
   final String label;
   final bool selected;
@@ -256,7 +318,9 @@ class _ExamChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : AppColors.white,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: selected ? AppColors.primary : AppColors.border),
+          border: Border.all(
+            color: selected ? AppColors.primary : AppColors.border,
+          ),
         ),
         child: Text(
           label,
@@ -269,7 +333,3 @@ class _ExamChip extends StatelessWidget {
     );
   }
 }
-
-
-
-

@@ -90,7 +90,8 @@ class MockAssessmentData {
       'content': 'Phân tử nước (H₂O) có bao nhiêu nguyên tử?',
       'options': ['A. 1', 'B. 2', 'C. 3', 'D. 4'],
       'correctAnswer': 'C',
-      'explanation': 'H₂O gồm 2 nguyên tử Hydrogen + 1 nguyên tử Oxygen = 3 nguyên tử',
+      'explanation':
+          'H₂O gồm 2 nguyên tử Hydrogen + 1 nguyên tử Oxygen = 3 nguyên tử',
       'difficulty': 'easy',
     },
   ];

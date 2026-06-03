@@ -23,8 +23,9 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: alignment,
       child: Column(
-        crossAxisAlignment:
-            isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: isUser
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -47,10 +48,7 @@ class ChatBubble extends StatelessWidget {
           if (timeLabel != null)
             Padding(
               padding: const EdgeInsets.only(top: 2),
-              child: Text(
-                timeLabel!,
-                style: AppTextStyles.caption,
-              ),
+              child: Text(timeLabel!, style: AppTextStyles.caption),
             ),
         ],
       ),

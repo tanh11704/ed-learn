@@ -15,7 +15,8 @@ class ExamResultScreen extends StatelessWidget {
     final score = result?.score;
     final maxScore = result?.maxScore;
     final scoreText = score == null ? '—' : score.toStringAsFixed(1);
-    final message = result?.message ??
+    final message =
+        result?.message ??
         'Bạn đã hoàn thành bài thi. Bấm xem lại bài làm để kiểm tra đáp án.';
 
     return Scaffold(

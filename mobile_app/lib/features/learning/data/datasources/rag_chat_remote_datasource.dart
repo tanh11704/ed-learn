@@ -6,7 +6,8 @@ import 'package:mobile_app/core/network/api_config.dart';
 class RagChatRemoteDataSource {
   final http.Client _client;
 
-  RagChatRemoteDataSource({http.Client? client}) : _client = client ?? http.Client();
+  RagChatRemoteDataSource({http.Client? client})
+    : _client = client ?? http.Client();
 
   Future<RagChatResponse> chat({
     required String courseId,
@@ -17,7 +18,7 @@ class RagChatRemoteDataSource {
     final response = await _client
         .post(
           Uri.parse('${ApiConfig.aiServiceBaseUrl}/api/v1/chat'),
-          headers: const {
+          headers: {
             'Content-Type': 'application/json',
             'X-AI-Service-Key': ApiConfig.aiServiceKey,
           },
@@ -27,10 +28,12 @@ class RagChatRemoteDataSource {
             if (lessonId != null && lessonId.isNotEmpty) 'lesson_id': lessonId,
             'question': question,
             'chat_history': chatHistory
-                .map((message) => {
-                      'role': message.role,
-                      'content': message.content,
-                    })
+                .map(
+                  (message) => {
+                    'role': message.role,
+                    'content': message.content,
+                  },
+                )
                 .toList(),
           }),
         )
@@ -51,7 +54,9 @@ class RagChatRemoteDataSource {
     }
     if (statusCode == 401) return 'Không có quyền gọi AI service.';
     if (statusCode == 422) return 'Nội dung gửi lên chưa đúng định dạng.';
-    if (statusCode == 503) return 'AI tạm thời chưa sẵn sàng. Vui lòng thử lại.';
+    if (statusCode == 503) {
+      return 'AI tạm thời chưa sẵn sàng. Vui lòng thử lại.';
+    }
     return 'AI service lỗi HTTP $statusCode.';
   }
 }

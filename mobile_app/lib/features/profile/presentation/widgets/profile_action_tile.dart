@@ -48,7 +48,12 @@ class ProfileActionTile extends StatelessWidget {
                 children: [
                   Text(title, style: AppTextStyles.bodyLarge),
                   if (subtitle != null)
-                    Text(subtitle!, style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+                    Text(
+                      subtitle!,
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                 ],
               ),
             ),

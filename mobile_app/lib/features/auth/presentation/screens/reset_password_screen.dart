@@ -13,7 +13,8 @@ class ResetPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return AuthScaffold(
       title: 'Tạo mật khẩu mới',
-      subtitle: 'Mật khẩu mới của bạn phải khác với các mật khẩu đã sử dụng trước đó.',
+      subtitle:
+          'Mật khẩu mới của bạn phải khác với các mật khẩu đã sử dụng trước đó.',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -27,7 +28,11 @@ class ResetPasswordScreen extends StatelessWidget {
           const AuthTextField(
             label: 'Độ mạnh mật khẩu',
             hintText: 'Mạnh',
-            suffix: Icon(Icons.check_circle, size: 18, color: AppColors.success),
+            suffix: Icon(
+              Icons.check_circle,
+              size: 18,
+              color: AppColors.success,
+            ),
           ),
           const SizedBox(height: 16),
           Container(

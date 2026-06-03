@@ -17,7 +17,10 @@ class ResultAnalysisScreen extends StatelessWidget {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () {
             if (context.canPop()) {
               context.pop();
@@ -47,8 +50,16 @@ class ResultAnalysisScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Tổng điểm', style: AppTextStyles.caption),
-                      Text('85', style: AppTextStyles.heading1.copyWith(fontSize: 36)),
-                      Text('+12% vs tháng trước', style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+                      Text(
+                        '85',
+                        style: AppTextStyles.heading1.copyWith(fontSize: 36),
+                      ),
+                      Text(
+                        '+12% vs tháng trước',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.success,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -63,7 +74,12 @@ class ResultAnalysisScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Phân tích chi tiết', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+                    Text(
+                      'Phân tích chi tiết',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 160,
@@ -80,13 +96,24 @@ class ResultAnalysisScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              Text('Điểm mạnh & Điểm yếu', style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+              Text(
+                'Điểm mạnh & Điểm yếu',
+                style: AppTextStyles.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               const SizedBox(height: 12),
               Row(
                 children: const [
-                  _ChipCard(icon: Icons.lightbulb_outline, label: 'Tư duy logic'),
+                  _ChipCard(
+                    icon: Icons.lightbulb_outline,
+                    label: 'Tư duy logic',
+                  ),
                   SizedBox(width: 12),
-                  _ChipCard(icon: Icons.timer_outlined, label: 'Quản lý thời gian'),
+                  _ChipCard(
+                    icon: Icons.timer_outlined,
+                    label: 'Quản lý thời gian',
+                  ),
                 ],
               ),
               const SizedBox(height: 20),
@@ -160,7 +187,14 @@ class _ChipCard extends StatelessWidget {
               child: Icon(icon, size: 18, color: AppColors.primary),
             ),
             const SizedBox(width: 10),
-            Expanded(child: Text(label, style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary))),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTextStyles.bodyMedium.copyWith(
+                  color: AppColors.textPrimary,
+                ),
+              ),
+            ),
           ],
         ),
       ),

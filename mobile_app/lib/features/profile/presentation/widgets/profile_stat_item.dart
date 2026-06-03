@@ -22,7 +22,12 @@ class ProfileStatItem extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: iconColor ?? const Color(0xFFFAAD14)),
           const SizedBox(height: 6),
-          Text(value, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w700)),
+          Text(
+            value,
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           Text(label, style: AppTextStyles.caption),
         ],
       ),

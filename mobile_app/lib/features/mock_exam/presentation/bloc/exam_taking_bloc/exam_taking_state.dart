@@ -97,26 +97,23 @@ class ExamTakingLoaded extends ExamTakingState {
 
   @override
   List<Object?> get props => [
-        sessionId,
-        examId,
-        examTitle,
-        questions,
-        currentIndex,
-        remainingSeconds,
-        selectedAnswers,
-        isSubmitting,
-        submitError,
-      ];
+    sessionId,
+    examId,
+    examTitle,
+    questions,
+    currentIndex,
+    remainingSeconds,
+    selectedAnswers,
+    isSubmitting,
+    submitError,
+  ];
 }
 
 class ExamTakingFinished extends ExamTakingState {
   final ExamSubmissionResult result;
   final String examTitle;
 
-  const ExamTakingFinished({
-    required this.result,
-    required this.examTitle,
-  });
+  const ExamTakingFinished({required this.result, required this.examTitle});
 
   @override
   List<Object?> get props => [result, examTitle];

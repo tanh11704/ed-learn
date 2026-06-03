@@ -12,13 +12,13 @@ class QuizReviewScreen extends StatefulWidget {
   final int totalCount;
 
   const QuizReviewScreen({
-    Key? key,
+    super.key,
     required this.quizName,
     required this.userAnswers,
     required this.questions,
     required this.correctCount,
     required this.totalCount,
-  }) : super(key: key);
+  });
 
   @override
   State<QuizReviewScreen> createState() => _QuizReviewScreenState();
@@ -40,7 +40,10 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+            color: AppColors.textPrimary,
+          ),
           onPressed: () => context.pop(),
         ),
         title: Text(
@@ -73,9 +76,14 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color: isCorrect ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                      color: isCorrect
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
@@ -98,7 +106,9 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                   value: (currentQuestionIndex + 1) / widget.questions.length,
                   minHeight: 6,
                   backgroundColor: Colors.grey[200],
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.primary,
+                  ),
                 ),
               ),
               const SizedBox(height: 32),
@@ -118,7 +128,9 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
               // Answer options with result colors
               ...List.generate(currentQuestion.options.length, (index) {
                 final option = currentQuestion.options[index];
-                final optionLabel = String.fromCharCode(65 + index); // A, B, C, D
+                final optionLabel = String.fromCharCode(
+                  65 + index,
+                ); // A, B, C, D
                 final isUserSelected = userAnswer == option;
                 final isCorrectAnswer = option == currentQuestion.correctAnswer;
 
@@ -129,12 +141,12 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                 if (isCorrectAnswer) {
                   // Correct answer - always green
                   borderColor = Colors.green;
-                  bgColor = Colors.green.withOpacity(0.08);
+                  bgColor = Colors.green.withValues(alpha: 0.08);
                   textColor = Colors.green;
                 } else if (isUserSelected && !isCorrect) {
                   // Wrong answer selected by user - red
                   borderColor = Colors.red;
-                  bgColor = Colors.red.withOpacity(0.08);
+                  bgColor = Colors.red.withValues(alpha: 0.08);
                   textColor = Colors.red;
                 } else {
                   // Not selected / Not relevant
@@ -150,10 +162,7 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                     decoration: BoxDecoration(
                       color: bgColor,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: borderColor,
-                        width: 2,
-                      ),
+                      border: Border.all(color: borderColor, width: 2),
                     ),
                     child: Row(
                       children: [
@@ -225,16 +234,22 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.08),
+                    color: Colors.blue.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                    border: Border.all(
+                      color: Colors.blue.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.info_rounded, color: Colors.blue, size: 20),
+                          const Icon(
+                            Icons.info_rounded,
+                            color: Colors.blue,
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             'Giải thích',
@@ -273,7 +288,10 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                         icon: const Icon(Icons.arrow_back_rounded),
                         label: const Text('Câu trước'),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.primary, width: 1.5),
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.5,
+                          ),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -310,7 +328,7 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
               ElevatedButton(
                 onPressed: () => context.pop(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary.withOpacity(0.1),
+                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -362,7 +380,9 @@ class _QuizReviewScreenState extends State<QuizReviewScreen> {
                   child: LinearProgressIndicator(
                     value: (currentQuestionIndex + 1) / widget.questions.length,
                     backgroundColor: Colors.grey[200],
-                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      AppColors.primary,
+                    ),
                   ),
                 ),
               ),

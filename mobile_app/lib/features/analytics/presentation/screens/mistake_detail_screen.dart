@@ -32,8 +32,10 @@ class MistakeDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${item.subject.toUpperCase()} - ${item.tag.toUpperCase()}',
-                style: AppTextStyles.caption.copyWith(color: AppColors.primary)),
+            Text(
+              '${item.subject.toUpperCase()} - ${item.tag.toUpperCase()}',
+              style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+            ),
             const SizedBox(height: 12),
             Text(item.title, style: AppTextStyles.heading2),
             const SizedBox(height: 16),
@@ -48,9 +50,17 @@ class MistakeDetailScreen extends StatelessWidget {
                   const Icon(Icons.close, color: AppColors.error),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text('Lựa chọn của bạn', style: AppTextStyles.bodyMedium),
+                    child: Text(
+                      'Lựa chọn của bạn',
+                      style: AppTextStyles.bodyMedium,
+                    ),
                   ),
-                  Text(item.wrongAnswer, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.error)),
+                  Text(
+                    item.wrongAnswer,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.error,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -68,7 +78,12 @@ class MistakeDetailScreen extends StatelessWidget {
                   Expanded(
                     child: Text('Đáp án đúng', style: AppTextStyles.bodyMedium),
                   ),
-                  Text(item.correctAnswer, style: AppTextStyles.bodyLarge.copyWith(color: AppColors.success)),
+                  Text(
+                    item.correctAnswer,
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      color: AppColors.success,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -103,16 +118,25 @@ class MistakeDetailScreen extends StatelessWidget {
                       color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.video_library, color: AppColors.primary),
+                    child: const Icon(
+                      Icons.video_library,
+                      color: AppColors.primary,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Video bài giảng liên quan', style: AppTextStyles.bodyLarge),
+                        Text(
+                          'Video bài giảng liên quan',
+                          style: AppTextStyles.bodyLarge,
+                        ),
                         const SizedBox(height: 4),
-                        Text('Ứng dụng định lý Pythagoras', style: AppTextStyles.caption),
+                        Text(
+                          'Ứng dụng định lý Pythagoras',
+                          style: AppTextStyles.caption,
+                        ),
                       ],
                     ),
                   ),
@@ -123,7 +147,10 @@ class MistakeDetailScreen extends StatelessWidget {
             const SizedBox(height: 24),
             PrimaryButton(
               text: 'Làm lại câu này',
-              onPressed: () => context.go('/statistical/mistakes/${item.id}/redo', extra: item),
+              onPressed: () => context.go(
+                '/statistical/mistakes/${item.id}/redo',
+                extra: item,
+              ),
             ),
           ],
         ),

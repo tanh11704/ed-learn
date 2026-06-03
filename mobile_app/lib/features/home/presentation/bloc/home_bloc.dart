@@ -62,27 +62,31 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       final examDate = DateTime(2026, 6, 11);
       final today = DateTime.now();
       final todayDate = DateTime(today.year, today.month, today.day);
-      final daysRemaining =
-          examDate.difference(todayDate).inDays.clamp(0, 9999);
+      final daysRemaining = examDate
+          .difference(todayDate)
+          .inDays
+          .clamp(0, 9999);
 
       final dailyProgress = _calcDailyProgress(tasks);
 
-      emit(HomeLoaded(
-        tasks: tasks,
-        topCourses: topCourses,
-        dailyProgress: dailyProgress,
-        daysRemaining: daysRemaining,
-        streak: currentStreak,
-        longestStreak: longestStreak,
-        lastActivityDay: lastActivityDay,
-        streakFreezeCount: streakFreezeCount,
-        streakStatus: streakStatus,
-        userName: userInfo.name,
-        userEmail: userInfo.email,
-        userAvatar: userInfo.avatar,
-        tasksFromApi: tasksFromApi,
-        topCoursesFromApi: topCoursesFromApi,
-      ));
+      emit(
+        HomeLoaded(
+          tasks: tasks,
+          topCourses: topCourses,
+          dailyProgress: dailyProgress,
+          daysRemaining: daysRemaining,
+          streak: currentStreak,
+          longestStreak: longestStreak,
+          lastActivityDay: lastActivityDay,
+          streakFreezeCount: streakFreezeCount,
+          streakStatus: streakStatus,
+          userName: userInfo.name,
+          userEmail: userInfo.email,
+          userAvatar: userInfo.avatar,
+          tasksFromApi: tasksFromApi,
+          topCoursesFromApi: topCoursesFromApi,
+        ),
+      );
     } catch (e) {
       emit(HomeError(e.toString()));
     }
@@ -112,22 +116,24 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             : task;
       }).toList();
 
-      emit(HomeLoaded(
-        tasks: updatedTasks,
-        topCourses: currentState.topCourses,
-        dailyProgress: _calcDailyProgress(updatedTasks),
-        daysRemaining: currentState.daysRemaining,
-        streak: currentState.streak,
-        longestStreak: currentState.longestStreak,
-        lastActivityDay: currentState.lastActivityDay,
-        streakFreezeCount: currentState.streakFreezeCount,
-        streakStatus: currentState.streakStatus,
-        userName: currentState.userName,
-        userEmail: currentState.userEmail,
-        userAvatar: currentState.userAvatar,
-        tasksFromApi: currentState.tasksFromApi,
-        topCoursesFromApi: currentState.topCoursesFromApi,
-      ));
+      emit(
+        HomeLoaded(
+          tasks: updatedTasks,
+          topCourses: currentState.topCourses,
+          dailyProgress: _calcDailyProgress(updatedTasks),
+          daysRemaining: currentState.daysRemaining,
+          streak: currentState.streak,
+          longestStreak: currentState.longestStreak,
+          lastActivityDay: currentState.lastActivityDay,
+          streakFreezeCount: currentState.streakFreezeCount,
+          streakStatus: currentState.streakStatus,
+          userName: currentState.userName,
+          userEmail: currentState.userEmail,
+          userAvatar: currentState.userAvatar,
+          tasksFromApi: currentState.tasksFromApi,
+          topCoursesFromApi: currentState.topCoursesFromApi,
+        ),
+      );
     } catch (e) {
       emit(HomeError(e.toString()));
     }
@@ -147,12 +153,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   static Task _mapTask(UserTaskModel m) => Task(
-        id: m.id,
-        title: m.title,
-        description: m.description,
-        isCompleted: m.isCompleted,
-        dueDate: m.dueDate,
-      );
+    id: m.id,
+    title: m.title,
+    description: m.description,
+    isCompleted: m.isCompleted,
+    dueDate: m.dueDate,
+  );
 
   static List<Task> _fallbackTasks() {
     return [

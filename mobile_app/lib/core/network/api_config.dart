@@ -1,7 +1,29 @@
-/// Cấu hình API backend EdLearn (OpenAPI: https://api.phuocanh.me/v3/api-docs)
+/// Cấu hình API backend EdLearn.
 class ApiConfig {
-  static const String baseUrl = 'https://api.phuocanh.me/api/v1';
-  static const String aiServiceBaseUrl = 'https://dena-catagenetic-sultrily.ngrok-free.dev/';
-  static const String aiServiceKey = 'dev-ai-service-key';
+  static const String _baseUrl = String.fromEnvironment('API_BASE_URL');
+  static const String _aiServiceBaseUrl = String.fromEnvironment(
+    'AI_SERVICE_BASE_URL',
+  );
+  static const String _aiServiceKey = String.fromEnvironment('AI_SERVICE_KEY');
+
+  static String get baseUrl =>
+      _normalizeUrl(_requiredValue(_baseUrl, 'API_BASE_URL'));
+  static String get aiServiceBaseUrl =>
+      _normalizeUrl(_requiredValue(_aiServiceBaseUrl, 'AI_SERVICE_BASE_URL'));
+  static String get aiServiceKey =>
+      _requiredValue(_aiServiceKey, 'AI_SERVICE_KEY');
   static const Duration requestTimeout = Duration(seconds: 15);
+
+  static String _requiredValue(String value, String name) {
+    if (value.trim().isEmpty) {
+      throw StateError(
+        'Missing $name. Run Flutter with --dart-define-from-file=.env',
+      );
+    }
+    return value;
+  }
+
+  static String _normalizeUrl(String value) {
+    return value.trim().replaceFirst(RegExp(r'/+$'), '');
+  }
 }

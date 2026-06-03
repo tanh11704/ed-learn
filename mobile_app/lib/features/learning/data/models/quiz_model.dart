@@ -25,7 +25,8 @@ class Quiz {
 
   // Factory constructor from JSON
   factory Quiz.fromJson(Map<String, dynamic> json) {
-    final questions = (json['questions'] as List<dynamic>?)
+    final questions =
+        (json['questions'] as List<dynamic>?)
             ?.map((e) => QuizQuestion.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];

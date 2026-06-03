@@ -33,17 +33,20 @@ class CapabilityStats extends Equatable {
   });
 
   @override
-  List<Object?> get props => [overallScore, improvementPercent, skills, strengths, weaknesses];
+  List<Object?> get props => [
+    overallScore,
+    improvementPercent,
+    skills,
+    strengths,
+    weaknesses,
+  ];
 }
 
 class RadarSkill extends Equatable {
   final String label;
   final double value;
 
-  const RadarSkill({
-    required this.label,
-    required this.value,
-  });
+  const RadarSkill({required this.label, required this.value});
 
   @override
   List<Object?> get props => [label, value];
@@ -82,17 +85,21 @@ class LearningProgress extends Equatable {
   });
 
   @override
-  List<Object?> get props => [averageScore, growthPercent, weeklyScore, weeklyGrowth, chartPoints, history];
+  List<Object?> get props => [
+    averageScore,
+    growthPercent,
+    weeklyScore,
+    weeklyGrowth,
+    chartPoints,
+    history,
+  ];
 }
 
 class ChartPoint extends Equatable {
   final String label;
   final double value;
 
-  const ChartPoint({
-    required this.label,
-    required this.value,
-  });
+  const ChartPoint({required this.label, required this.value});
 
   @override
   List<Object?> get props => [label, value];

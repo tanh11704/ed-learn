@@ -37,11 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     context.read<AuthBloc>().add(
-          LoginSubmitted(
-            email: _emailController.text,
-            password: _passwordController.text,
-          ),
-        );
+      LoginSubmitted(
+        email: _emailController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 
   @override
@@ -53,27 +53,30 @@ class _LoginScreenState extends State<LoginScreen> {
       child: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) async {
           if (state.status == AuthStatus.failure && state.message != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message!)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message!)));
           }
 
           if (state.status == AuthStatus.authenticated) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Đăng nhập thành công!')),
             );
-            
+
             // Lấy email từ input
             final email = _emailController.text.trim();
-            
+
             // Kiểm tra xem user đã hoàn thành assessment chưa
             final tokenStorage = TokenStorageService();
-            
+
             // Lưu email user hiện tại
             await tokenStorage.saveCurrentUserEmail(email);
-            
-            final hasCompletedAssessment = await tokenStorage.hasCompletedAssessment(email);
-            
+
+            final hasCompletedAssessment = await tokenStorage
+                .hasCompletedAssessment(email);
+
+            if (!context.mounted) return;
+
             if (hasCompletedAssessment) {
               // Đã làm assessment rồi -> đi tới home
               context.pushReplacement('/home');
@@ -115,7 +118,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
                     size: 18,
                   ),
-                  onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
                 ),
                 validator: (value) {
                   final trimmed = value?.trim() ?? '';
@@ -201,7 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text('Chưa có tài khoản? ', style: AppTextStyles.bodyMedium),
                   TextButton(
                     onPressed: () => context.go('/register'),
-                    child: Text('Đăng ký ngay', style: AppTextStyles.bodyLarge.copyWith(color: AppColors.primary)),
+                    child: Text(
+                      'Đăng ký ngay',
+                      style: AppTextStyles.bodyLarge.copyWith(
+                        color: AppColors.primary,
+                      ),
+                    ),
                   ),
                 ],
               ),

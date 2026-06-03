@@ -27,7 +27,8 @@ class Module {
 
   // Factory constructor from JSON
   factory Module.fromJson(Map<String, dynamic> json) {
-    final lessons = (json['lessons'] as List<dynamic>?)
+    final lessons =
+        (json['lessons'] as List<dynamic>?)
             ?.map((e) => Lesson.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];

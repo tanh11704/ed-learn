@@ -41,7 +41,10 @@ class OtpScreen extends StatelessWidget {
           const SizedBox(height: 12),
           TextButton(
             onPressed: () {},
-            child: Text('Sử dụng phương thức khác', style: AppTextStyles.caption),
+            child: Text(
+              'Sử dụng phương thức khác',
+              style: AppTextStyles.caption,
+            ),
           ),
         ],
       ),

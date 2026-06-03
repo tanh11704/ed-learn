@@ -33,12 +33,12 @@ class UserStreakModel extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        currentStreak,
-        longestStreak,
-        lastActivityDay,
-        streakFreezeCount,
-        status,
-      ];
+    id,
+    userId,
+    currentStreak,
+    longestStreak,
+    lastActivityDay,
+    streakFreezeCount,
+    status,
+  ];
 }

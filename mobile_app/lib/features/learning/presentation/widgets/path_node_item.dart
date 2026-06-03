@@ -10,13 +10,13 @@ class PathNodeItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const PathNodeItem({
-    Key? key,
+    super.key,
     required this.lessonName,
     required this.status,
     this.masteredDate,
     this.levelRequired,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +37,7 @@ class PathNodeItem extends StatelessWidget {
         nodeIcon = Icons.rocket_launch;
         nodeSize = 90;
         nodeShadow = BoxShadow(
-          color: const Color(0xFF2563EB).withOpacity(0.4),
+          color: const Color(0xFF2563EB).withValues(alpha: 0.4),
           blurRadius: 20,
           spreadRadius: 8,
         );
@@ -65,7 +65,9 @@ class PathNodeItem extends StatelessWidget {
             ),
             child: Icon(
               nodeIcon,
-              color: status == LessonNodeStatus.locked ? Colors.grey[600] : Colors.white,
+              color: status == LessonNodeStatus.locked
+                  ? Colors.grey[600]
+                  : Colors.white,
               size: nodeSize * 0.4,
             ),
           ),
@@ -98,7 +100,10 @@ class PathNodeItem extends StatelessWidget {
                   )
                 else if (status == LessonNodeStatus.current)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF2563EB),
                       borderRadius: BorderRadius.circular(4),
@@ -112,7 +117,8 @@ class PathNodeItem extends StatelessWidget {
                       ),
                     ),
                   )
-                else if (status == LessonNodeStatus.locked && levelRequired != null)
+                else if (status == LessonNodeStatus.locked &&
+                    levelRequired != null)
                   Text(
                     'Mở khóa\nLevel $levelRequired',
                     textAlign: TextAlign.center,

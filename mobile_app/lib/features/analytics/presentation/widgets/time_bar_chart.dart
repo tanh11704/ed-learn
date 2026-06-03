@@ -5,10 +5,7 @@ import '../bloc/performance_bloc/performance_state.dart';
 class TimeBarChart extends StatelessWidget {
   final List<TimeCategory> categories;
 
-  const TimeBarChart({
-    super.key,
-    required this.categories,
-  });
+  const TimeBarChart({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +18,10 @@ class TimeBarChart extends StatelessWidget {
 
   Widget _buildBar(TimeCategory category) {
     final maxValue = categories
-        .map((item) => item.average > item.userValue ? item.average : item.userValue)
+        .map(
+          (item) =>
+              item.average > item.userValue ? item.average : item.userValue,
+        )
         .fold<double>(0, (prev, value) => value > prev ? value : prev);
     final avgHeight = (category.average / maxValue) * 110;
     final userHeight = (category.userValue / maxValue) * 110;

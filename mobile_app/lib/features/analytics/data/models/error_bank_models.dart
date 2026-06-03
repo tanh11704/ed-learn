@@ -38,13 +38,13 @@ class ErrorBankCard extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        questionContent,
-        wrongAnswer,
-        correctAnswer,
-        repetitionCount,
-        easeFactor,
-        intervalDays,
-        nextReviewDate,
-      ];
+    id,
+    questionContent,
+    wrongAnswer,
+    correctAnswer,
+    repetitionCount,
+    easeFactor,
+    intervalDays,
+    nextReviewDate,
+  ];
 }

@@ -75,11 +75,15 @@ class CourseDetail extends CourseSummary {
       subject: json['subject']?.toString(),
       thumbnailUrl: json['thumbnailUrl']?.toString(),
       chapters: chaptersJson
-          .map((chapter) => ChapterDetail.fromJson(chapter as Map<String, dynamic>))
+          .map(
+            (chapter) =>
+                ChapterDetail.fromJson(chapter as Map<String, dynamic>),
+          )
           .toList(),
     );
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -115,7 +119,9 @@ class ChapterDetail {
       title: (json['title'] ?? '').toString(),
       orderIndex: (json['orderIndex'] as num?)?.toInt() ?? 0,
       lessons: lessonsJson
-          .map((lesson) => LessonDetail.fromJson(lesson as Map<String, dynamic>))
+          .map(
+            (lesson) => LessonDetail.fromJson(lesson as Map<String, dynamic>),
+          )
           .toList(),
     );
   }
@@ -156,7 +162,13 @@ class LessonDetail {
 
   factory LessonDetail.fromJson(Map<String, dynamic> json) {
     return LessonDetail(
-      id: (json['id'] ?? json['lessonId'] ?? json['itemId'] ?? json['uuid'] ?? '').toString(),
+      id:
+          (json['id'] ??
+                  json['lessonId'] ??
+                  json['itemId'] ??
+                  json['uuid'] ??
+                  '')
+              .toString(),
       chapterId: (json['chapterId'] ?? json['moduleId'] ?? '').toString(),
       title: (json['title'] ?? '').toString(),
       videoUrl: json['videoUrl']?.toString(),

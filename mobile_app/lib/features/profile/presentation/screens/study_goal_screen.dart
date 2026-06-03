@@ -18,7 +18,11 @@ class _StudyGoalScreenState extends State<StudyGoalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(backgroundColor: AppColors.background, elevation: 0, title: Text('Mục tiêu học tập', style: AppTextStyles.heading2)),
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: Text('Mục tiêu học tập', style: AppTextStyles.heading2),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -35,30 +39,80 @@ class _StudyGoalScreenState extends State<StudyGoalScreen> {
                   label: Text(block),
                   onSelected: (_) => setState(() => _selectedBlock = block),
                   selectedColor: AppColors.primary,
-                  labelStyle: TextStyle(color: selected ? Colors.white : AppColors.textPrimary),
+                  labelStyle: TextStyle(
+                    color: selected ? Colors.white : AppColors.textPrimary,
+                  ),
                 );
               }).toList(),
             ),
             const SizedBox(height: 14),
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: AppColors.border)),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.border),
+              ),
               child: Column(
                 children: [
-                  Row(children: [Text('Điểm mục tiêu', style: AppTextStyles.bodyLarge), const Spacer(), Text('${_target.toStringAsFixed(1)} / 30', style: AppTextStyles.heading2.copyWith(color: AppColors.primary))]),
-                  Slider(value: _target, min: 15, max: 30, activeColor: AppColors.primary, onChanged: (v) => setState(() => _target = v)),
+                  Row(
+                    children: [
+                      Text('Điểm mục tiêu', style: AppTextStyles.bodyLarge),
+                      const Spacer(),
+                      Text(
+                        '${_target.toStringAsFixed(1)} / 30',
+                        style: AppTextStyles.heading2.copyWith(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Slider(
+                    value: _target,
+                    min: 15,
+                    max: 30,
+                    activeColor: AppColors.primary,
+                    onChanged: (v) => setState(() => _target = v),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
             Text('Trường Đại học mơ ước', style: AppTextStyles.bodyLarge),
             const SizedBox(height: 8),
-            TextField(decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: 'Tìm kiếm tên trường...', filled: true, fillColor: AppColors.white, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none))),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Tìm kiếm tên trường...',
+                filled: true,
+                fillColor: AppColors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.primary)),
-              child: Row(children: [const CircleAvatar(radius: 18, child: Icon(Icons.school)), const SizedBox(width: 10), Expanded(child: Text('Đại học Bách Khoa Hà Nội', style: AppTextStyles.bodyMedium)), const Icon(Icons.check_circle, color: AppColors.primary)]),
+              decoration: BoxDecoration(
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.primary),
+              ),
+              child: Row(
+                children: [
+                  const CircleAvatar(radius: 18, child: Icon(Icons.school)),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Đại học Bách Khoa Hà Nội',
+                      style: AppTextStyles.bodyMedium,
+                    ),
+                  ),
+                  const Icon(Icons.check_circle, color: AppColors.primary),
+                ],
+              ),
             ),
             const SizedBox(height: 16),
             Text('Thời gian học mỗi ngày', style: AppTextStyles.bodyLarge),
@@ -78,8 +132,37 @@ class _StudyGoalScreenState extends State<StudyGoalScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: selected ? AppColors.primary : AppColors.border)),
-      child: Row(children: [Icon(Icons.bolt, color: selected ? AppColors.primary : AppColors.textSecondary), const SizedBox(width: 10), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: AppTextStyles.bodyMedium), Text(sub, style: AppTextStyles.caption)])), Icon(selected ? Icons.radio_button_checked : Icons.radio_button_unchecked, color: selected ? AppColors.primary : AppColors.textSecondary)]),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: selected ? AppColors.primary : AppColors.border,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.bolt,
+            color: selected ? AppColors.primary : AppColors.textSecondary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: AppTextStyles.bodyMedium),
+                Text(sub, style: AppTextStyles.caption),
+              ],
+            ),
+          ),
+          Icon(
+            selected
+                ? Icons.radio_button_checked
+                : Icons.radio_button_unchecked,
+            color: selected ? AppColors.primary : AppColors.textSecondary,
+          ),
+        ],
+      ),
     );
   }
 }

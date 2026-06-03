@@ -48,10 +48,7 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
       if (!mounted) return;
       context.go(
         '/camera/solution-detail',
-        extra: {
-          'solution': solution,
-          'imagePath': widget.imagePath,
-        },
+        extra: {'solution': solution, 'imagePath': widget.imagePath},
       );
     } catch (e) {
       if (!mounted) return;
@@ -74,16 +71,10 @@ class _AnalyzingScreenState extends State<AnalyzingScreen> {
           icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
           onPressed: () => context.go(
             '/camera/crop',
-            extra: {
-              'imagePath': widget.imagePath,
-              'subject': widget.subject,
-            },
+            extra: {'imagePath': widget.imagePath, 'subject': widget.subject},
           ),
         ),
-        title: Text(
-          'AI Solver',
-          style: AppTextStyles.heading2,
-        ),
+        title: Text('AI Solver', style: AppTextStyles.heading2),
       ),
       body: SafeArea(
         child: _errorMessage == null
@@ -198,7 +189,11 @@ class _ErrorBody extends StatelessWidget {
               child: CircleAvatar(
                 radius: 36,
                 backgroundColor: AppColors.white,
-                child: Icon(Icons.error_outline, size: 40, color: AppColors.primary),
+                child: Icon(
+                  Icons.error_outline,
+                  size: 40,
+                  color: AppColors.primary,
+                ),
               ),
             ),
           ),
@@ -215,10 +210,7 @@ class _ErrorBody extends StatelessWidget {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 28),
-          PrimaryButton(
-            text: 'Thử lại',
-            onPressed: onRetry,
-          ),
+          PrimaryButton(text: 'Thử lại', onPressed: onRetry),
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: onRetake,

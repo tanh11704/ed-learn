@@ -29,7 +29,12 @@ class QuestionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(question, style: AppTextStyles.bodyLarge.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            question,
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 16),
           ...List.generate(options.length, (index) {
             final isSelected = selectedIndex == index;
@@ -39,11 +44,18 @@ class QuestionCard extends StatelessWidget {
                 onTap: () => onSelect(index),
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: 12,
+                  ),
                   decoration: BoxDecoration(
-                    color: isSelected ? AppColors.primaryLight : AppColors.white,
+                    color: isSelected
+                        ? AppColors.primaryLight
+                        : AppColors.white,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : AppColors.border,
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -52,24 +64,39 @@ class QuestionCard extends StatelessWidget {
                         width: 24,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary : AppColors.white,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.white,
                           borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: isSelected ? AppColors.primary : AppColors.border),
+                          border: Border.all(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.border,
+                          ),
                         ),
                         child: Text(
                           String.fromCharCode(65 + index),
                           style: AppTextStyles.bodyMedium.copyWith(
-                            color: isSelected ? AppColors.white : AppColors.textSecondary,
+                            color: isSelected
+                                ? AppColors.white
+                                : AppColors.textSecondary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: Text(options[index], style: AppTextStyles.bodyLarge),
+                        child: Text(
+                          options[index],
+                          style: AppTextStyles.bodyLarge,
+                        ),
                       ),
                       if (isSelected)
-                        const Icon(Icons.check_circle, color: AppColors.primary, size: 20),
+                        const Icon(
+                          Icons.check_circle,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                     ],
                   ),
                 ),

@@ -45,7 +45,10 @@ class _SelfStudySessionScreenState extends State<SelfStudySessionScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('PHÒNG TỰ HỌC', style: AppTextStyles.bodyLarge),
-            Text('SESSION ACTIVE', style: AppTextStyles.caption.copyWith(color: AppColors.success)),
+            Text(
+              'SESSION ACTIVE',
+              style: AppTextStyles.caption.copyWith(color: AppColors.success),
+            ),
           ],
         ),
         actions: [
@@ -59,7 +62,8 @@ class _SelfStudySessionScreenState extends State<SelfStudySessionScreen>
             const SizedBox(height: 6),
             AnimatedBuilder(
               animation: _controller,
-              builder: (context, child) => _TimerCircle(progress: _controller.value),
+              builder: (context, child) =>
+                  _TimerCircle(progress: _controller.value),
             ),
             const SizedBox(height: 12),
             Container(
@@ -71,9 +75,16 @@ class _SelfStudySessionScreenState extends State<SelfStudySessionScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.menu_book, color: AppColors.primary, size: 18),
+                  const Icon(
+                    Icons.menu_book,
+                    color: AppColors.primary,
+                    size: 18,
+                  ),
                   const SizedBox(width: 6),
-                  Text('Chủ đề: Đạo hàm & Tích phân', style: AppTextStyles.caption),
+                  Text(
+                    'Chủ đề: Đạo hàm & Tích phân',
+                    style: AppTextStyles.caption,
+                  ),
                 ],
               ),
             ),
@@ -83,9 +94,7 @@ class _SelfStudySessionScreenState extends State<SelfStudySessionScreen>
               child: Text('STUDY GROUP (12)', style: AppTextStyles.caption),
             ),
             const SizedBox(height: 10),
-            _ParticipantsGrid(
-              onProfileTap: () => _showProfile(context),
-            ),
+            _ParticipantsGrid(onProfileTap: () => _showProfile(context)),
             const Spacer(),
             _SessionActions(),
             const SizedBox(height: 16),
@@ -144,7 +153,10 @@ class _TimerCircle extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('24:59', style: AppTextStyles.heading1.copyWith(fontSize: 32)),
+              Text(
+                '24:59',
+                style: AppTextStyles.heading1.copyWith(fontSize: 32),
+              ),
               Text('Đang tập trung...', style: AppTextStyles.caption),
             ],
           ),
@@ -183,7 +195,10 @@ class _ParticipantsGrid extends StatelessWidget {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: AppColors.primary.withValues(alpha: 0.15),
-                child: Text(name.characters.first, style: AppTextStyles.caption),
+                child: Text(
+                  name.characters.first,
+                  style: AppTextStyles.caption,
+                ),
               ),
               const SizedBox(height: 6),
               Text(name, style: AppTextStyles.caption),
@@ -221,7 +236,9 @@ class _SessionActions extends StatelessWidget {
               backgroundColor: AppColors.primary.withValues(alpha: 0.2),
               foregroundColor: AppColors.primary,
               padding: const EdgeInsets.symmetric(vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
             child: const Text('Rời phòng'),
           ),

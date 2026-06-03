@@ -26,6 +26,7 @@ class LoginResponseModel extends Equatable {
       'tokenType': tokenType,
     };
   }
+
   // props cho Equatable để so sánh
   @override
   List<Object?> get props => [accessToken, refreshToken, tokenType];

@@ -31,7 +31,8 @@ class LearningPath {
 
   // Factory constructor from JSON
   factory LearningPath.fromJson(Map<String, dynamic> json) {
-    final modules = (json['modules'] as List<dynamic>?)
+    final modules =
+        (json['modules'] as List<dynamic>?)
             ?.map((e) => Module.fromJson(e as Map<String, dynamic>))
             .toList() ??
         [];
@@ -107,6 +108,7 @@ class LearningPath {
   // Helper getters
   int get totalModules => modules.length;
   bool get isCompleted => overallProgress >= 1.0;
-  String get progressPercentage => '${(overallProgress * 100).toStringAsFixed(0)}%';
+  String get progressPercentage =>
+      '${(overallProgress * 100).toStringAsFixed(0)}%';
   bool get isStarted => overallProgress > 0;
 }

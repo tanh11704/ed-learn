@@ -19,7 +19,9 @@ class AnalyticsShell extends StatelessWidget {
         BlocProvider(create: (_) => PredictionBloc()),
         BlocProvider(
           create: (_) => MistakeBankBloc(
-            repository: ErrorBankRepositoryImpl(ErrorBankRemoteDataSourceImpl()),
+            repository: ErrorBankRepositoryImpl(
+              ErrorBankRemoteDataSourceImpl(),
+            ),
           ),
         ),
       ],

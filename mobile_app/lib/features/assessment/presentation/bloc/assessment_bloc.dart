@@ -17,10 +17,18 @@ class AssessmentBloc extends Bloc<AssessmentEvent, AssessmentState> {
   void _onAnswerSelected(AnswerSelected event, Emitter<AssessmentState> emit) {
     final updatedAnswers = Map<int, int>.from(state.answers);
     updatedAnswers[event.questionIndex] = event.optionIndex;
-    emit(state.copyWith(answers: updatedAnswers, currentQuestion: event.questionIndex));
+    emit(
+      state.copyWith(
+        answers: updatedAnswers,
+        currentQuestion: event.questionIndex,
+      ),
+    );
   }
 
-  Future<void> _onSubmitted(AssessmentSubmitted event, Emitter<AssessmentState> emit) async {
+  Future<void> _onSubmitted(
+    AssessmentSubmitted event,
+    Emitter<AssessmentState> emit,
+  ) async {
     emit(state.copyWith(isSubmitting: true));
     await Future<void>.delayed(const Duration(milliseconds: 800));
     emit(state.copyWith(isSubmitting: false));

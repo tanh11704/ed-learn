@@ -12,7 +12,10 @@ class AssessmentStarted extends AssessmentEvent {
 }
 
 class AnswerSelected extends AssessmentEvent {
-  const AnswerSelected({required this.questionIndex, required this.optionIndex});
+  const AnswerSelected({
+    required this.questionIndex,
+    required this.optionIndex,
+  });
 
   final int questionIndex;
   final int optionIndex;

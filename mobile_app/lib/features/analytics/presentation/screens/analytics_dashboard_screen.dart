@@ -78,18 +78,25 @@ class _SummarySection extends StatelessWidget {
                 children: [
                   Text(
                     '${capability.overallScore.toStringAsFixed(0)}/100',
-                    style: AppTextStyles.heading1.copyWith(color: AppColors.primary),
+                    style: AppTextStyles.heading1.copyWith(
+                      color: AppColors.primary,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       '+${capability.improvementPercent.toStringAsFixed(1)}% tuần này',
-                      style: AppTextStyles.caption.copyWith(color: AppColors.success),
+                      style: AppTextStyles.caption.copyWith(
+                        color: AppColors.success,
+                      ),
                     ),
                   ),
                 ],
@@ -204,11 +211,15 @@ class _PredictionCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '${prediction.score.toStringAsFixed(1)} điểm',
-                style: AppTextStyles.heading1.copyWith(color: AppColors.primary),
+                style: AppTextStyles.heading1.copyWith(
+                  color: AppColors.primary,
+                ),
               ),
               const SizedBox(height: 6),
-              Text('Độ chính xác ${(prediction.accuracy * 100).toStringAsFixed(0)}%',
-                  style: AppTextStyles.caption),
+              Text(
+                'Độ chính xác ${(prediction.accuracy * 100).toStringAsFixed(0)}%',
+                style: AppTextStyles.caption,
+              ),
               const SizedBox(height: 16),
               PrimaryButton(
                 text: 'Xem lộ trình →',
@@ -224,11 +235,23 @@ class _PredictionCard extends StatelessWidget {
 
 class _QuickLinks extends StatelessWidget {
   final List<_QuickLinkItem> items = const [
-    _QuickLinkItem('Phân tích năng lực', '/statistical/capability', Icons.radar),
-    _QuickLinkItem('Tiến độ học tập', '/statistical/progress', Icons.show_chart),
+    _QuickLinkItem(
+      'Phân tích năng lực',
+      '/statistical/capability',
+      Icons.radar,
+    ),
+    _QuickLinkItem(
+      'Tiến độ học tập',
+      '/statistical/progress',
+      Icons.show_chart,
+    ),
     _QuickLinkItem('Kiểm soát thời gian', '/statistical/time', Icons.timer),
     // _QuickLinkItem('Dự đoán điểm thi', '/statistical/prediction', Icons.auto_awesome),
-    _QuickLinkItem('Ngân hàng lỗi sai', '/statistical/mistakes', Icons.error_outline),
+    _QuickLinkItem(
+      'Ngân hàng lỗi sai',
+      '/statistical/mistakes',
+      Icons.error_outline,
+    ),
   ];
 
   @override
@@ -264,7 +287,7 @@ class _QuickLinks extends StatelessWidget {
                 IconButton(
                   onPressed: () => context.go(item.route),
                   icon: const Icon(Icons.chevron_right),
-                )
+                ),
               ],
             ),
           ),

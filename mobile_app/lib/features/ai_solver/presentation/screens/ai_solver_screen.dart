@@ -31,9 +31,9 @@ class _AiSolverScreenState extends State<AiSolverScreen> {
       context.go('/camera/crop', extra: {'imagePath': image.path});
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Không thể chọn ảnh: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Không thể chọn ảnh: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -96,7 +96,9 @@ class _AiSolverScreenState extends State<AiSolverScreen> {
               child: Center(
                 child: Text(
                   'Giữ đề bài trong khung',
-                  style: AppTextStyles.bodyMedium.copyWith(color: AppColors.white),
+                  style: AppTextStyles.bodyMedium.copyWith(
+                    color: AppColors.white,
+                  ),
                 ),
               ),
             ),
@@ -159,7 +161,9 @@ class _AiSolverScreenState extends State<AiSolverScreen> {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.35),
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.35,
+                                ),
                                 blurRadius: 18,
                                 offset: const Offset(0, 8),
                               ),

@@ -86,9 +86,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            e.toString().replaceFirst('Exception: ', ''),
-          ),
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -138,17 +136,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           CircleAvatar(
                             radius: 46,
                             backgroundColor: AppColors.white,
-                            backgroundImage: (_user?.avatar != null &&
+                            backgroundImage:
+                                (_user?.avatar != null &&
                                     _user!.avatar!.isNotEmpty)
                                 ? NetworkImage(_user!.avatar!)
                                 : null,
-                            child: (_user?.avatar == null ||
+                            child:
+                                (_user?.avatar == null ||
                                     _user!.avatar!.isEmpty)
                                 ? Icon(
                                     Icons.person,
                                     size: 44,
                                     color: AppColors.primary.withValues(
-                                        alpha: 0.8),
+                                      alpha: 0.8,
+                                    ),
                                   )
                                 : null,
                           ),
@@ -159,8 +160,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               onTap: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content:
-                                        Text('Chức năng đổi ảnh sẽ sớm ra mắt.'),
+                                    content: Text(
+                                      'Chức năng đổi ảnh sẽ sớm ra mắt.',
+                                    ),
                                     duration: Duration(seconds: 2),
                                   ),
                                 );
@@ -168,8 +170,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               child: const CircleAvatar(
                                 radius: 12,
                                 backgroundColor: AppColors.primary,
-                                child: Icon(Icons.camera_alt,
-                                    size: 14, color: Colors.white),
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  size: 14,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -183,7 +188,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Center(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
@@ -207,8 +214,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       label: 'HỌ VÀ TÊN',
                       hint: 'Nhập họ và tên',
                       icon: Icons.person_outline,
-                      validator: (v) =>
-                          (v == null || v.trim().isEmpty) ? 'Vui lòng nhập họ và tên' : null,
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Vui lòng nhập họ và tên'
+                          : null,
                     ),
 
                     // ── Email (từ API, read-only) ──
@@ -245,12 +253,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       onTap: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Chức năng đổi mật khẩu sẽ sớm ra mắt.')),
+                            content: Text(
+                              'Chức năng đổi mật khẩu sẽ sớm ra mắt.',
+                            ),
+                          ),
                         );
                       },
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 14),
+                          horizontal: 14,
+                          vertical: 14,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -258,16 +271,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.lock_outline,
-                                color: AppColors.primary, size: 20),
+                            const Icon(
+                              Icons.lock_outline,
+                              color: AppColors.primary,
+                              size: 20,
+                            ),
                             const SizedBox(width: 12),
                             Expanded(
-                              child: Text('Đổi mật khẩu',
-                                  style: AppTextStyles.bodyMedium
-                                      .copyWith(fontWeight: FontWeight.w600)),
+                              child: Text(
+                                'Đổi mật khẩu',
+                                style: AppTextStyles.bodyMedium.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                             ),
-                            const Icon(Icons.chevron_right,
-                                color: AppColors.textSecondary),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppColors.textSecondary,
+                            ),
                           ],
                         ),
                       ),
@@ -284,15 +305,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.privacy_tip_outlined,
-                              color: AppColors.warning),
+                          const Icon(
+                            Icons.privacy_tip_outlined,
+                            color: AppColors.warning,
+                          ),
                           const SizedBox(width: 10),
                           Expanded(
-                              child: Text('Hiển thị hồ sơ công khai',
-                                  style: AppTextStyles.bodyMedium)),
+                            child: Text(
+                              'Hiển thị hồ sơ công khai',
+                              style: AppTextStyles.bodyMedium,
+                            ),
+                          ),
                           Switch(
                             value: _isPublic,
-                            activeColor: AppColors.primary,
+                            activeThumbColor: AppColors.primary,
                             onChanged: (v) => setState(() => _isPublic = v),
                           ),
                         ],
@@ -331,18 +357,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             style: AppTextStyles.bodyMedium,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: AppTextStyles.bodyMedium
-                  .copyWith(color: AppColors.textSecondary),
-              prefixIcon:
-                  Icon(icon, size: 18, color: AppColors.textSecondary),
+              hintStyle: AppTextStyles.bodyMedium.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              prefixIcon: Icon(icon, size: 18, color: AppColors.textSecondary),
               filled: true,
-              fillColor: readOnly
-                  ? AppColors.background
-                  : AppColors.white,
+              fillColor: readOnly ? AppColors.background : AppColors.white,
               helperText: helperText,
               helperStyle: TextStyle(fontSize: 11, color: Colors.grey[500]),
               contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 14),
+                horizontal: 14,
+                vertical: 14,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: AppColors.border),
@@ -353,8 +379,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppColors.primary, width: 1.5),
+                borderSide: const BorderSide(
+                  color: AppColors.primary,
+                  width: 1.5,
+                ),
               ),
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),

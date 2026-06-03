@@ -23,8 +23,13 @@ class LoadExamTaking extends ExamTakingEvent {
   });
 
   @override
-  List<Object?> get props =>
-      [examId, examTitle, durationMinutes, gradeLevel, className];
+  List<Object?> get props => [
+    examId,
+    examTitle,
+    durationMinutes,
+    gradeLevel,
+    className,
+  ];
 }
 
 class SelectAnswer extends ExamTakingEvent {

@@ -83,12 +83,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: AppColors.white,
                       child: CircleAvatar(
                         radius: 40,
-                        backgroundColor: AppColors.primary.withValues(alpha: 0.12),
-                        backgroundImage: (_user?.avatar != null && _user!.avatar!.isNotEmpty)
+                        backgroundColor: AppColors.primary.withValues(
+                          alpha: 0.12,
+                        ),
+                        backgroundImage:
+                            (_user?.avatar != null && _user!.avatar!.isNotEmpty)
                             ? NetworkImage(_user!.avatar!)
                             : null,
                         child: (_user?.avatar == null || _user!.avatar!.isEmpty)
-                            ? const Icon(Icons.person, size: 42, color: AppColors.primary)
+                            ? const Icon(
+                                Icons.person,
+                                size: 42,
+                                color: AppColors.primary,
+                              )
                             : null,
                       ),
                     ),
@@ -96,37 +103,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                     // ── Tên & Email từ API ──
                     Text(
-                      _user?.name.isNotEmpty == true ? _user!.name : 'Người dùng',
+                      _user?.name.isNotEmpty == true
+                          ? _user!.name
+                          : 'Người dùng',
                       style: AppTextStyles.heading2,
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      _user?.email ?? '—',
-                      style: AppTextStyles.caption,
-                    ),
+                    Text(_user?.email ?? '—', style: AppTextStyles.caption),
                     const SizedBox(height: 8),
 
                     // ── Badge thành viên ──
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         'THÀNH VIÊN PREMIUM',
-                        style: AppTextStyles.caption.copyWith(color: Colors.white),
+                        style: AppTextStyles.caption.copyWith(
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
 
                     // ── Stats: streak từ API, XP & cấp placeholder ──
                     Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.4)),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.4),
+                        ),
                       ),
                       child: Row(
                         children: [
@@ -137,7 +153,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 : '0 ngày',
                             label: 'CHUỖI',
                             icon: Icons.local_fire_department,
-                            iconColor: _streak != null && _streak!.currentStreak > 0
+                            iconColor:
+                                _streak != null && _streak!.currentStreak > 0
                                 ? Colors.deepOrange
                                 : Colors.grey,
                           ),
@@ -162,17 +179,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       const SizedBox(height: 8),
                       Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: Colors.orange.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.emoji_events_rounded,
-                                size: 14, color: Colors.amber),
+                            const Icon(
+                              Icons.emoji_events_rounded,
+                              size: 14,
+                              color: Colors.amber,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               'Chuỗi dài nhất: ${_streak!.longestStreak} ngày',
@@ -183,8 +208,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                             if (_streak!.streakFreezeCount > 0) ...[
                               const SizedBox(width: 12),
-                              const Icon(Icons.ac_unit_rounded,
-                                  size: 14, color: Colors.blueAccent),
+                              const Icon(
+                                Icons.ac_unit_rounded,
+                                size: 14,
+                                color: Colors.blueAccent,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 '${_streak!.streakFreezeCount} đóng băng',

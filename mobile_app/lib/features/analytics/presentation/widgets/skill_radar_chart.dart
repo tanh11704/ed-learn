@@ -7,11 +7,7 @@ class SkillRadarChart extends StatelessWidget {
   final List<RadarSkill> skills;
   final double maxValue;
 
-  const SkillRadarChart({
-    super.key,
-    required this.skills,
-    this.maxValue = 100,
-  });
+  const SkillRadarChart({super.key, required this.skills, this.maxValue = 100});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +24,10 @@ class SkillRadarChart extends StatelessWidget {
                 .map(
                   (skill) => Text(
                     skill.label,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 )
                 .toList(),
